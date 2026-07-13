@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creative Stone — Marketing that makes you easy to trust</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"></script>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<header style="position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; background: rgba(10,10,12,0.72); backdrop-filter: blur(16px); border-bottom: 1px solid #1c1c20;">
+  <a href="#top" style="display: flex; align-items: center;">
+    <img src="assets/logo.svg" alt="Creative Stone" style="height: 34px; width: auto; display: block;">
+  </a>
+  <nav style="display: flex; align-items: center; gap: 32px; font-size: 14px; letter-spacing: 0.02em;">
+    <a href="#services" style="color: #b8b8be;">services</a>
+    <a href="#industries" style="color: #b8b8be;">industries</a>
+    <a href="#process" style="color: #b8b8be;">how it works</a>
+    <a href="plans.html" style="color: #b8b8be;">pricing</a>
+    <a href="#contact" class="btn-nav-cta" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 999px; font-weight: 600;">book a call</a>
+  </nav>
+</header>
+
+<!-- ============ HERO ============ -->
+<section id="top" style="position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; padding: 140px 40px 64px; overflow: hidden;">
+
+  <!-- 3D interactive logo -->
+  <div style="position: absolute; top: 90px; right: 0px; width: 512px; height: 512px; max-width: 58vw; max-height: 58vw; aspect-ratio: 1 / 1; border-radius: 16px; overflow: hidden;">
+    <spline-viewer url="https://prod.spline.design/H2OXDXgamim261ZG/scene.splinecode?v=1783706571" style="width: 100%; height: 100%; display: block;"></spline-viewer>
+  </div>
+
+  <!-- AI Literate rotating badge -->
+  <div style="position: absolute; top: 130px; right: 56px; width: 120px; height: 120px; z-index: 5; pointer-events: none;">
+    <svg viewBox="0 0 120 120" style="width: 120px; height: 120px; animation: spin 18s linear infinite;">
+      <defs>
+        <path id="badgecircle" d="M 60,60 m -44,0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0"></path>
+      </defs>
+      <circle cx="60" cy="60" r="58" fill="#0a0a0c" stroke="#2c2c32" stroke-width="1"></circle>
+      <text style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; letter-spacing: 0.32em; fill: #f2f2f4;">
+        <textPath href="#badgecircle">AI LITERATE • AI LITERATE • AI LITERATE •</textPath>
+      </text>
+      <circle cx="60" cy="60" r="22" fill="var(--accent)"></circle>
+      <text x="60" y="64" text-anchor="middle" style="font-family: 'Archivo', sans-serif; font-size: 13px; font-weight: 700; fill: #ffffff;">AI</text>
+    </svg>
+  </div>
+
+  <div style="position: relative; z-index: 2; max-width: 1100px;">
+    <p style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; letter-spacing: 0.08em; color: var(--accent); margin: 0 0 24px;">Ever wonder what good marketing actually looks like?</p>
+    <h1 style="font-size: clamp(56px, 9vw, 128px); line-height: 0.96; letter-spacing: -0.03em; font-weight: 700; margin: 0 0 32px;">You're looking<br>at it.</h1>
+    <p style="font-size: clamp(17px, 1.6vw, 22px); line-height: 1.5; color: #b8b8be; max-width: 560px; margin: 0 0 40px; text-wrap: pretty;">Creative Stone builds websites, brands, and emails that make your business easy to trust.</p>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="#contact" class="btn-primary" style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; border-radius: 999px; font-weight: 600; font-size: 16px;">book a 15-minute fit call</a>
+      <a href="#services" class="btn-outline" style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; border-radius: 999px; font-weight: 500; font-size: 16px;">see what we do</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TICKER ============ -->
+<div style="border-top: 1px solid #1c1c20; border-bottom: 1px solid #1c1c20; overflow: hidden; padding: 18px 0; background: #0d0d10;">
+  <div style="display: flex; width: max-content; animation: ticker 28s linear infinite; font-family: 'IBM Plex Mono', monospace; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: #8a8a92; white-space: nowrap;">
+    <span style="padding-right: 48px;">websites — brands — emails — AI marketing — SEO — AEO — websites — brands — emails — AI marketing — SEO — AEO —&nbsp;</span>
+    <span style="padding-right: 48px;">websites — brands — emails — AI marketing — SEO — AEO — websites — brands — emails — AI marketing — SEO — AEO —&nbsp;</span>
+  </div>
+</div>
+
+<!-- ============ SERVICES — sticky stacked cards ============ -->
+<section id="services" style="padding: 120px 40px 80px;">
+  <div style="max-width: 1240px; margin: 0 auto;">
+    <p style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 16px;">what we do</p>
+    <h2 style="font-size: clamp(36px, 4.5vw, 60px); line-height: 1.04; letter-spacing: -0.02em; font-weight: 700; margin: 0 0 64px; max-width: 760px;">Start with what you want. We'll handle how.</h2>
+
+    <!-- card 01 -->
+    <div style="position: sticky; top: 96px; background: #131316; border: 1px solid #232328; border-radius: 20px; padding: 48px 56px; margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-bottom: 1px solid #232328; padding-bottom: 28px; margin-bottom: 32px;">
+        <h3 style="font-size: clamp(26px, 3vw, 40px); line-height: 1.1; letter-spacing: -0.02em; font-weight: 600; margin: 0; max-width: 640px;">"I want my brand to be as good as my business."</h3>
+        <div style="display: flex; align-items: baseline; gap: 16px; white-space: nowrap;">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent);">{01}</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: #8a8a92;">Branding / Design</span>
+        </div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <span style="border: 1px solid #2c2c32; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Logo & visual identity — logo, color, typography system</span>
+        <span style="border: 1px solid #2c2c32; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Brand guidelines / style guide</span>
+        <span style="border: 1px solid #2c2c32; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Marketing collateral — flyers, one-pagers, business cards, decks</span>
+        <span style="border: 1px solid #2c2c32; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Social media templates & post design</span>
+        <span style="border: 1px solid #2c2c32; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Motion & animation — logo animation, explainer clips, animated ads</span>
+        <span style="border: 1px solid #2c2c32; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Print & packaging design — listing images, inserts, packaging</span>
+      </div>
+    </div>
+
+    <!-- card 02 -->
+    <div style="position: sticky; top: 112px; background: #16161a; border: 1px solid #26262c; border-radius: 20px; padding: 48px 56px; margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-bottom: 1px solid #26262c; padding-bottom: 28px; margin-bottom: 32px;">
+        <h3 style="font-size: clamp(26px, 3vw, 40px); line-height: 1.1; letter-spacing: -0.02em; font-weight: 600; margin: 0; max-width: 640px;">"I want to attract leads and customers online."</h3>
+        <div style="display: flex; align-items: baseline; gap: 16px; white-space: nowrap;">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent);">{02}</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: #8a8a92;">Websites</span>
+        </div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <span style="border: 1px solid #2f2f36; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Custom website design & build</span>
+        <span style="border: 1px solid #2f2f36; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Landing pages / lead-gen pages</span>
+        <span style="border: 1px solid #2f2f36; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Website redesign & refresh</span>
+        <span style="border: 1px solid #2f2f36; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Conversion optimization (CRO)</span>
+        <span style="border: 1px solid #2f2f36; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Maintenance & care plans</span>
+        <span style="border: 1px solid #2f2f36; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">E-commerce / Amazon storefront design</span>
+      </div>
+    </div>
+
+    <!-- card 03 -->
+    <div style="position: sticky; top: 128px; background: #191920; border: 1px solid #2a2a31; border-radius: 20px; padding: 48px 56px; margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-bottom: 1px solid #2a2a31; padding-bottom: 28px; margin-bottom: 32px;">
+        <h3 style="font-size: clamp(26px, 3vw, 40px); line-height: 1.1; letter-spacing: -0.02em; font-weight: 600; margin: 0; max-width: 640px;">"I want to be found easily."</h3>
+        <div style="display: flex; align-items: baseline; gap: 16px; white-space: nowrap;">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent);">{03}</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: #8a8a92;">AEO / SEO</span>
+        </div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <span style="border: 1px solid #33333b; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Local SEO — win the "near me" searches</span>
+        <span style="border: 1px solid #33333b; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">On-page SEO & technical audits</span>
+        <span style="border: 1px solid #33333b; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">AEO / AI-answer optimization — get cited by ChatGPT, Google AI, Perplexity</span>
+        <span style="border: 1px solid #33333b; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Content & blog strategy</span>
+        <span style="border: 1px solid #33333b; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Google Business Profile optimization</span>
+        <span style="border: 1px solid #33333b; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Schema / structured data markup</span>
+      </div>
+    </div>
+
+    <!-- card 04 -->
+    <div style="position: sticky; top: 144px; background: #1b1826; border: 1px solid var(--accent); border-radius: 20px; padding: 48px 56px; margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-bottom: 1px solid #3a3348; padding-bottom: 28px; margin-bottom: 32px;">
+        <h3 style="font-size: clamp(26px, 3vw, 40px); line-height: 1.1; letter-spacing: -0.02em; font-weight: 600; margin: 0; max-width: 640px;">"I want to invest my effort in the important stuff."</h3>
+        <div style="display: flex; align-items: baseline; gap: 16px; white-space: nowrap;">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent);">{04}</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent);">AI Marketing Campaigns</span>
+        </div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <span style="border: 1px solid #453a5e; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #e2dcf2;">AI email automation & flows — welcome, nurture, win-back, birthday</span>
+        <span style="border: 1px solid #453a5e; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #e2dcf2;">AI content generation — posts, emails, ad copy at scale</span>
+        <span style="border: 1px solid #453a5e; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #e2dcf2;">Chatbots & lead-capture assistants</span>
+        <span style="border: 1px solid #453a5e; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #e2dcf2;">Personalization & audience segmentation</span>
+        <span style="border: 1px solid #453a5e; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #e2dcf2;">Marketing workflow automation — auto-follow-ups, CRM syncing</span>
+        <span style="border: 1px solid #453a5e; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #e2dcf2;">AI-powered ad creative & testing</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING BANNER ============ -->
+<section style="padding: 40px 40px 120px;">
+  <div style="max-width: 1240px; margin: 0 auto; background: var(--accent); border-radius: 20px; padding: 72px 64px; display: flex; align-items: center; justify-content: space-between; gap: 40px; flex-wrap: wrap;">
+    <h2 style="font-size: clamp(32px, 4vw, 56px); line-height: 1.05; letter-spacing: -0.02em; font-weight: 700; margin: 0; color: #ffffff; max-width: 640px;">Clear prices. Fair prices.<br>No surprises.</h2>
+    <a href="plans.html" class="btn-dark" style="display: inline-flex; align-items: center; gap: 10px; padding: 18px 36px; border-radius: 999px; font-weight: 600; font-size: 17px; white-space: nowrap;">see our plans →</a>
+  </div>
+</section>
+
+<!-- ============ INDUSTRIES ============ -->
+<section id="industries" style="padding: 0 40px 120px;">
+  <div style="max-width: 1240px; margin: 0 auto;">
+    <p style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 16px;">who we serve</p>
+    <h2 style="font-size: clamp(36px, 4.5vw, 60px); line-height: 1.04; letter-spacing: -0.02em; font-weight: 700; margin: 0 0 56px; max-width: 760px;">Businesses we work especially well with</h2>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+      <div class="industry-card" style="background: #131316; border-radius: 20px; padding: 40px; display: flex; flex-direction: column; gap: 16px;">
+        <h3 style="font-size: 26px; font-weight: 600; letter-spacing: -0.01em; margin: 0;">ABA clinics</h3>
+        <p style="font-size: 15px; line-height: 1.55; color: #9a9aa2; margin: 0; flex: 1; text-wrap: pretty;">Families search local. We make sure they find you — and trust what they see.</p>
+        <a href="#contact" style="display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-weight: 600; font-size: 15px;">how we help clinics →</a>
+      </div>
+      <div class="industry-card" style="background: #131316; border-radius: 20px; padding: 40px; display: flex; flex-direction: column; gap: 16px;">
+        <h3 style="font-size: 26px; font-weight: 600; letter-spacing: -0.01em; margin: 0;">Senior care</h3>
+        <p style="font-size: 15px; line-height: 1.55; color: #9a9aa2; margin: 0; flex: 1; text-wrap: pretty;">Adult children choose for their parents. Trust is the whole sale — we build it.</p>
+        <a href="#contact" style="display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-weight: 600; font-size: 15px;">how we help senior care →</a>
+      </div>
+      <div class="industry-card" style="background: #131316; border-radius: 20px; padding: 40px; display: flex; flex-direction: column; gap: 16px;">
+        <h3 style="font-size: 26px; font-weight: 600; letter-spacing: -0.01em; margin: 0;">Amazon sellers</h3>
+        <p style="font-size: 15px; line-height: 1.55; color: #9a9aa2; margin: 0; flex: 1; text-wrap: pretty;">Listing images, inserts, storefronts, packaging — creative that converts browsers.</p>
+        <a href="#contact" style="display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-weight: 600; font-size: 15px;">how we help sellers →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS + FORM ============ -->
+<section id="process" style="padding: 0 40px 120px;">
+  <div style="max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start;">
+    <div>
+      <p style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 16px;">how it works</p>
+      <h2 style="font-size: clamp(36px, 4.5vw, 56px); line-height: 1.04; letter-spacing: -0.02em; font-weight: 700; margin: 0 0 48px;">Three steps.<br>No mystery.</h2>
+      <div style="display: flex; flex-direction: column;">
+        <div style="display: flex; gap: 24px; padding: 28px 0; border-top: 1px solid #232328;">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent); padding-top: 4px;">{01}</span>
+          <div>
+            <h3 style="font-size: 22px; font-weight: 600; margin: 0 0 8px;">Quick fit call</h3>
+            <p style="font-size: 15px; line-height: 1.55; color: #9a9aa2; margin: 0; text-wrap: pretty;">Fifteen minutes. We learn your business and tell you honestly if we're a match.</p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 24px; padding: 28px 0; border-top: 1px solid #232328;">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent); padding-top: 4px;">{02}</span>
+          <div>
+            <h3 style="font-size: 22px; font-weight: 600; margin: 0 0 8px;">A clear plan</h3>
+            <p style="font-size: 15px; line-height: 1.55; color: #9a9aa2; margin: 0; text-wrap: pretty;">No mystery. You'll know exactly what we'll do, what it costs, and what to expect.</p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 24px; padding: 28px 0; border-top: 1px solid #232328; border-bottom: 1px solid #232328;">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent); padding-top: 4px;">{03}</span>
+          <div>
+            <h3 style="font-size: 22px; font-weight: 600; margin: 0 0 8px;">We build, you grow</h3>
+            <p style="font-size: 15px; line-height: 1.55; color: #9a9aa2; margin: 0; text-wrap: pretty;">We handle the work. You get back to running your business.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- form -->
+    <div id="contact" style="background: #131316; border: 1px solid #232328; border-radius: 20px; padding: 48px; scroll-margin-top: 120px;">
+      <h3 style="font-size: 30px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 8px;">Let's get acquainted</h3>
+      <p style="font-size: 15px; line-height: 1.5; color: #9a9aa2; margin: 0 0 32px;">Book a 15-minute fit call. Straight answers, no pitch.</p>
+
+      <form id="contactForm" style="display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <input class="form-input" name="firstName" placeholder="First name" required style="background: #0d0d10; border-radius: 10px; padding: 14px 16px; font-size: 15px; color: #f2f2f4; width: 100%;">
+          <input class="form-input" name="lastName" placeholder="Last name" required style="background: #0d0d10; border-radius: 10px; padding: 14px 16px; font-size: 15px; color: #f2f2f4; width: 100%;">
+        </div>
+        <input class="form-input" name="email" type="email" placeholder="Email" required style="background: #0d0d10; border-radius: 10px; padding: 14px 16px; font-size: 15px; color: #f2f2f4; width: 100%;">
+        <select name="businessType" required style="background: #0d0d10; border: 1px solid #2c2c32; border-radius: 10px; padding: 14px 16px; font-size: 15px; color: #f2f2f4; outline: none; width: 100%; appearance: none;">
+          <option value="">Business type…</option>
+          <option value="aba">ABA clinic</option>
+          <option value="senior">Senior care</option>
+          <option value="amazon">Amazon seller</option>
+          <option value="local">Local service business</option>
+          <option value="other">Something else</option>
+        </select>
+        <button type="submit" class="btn-primary" style="border-radius: 999px; padding: 16px 32px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 8px;">book a 15-minute fit call</button>
+      </form>
+
+      <div id="formSuccess" style="display: none; padding: 32px 0 16px; flex-direction: column; gap: 12px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent);">request received</span>
+        <p style="font-size: 18px; line-height: 1.5; color: #f2f2f4; margin: 0;">Thanks — we'll reach out shortly to find a time that works.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CLOSING CTA ============ -->
+<section style="padding: 140px 40px; border-top: 1px solid #1c1c20; text-align: center;">
+  <div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 28px;">
+    <h2 style="font-size: clamp(40px, 6vw, 84px); line-height: 1.0; letter-spacing: -0.03em; font-weight: 700; margin: 0; text-wrap: pretty;">Let's make your business easy to say yes to.</h2>
+    <p style="font-size: 18px; line-height: 1.55; color: #9a9aa2; margin: 0; max-width: 560px; text-wrap: pretty;">A short call, no pressure, no pitch you didn't ask for. Just a straight answer on whether we can help.</p>
+    <a href="#contact" class="btn-primary" style="display: inline-flex; align-items: center; gap: 10px; padding: 18px 40px; border-radius: 999px; font-weight: 600; font-size: 17px;">book a 15-minute fit call</a>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer style="border-top: 1px solid #1c1c20; padding: 48px 40px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
+  <img src="assets/logo.svg" alt="Creative Stone" style="height: 28px; width: auto;">
+  <nav style="display: flex; gap: 28px; font-size: 14px;">
+    <a href="#services" style="color: #8a8a92;">services</a>
+    <a href="#industries" style="color: #8a8a92;">industries</a>
+    <a href="plans.html" style="color: #8a8a92;">pricing</a>
+    <a href="#contact" style="color: #8a8a92;">contact</a>
+  </nav>
+  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #55555c;">© 2026 Creative Stone — All rights reserved.</span>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

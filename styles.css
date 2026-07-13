@@ -1,0 +1,62 @@
+:root { --accent: #8b5cf6; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: #0a0a0c; color: #f2f2f4; font-family: 'Archivo', sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: #f2f2f4; text-decoration: none; }
+a:hover { color: var(--accent); }
+* { box-sizing: border-box; }
+input, select, button { font-family: 'Archivo', sans-serif; }
+input::placeholder { color: #6a6a72; }
+
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* Interactive elements — base + hover/focus states live here since inline
+   styles can't be overridden by pseudo-classes in an external stylesheet. */
+
+.btn-nav-cta {
+  background: #f2f2f4;
+  color: #0a0a0c;
+  transition: background .15s ease, color .15s ease;
+}
+.btn-nav-cta:hover { background: var(--accent); color: #ffffff; }
+
+.btn-primary {
+  background: var(--accent);
+  color: #ffffff;
+  border: none;
+  transition: background .15s ease, color .15s ease;
+}
+.btn-primary:hover { background: #f2f2f4; color: #0a0a0c; }
+
+.btn-outline {
+  border-width: 1px;
+  border-style: solid;
+  border-color: #2c2c32;
+  color: #f2f2f4;
+  transition: border-color .15s ease, color .15s ease;
+}
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+.btn-dark {
+  background: #0a0a0c;
+  color: #ffffff;
+  transition: background .15s ease, color .15s ease;
+}
+.btn-dark:hover { background: #ffffff; color: #0a0a0c; }
+
+.industry-card {
+  border-width: 1px;
+  border-style: solid;
+  border-color: #232328;
+  transition: border-color .15s ease;
+}
+.industry-card:hover { border-color: var(--accent); }
+
+.form-input {
+  border-width: 1px;
+  border-style: solid;
+  border-color: #2c2c32;
+  outline: none;
+  transition: border-color .15s ease;
+}
+.form-input:focus { border-color: var(--accent); }
