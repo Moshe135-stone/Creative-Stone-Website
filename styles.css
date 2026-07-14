@@ -1,4 +1,4 @@
-:root { --accent: #8b5cf6; }
+:root { --accent: #8b5cf6; --spotlight: 34, 229, 255; --spotlight-purple: 139, 92, 246; }
 html { scroll-behavior: smooth; }
 body { margin: 0; background: #0a0a0c; color: #f2f2f4; font-family: 'Archivo', sans-serif; -webkit-font-smoothing: antialiased; }
 a { color: #f2f2f4; text-decoration: none; }
@@ -11,38 +11,73 @@ input::placeholder { color: #6a6a72; }
 @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
 /* Interactive elements — base + hover/focus states live here since inline
-   styles can't be overridden by pseudo-classes in an external stylesheet. */
+   styles can't be overridden by pseudo-classes in an external stylesheet.
+   Buttons are flat, sharp-cornered rectangles at rest (border-radius: 0 is
+   set inline per-instance in the HTML). On hover, a cursor-tracking spotlight
+   (cyan on .btn-outline, purple on the rest — see --spotlight override below)
+   with a noise texture reveals itself via a ::before layer whose position is
+   driven by the --mx/--my custom properties (set by script.js on
+   pointermove). isolation: isolate gives each button its own stacking
+   context so the ::before's z-index: -1 is scoped to that button (painting
+   above its own flat background, below its text) — without it, a negative
+   z-index resolves against the nearest ancestor stacking context instead
+   (here, effectively the page background), which is why the spotlight was
+   only visible on .btn-outline (transparent fill hid nothing) and invisible
+   on the other three (their opaque flat fill painted over it). */
 
-.btn-nav-cta {
-  background: #f2f2f4;
-  color: #0a0a0c;
-  transition: background .15s ease, color .15s ease;
+.btn-nav-cta, .btn-primary, .btn-outline, .btn-dark {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
 }
-.btn-nav-cta:hover { background: var(--accent); color: #ffffff; }
 
-.btn-primary {
-  background: var(--accent);
-  color: #ffffff;
-  border: none;
-  transition: background .15s ease, color .15s ease;
+.btn-nav-cta::before, .btn-primary::before, .btn-outline::before, .btn-dark::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .25s ease;
+  background:
+    radial-gradient(circle 140px at var(--mx, 50%) var(--my, 50%), rgba(var(--spotlight), .9), rgba(var(--spotlight), .35) 45%, transparent 72%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.45 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-blend-mode: overlay;
 }
-.btn-primary:hover { background: #f2f2f4; color: #0a0a0c; }
+.btn-nav-cta:hover::before, .btn-nav-cta:focus-visible::before,
+.btn-primary:hover::before, .btn-primary:focus-visible::before,
+.btn-outline:hover::before, .btn-outline:focus-visible::before,
+.btn-dark:hover::before, .btn-dark:focus-visible::before {
+  opacity: 1;
+}
 
-.btn-outline {
+/* All four buttons share the exact same base look as .btn-outline
+   (transparent fill, thin gray border, light text) — the only thing that
+   differs between them is the spotlight color: purple for nav/primary/dark,
+   cyan for outline (via the --spotlight custom-property override). */
+.btn-nav-cta,
+.btn-primary,
+.btn-outline,
+.btn-dark {
+  background: transparent;
   border-width: 1px;
   border-style: solid;
   border-color: #2c2c32;
   color: #f2f2f4;
-  transition: border-color .15s ease, color .15s ease;
 }
-.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
-
+.btn-nav-cta,
+.btn-primary,
 .btn-dark {
-  background: #0a0a0c;
-  color: #ffffff;
-  transition: background .15s ease, color .15s ease;
+  --spotlight: var(--spotlight-purple);
 }
-.btn-dark:hover { background: #ffffff; color: #0a0a0c; }
+.btn-nav-cta:hover, .btn-nav-cta:focus-visible,
+.btn-primary:hover, .btn-primary:focus-visible,
+.btn-outline:hover, .btn-outline:focus-visible,
+.btn-dark:hover, .btn-dark:focus-visible {
+  border-color: rgb(var(--spotlight));
+  color: #ffffff;
+}
 
 .industry-card {
   border-width: 1px;
@@ -60,3 +95,42 @@ input::placeholder { color: #6a6a72; }
   transition: border-color .15s ease;
 }
 .form-input:focus { border-color: var(--accent); }
+
+/* Black & white photo grid on the landing page: each tile starts scaled to
+   nothing and grows in as it scrolls into view (JS toggles .revealed via
+   IntersectionObserver — see script.js). transform: scale is used instead
+   of animating width/height directly so the grow-in is compositor-only. */
+.photo-reveal {
+  transform: scale(0);
+  transform-origin: center;
+  opacity: 0;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease;
+}
+.photo-reveal.revealed {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Sparkle color-reveal: the color "sparkle" photo sits underneath, and the
+   black & white photo on top is masked with a soft circle that follows the
+   cursor (--mx/--my, set by script.js on pointermove — same technique as
+   the button spotlight), so hovering reveals the color version through a
+   hole in the grayscale layer instead of the other way around. */
+.photo-spotlight {
+  position: relative;
+  overflow: hidden;
+}
+.photo-color-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.photo-bw-mask {
+  position: relative;
+  z-index: 1;
+  mask-image: radial-gradient(circle 120px at var(--mx, -9999px) var(--my, -9999px), transparent 0%, transparent 55%, black 85%);
+  -webkit-mask-image: radial-gradient(circle 120px at var(--mx, -9999px) var(--my, -9999px), transparent 0%, transparent 55%, black 85%);
+}
