@@ -7,8 +7,102 @@ a:hover { color: var(--accent); }
 input, select, button { font-family: 'Archivo', sans-serif; }
 input::placeholder { color: #6a6a72; }
 
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+/* ============ TIC-TAC-TOE service board ============
+   Replaces the old auto-scrolling ticker. A 3x3 hash grid is pinned in a
+   tall section; script.js computes scroll progress through that section
+   and drives it two ways: toggling .is-placed on each cell (so the nine
+   service tokens pop in one at a time as you scroll) and writing the
+   --strike custom property (0→1) on .ttt__strike, which scales a diagonal
+   line across the three .ttt__cell--win cells like a winning move. All
+   motion is scrubbed by scroll — nothing loops on its own. */
+.ttt {
+  position: relative;
+  height: 320vh;                 /* scroll room for the pinned board */
+  background: #0d0d10;
+  border-top: 1px solid #1c1c20;
+  border-bottom: 1px solid #1c1c20;
+}
+.ttt__pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  overflow: hidden;
+}
+.ttt__eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0;
+}
+.ttt__grid {
+  position: relative;
+  width: min(560px, 80vw);
+  aspect-ratio: 1;               /* square, so the 45° strike hits the corners */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+}
+/* The hash "#": inner separators only (columns 1–2 get a right edge, rows
+   1–2 a bottom edge), no outer frame. The 10th grid child is .ttt__strike,
+   which isn't a .ttt__cell, so these nth-child rules never touch it. */
+.ttt__cell:nth-child(3n+1),
+.ttt__cell:nth-child(3n+2) { border-right: 1px solid #26262c; }
+.ttt__cell:nth-child(-n+6)  { border-bottom: 1px solid #26262c; }
+.ttt__cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 10px;
+}
+.ttt__cell span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: clamp(13px, 1.7vw, 18px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #cfcfd4;
+  opacity: 0;
+  transform: scale(0.35) rotate(-8deg);
+  transition: opacity .35s ease,
+              transform .5s cubic-bezier(0.34, 1.56, 0.64, 1),
+              color .3s ease;
+}
+.ttt__cell.is-placed span { opacity: 1; transform: scale(1) rotate(0deg); }
+.ttt__cell--win.is-won span { color: #ffffff; }
+
+/* The winning strike: a horizontal bar centred on the grid, rotated 45°
+   onto the top-left→bottom-right diagonal, revealed by scaling it out from
+   the middle (--strike, set by script.js). Transparent gradient ends keep
+   it looking like a drawn stroke while it grows. */
+.ttt__strike {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 141.4%;                 /* diagonal of a square = side × √2 */
+  height: 4px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, transparent, var(--accent), #67f0ff, var(--accent), transparent);
+  box-shadow: 0 0 18px rgba(139, 92, 246, 0.85);
+  transform: translate(-50%, -50%) rotate(45deg) scaleX(var(--strike, 0));
+  transform-origin: center;
+  pointer-events: none;
+}
+
+/* No pinning / scrubbing when motion is reduced — show the finished board. */
+@media (prefers-reduced-motion: reduce) {
+  .ttt { height: auto; }
+  .ttt__pin { position: static; height: auto; padding: 96px 0; }
+  .ttt__cell span { opacity: 1; transform: none; }
+  .ttt__cell--win span { color: #ffffff; }
+  .ttt__strike { transform: translate(-50%, -50%) rotate(45deg) scaleX(1); }
+}
 
 /* Interactive elements — base + hover/focus states live here since inline
    styles can't be overridden by pseudo-classes in an external stylesheet.
@@ -79,6 +173,152 @@ input::placeholder { color: #6a6a72; }
   color: #ffffff;
 }
 
+/* ============ HERO CTAs ============
+   Two oversized call-to-action buttons pinned to the bottom-right of the
+   hero, overlapping the 3D logo. At rest each shows its text label plus an
+   up-right arrow. On hover the label slides up and out of view while an
+   animated icon rises into its place — a ringing phone on the purple "fit
+   call" button, a pair of blinking eyes on the "see what we do" button.
+   The label/icon share one fixed-height slot (.hero-cta__text) and are
+   stacked so one exits as the other enters (the morph). */
+/* In normal flow, sitting directly beneath the flex-growing Spline render and
+   aligned to the right. The ticker section that follows lands beneath these. */
+.hero-cta-group {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-end;
+  pointer-events: auto;
+}
+
+.hero-cta {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  min-width: 460px;
+  padding: 34px 42px;
+  background: rgba(13, 13, 16, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #f2f2f4;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  opacity: 0;
+  transform: translateY(42px);
+  animation: hero-cta-in .7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: color .2s ease;
+}
+/* Rise in one after another, beneath the 3D logo, once the hero settles. */
+.hero-cta:nth-child(1) { animation-delay: .35s; }
+.hero-cta:nth-child(2) { animation-delay: .5s; }
+.hero-cta:hover { color: #ffffff; }
+
+@keyframes hero-cta-in {
+  from { opacity: 0; transform: translateY(42px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Both buttons share one look: a thin stroke, no fill. The stroke is drawn by
+   two masked pseudo-element rings — the "fill the box, then punch out the
+   content box" border trick — instead of a real border, so a cursor-tracked
+   radial spotlight can light ONLY the stroke. ::before is the dim resting
+   stroke; ::after is the coloured spotlight that fades in on hover and follows
+   the pointer via --mx/--my (set by script.js on pointermove). The overflow
+   clip for the label→icon morph lives on .hero-cta__text (below), not here, so
+   these edge rings aren't clipped away. */
+.hero-cta::before,
+.hero-cta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask-composite: exclude;
+  pointer-events: none;
+}
+.hero-cta::before { background: #2c2c32; }
+.hero-cta::after {
+  background: radial-gradient(circle 190px at var(--mx, 50%) var(--my, 50%),
+    #67f0ff 0%, #8b5cf6 40%, transparent 70%);
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.hero-cta:hover::after { opacity: 1; }
+
+/* the morph slot — fixed height so the swap doesn't reflow the button;
+   overflow: hidden clips the label sliding out and the icon rising in (this
+   clip lives here, not on .hero-cta, so the stroke rings aren't cut off). */
+.hero-cta__text {
+  position: relative;
+  flex: 1;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+.hero-cta__label {
+  transition: opacity .25s ease, transform .4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-cta:hover .hero-cta__label {
+  opacity: 0;
+  transform: translateY(-140%);
+}
+.hero-cta__hover {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: opacity .25s ease, transform .4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-cta:hover .hero-cta__hover {
+  opacity: 1;
+  transform: translateY(-50%);
+}
+.hero-cta__hover--phone svg { width: 40px; height: 40px; display: block; }
+.hero-cta__hover--eyes svg { width: 64px; height: 40px; display: block; }
+
+.hero-cta__arrow svg {
+  width: 34px;
+  height: 34px;
+  display: block;
+  flex-shrink: 0;
+  transition: transform .3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-cta:hover .hero-cta__arrow svg { transform: translate(5px, -5px); }
+
+/* ringing phone: rock rapidly side to side while hovered */
+@keyframes phone-ring {
+  0%, 62%, 100% { transform: rotate(0deg); }
+  8%, 24%, 40%  { transform: rotate(-16deg); }
+  16%, 32%, 48% { transform: rotate(16deg); }
+}
+.hero-cta:hover .hero-cta__hover--phone svg {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: phone-ring 1.1s ease-in-out infinite;
+}
+
+/* blinking eyes: squash vertically for a beat, on a slow loop */
+@keyframes eyes-blink {
+  0%, 40%, 46%, 100% { transform: scaleY(1); }
+  43% { transform: scaleY(0.08); }
+}
+.hero-cta:hover .hero-cta__hover--eyes svg {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: eyes-blink 2.8s ease-in-out infinite;
+}
+
 .industry-card {
   border-width: 1px;
   border-style: solid;
@@ -96,19 +336,17 @@ input::placeholder { color: #6a6a72; }
 }
 .form-input:focus { border-color: var(--accent); }
 
-/* Black & white photo grid on the landing page: each tile starts scaled to
-   nothing and grows in as it scrolls into view (JS toggles .revealed via
-   IntersectionObserver — see script.js). transform: scale is used instead
-   of animating width/height directly so the grow-in is compositor-only. */
+/* Black & white photo grid on the landing page: each line of copy and each
+   framed photo rises and fades into place as it scrolls up through the
+   viewport. script.js writes opacity + transform every frame (scrubbed by
+   scroll position, not a one-shot transition — see the photo-reveal block
+   there), so there is no CSS transition here; will-change just keeps the
+   scrubbed transform on the compositor. The default state below is fully
+   visible, so with JS disabled — or reduced motion, where script.js bails —
+   the grid still shows normally. */
 .photo-reveal {
-  transform: scale(0);
   transform-origin: center;
-  opacity: 0;
-  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease;
-}
-.photo-reveal.revealed {
-  transform: scale(1);
-  opacity: 1;
+  will-change: transform, opacity;
 }
 
 /* Sparkle color-reveal: the color "sparkle" photo sits underneath, and the
@@ -134,3 +372,82 @@ input::placeholder { color: #6a6a72; }
   mask-image: radial-gradient(circle 120px at var(--mx, -9999px) var(--my, -9999px), transparent 0%, transparent 55%, black 85%);
   -webkit-mask-image: radial-gradient(circle 120px at var(--mx, -9999px) var(--my, -9999px), transparent 0%, transparent 55%, black 85%);
 }
+
+/* Burger nav: .nav-item links reuse .btn-outline/.btn-nav-cta for their
+   resting text color so they match the rest of the site's buttons, but
+   their background/border and their :hover/:focus-visible border-color/
+   color change and spotlight glow (::before, from the shared button rule)
+   are switched off below — no box/panel behind the group at all, just the
+   burger + bare text links, so the only hover feedback on an individual
+   item is the slide-replace text. Items are collapsed to nothing
+   (scaleX(0) from the right edge, clipped by <nav>'s own overflow: hidden)
+   until #siteHeader gets .nav-open (toggled by script.js), fixed-width and
+   packed edge-to-edge (gap: 0 on the <nav>) so they read as one continuous
+   row once expanded. */
+.nav-item {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  background: transparent;
+  border: none;
+  transform: scaleX(0);
+  transform-origin: right center;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+#siteHeader.nav-open .nav-item {
+  transform: scaleX(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+.nav-item:hover,
+.nav-item:focus-visible {
+  background: transparent;
+  border: none;
+  color: #f2f2f4;
+}
+.nav-item:hover::before,
+.nav-item:focus-visible::before {
+  opacity: 0;
+}
+
+/* Slide-replace hover: two identical .nav-slide-label spans, absolutely
+   positioned to fill the item. The original sits in place at rest; the
+   duplicate waits just off the left edge. On hover both slide right: the
+   original exits past the right edge, the duplicate slides in from the
+   left to take its exact place. Absolute positioning (rather than a wide
+   flex track sized in %) avoids sizing the label against .nav-item's own
+   indeterminate width, which was cutting text off. */
+.nav-slide-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.22s ease-in-out;
+}
+.nav-slide-duplicate {
+  transform: translateX(-100%);
+}
+.nav-item:hover .nav-slide-original,
+.nav-item:focus-visible .nav-slide-original {
+  transform: translateX(100%);
+}
+.nav-item:hover .nav-slide-duplicate,
+.nav-item:focus-visible .nav-slide-duplicate {
+  transform: translateX(0%);
+}
+
+.burger-line {
+  width: 26px;
+  height: 2px;
+  background: #f2f2f4;
+  display: block;
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+#siteHeader.nav-open .burger-line:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+#siteHeader.nav-open .burger-line:nth-child(2) { opacity: 0; }
+#siteHeader.nav-open .burger-line:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }

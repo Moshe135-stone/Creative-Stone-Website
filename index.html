@@ -13,17 +13,45 @@
 <body>
 
 <!-- ============ NAV ============ -->
-<header style="position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; background: rgba(10,10,12,0.72); backdrop-filter: blur(16px); border-bottom: 1px solid #1c1c20;">
+<!-- Burger menu: links stay in the DOM/layout at all times but are
+     collapsed to zero width (scaleX(0), transform-origin: right) until
+     #siteHeader gets .nav-open (toggled by script.js on burger click).
+     Each staggers in with its own transition-delay — shortest on the item
+     closest to the burger ("book a call"), longest on the farthest
+     ("services") — so they fan out right-to-left, one after another. -->
+<header id="siteHeader" style="position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; height: 74px; padding: 0 40px; background: transparent; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid #1c1c20;">
   <a href="#top" style="display: flex; align-items: center;">
     <img src="assets/logo.svg" alt="Creative Stone" style="height: 34px; width: auto; display: block;">
   </a>
-  <nav style="display: flex; align-items: center; gap: 32px; font-size: 14px; letter-spacing: 0.02em;">
-    <a href="#services" style="color: #b8b8be;">services</a>
-    <a href="#industries" style="color: #b8b8be;">industries</a>
-    <a href="#process" style="color: #b8b8be;">how it works</a>
-    <a href="plans.html" style="color: #b8b8be;">pricing</a>
-    <a href="#contact" class="btn-nav-cta" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 0; font-weight: 600;">book a call</a>
-  </nav>
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <nav style="display: flex; align-items: center; gap: 0; overflow: hidden;">
+      <a href="#services" class="btn-outline nav-item" style="width: 150px; font-size: 20px; font-weight: 600; transition-delay: 0.24s;">
+        <span class="nav-slide-label nav-slide-original">services</span>
+        <span class="nav-slide-label nav-slide-duplicate">services</span>
+      </a>
+      <a href="#industries" class="btn-outline nav-item" style="width: 170px; font-size: 20px; font-weight: 600; transition-delay: 0.18s;">
+        <span class="nav-slide-label nav-slide-original">industries</span>
+        <span class="nav-slide-label nav-slide-duplicate">industries</span>
+      </a>
+      <a href="#process" class="btn-outline nav-item" style="width: 205px; font-size: 20px; font-weight: 600; transition-delay: 0.12s;">
+        <span class="nav-slide-label nav-slide-original">how it works</span>
+        <span class="nav-slide-label nav-slide-duplicate">how it works</span>
+      </a>
+      <a href="plans.html" class="btn-outline nav-item" style="width: 135px; font-size: 20px; font-weight: 600; transition-delay: 0.06s;">
+        <span class="nav-slide-label nav-slide-original">pricing</span>
+        <span class="nav-slide-label nav-slide-duplicate">pricing</span>
+      </a>
+      <a href="#contact" class="btn-nav-cta nav-item" style="width: 180px; font-size: 20px; font-weight: 600; transition-delay: 0s;">
+        <span class="nav-slide-label nav-slide-original">book a call</span>
+        <span class="nav-slide-label nav-slide-duplicate">book a call</span>
+      </a>
+    </nav>
+    <button id="navToggle" aria-expanded="false" aria-label="Toggle menu" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; width: 44px; height: 44px; padding: 0; flex-shrink: 0;">
+      <span class="burger-line"></span>
+      <span class="burger-line"></span>
+      <span class="burger-line"></span>
+    </button>
+  </div>
 </header>
 
 <!-- ============ INTRO / LANDING ============ -->
@@ -39,7 +67,7 @@
      vertically so they pop in one after another rather than all at once.
      The thought is broken into four giant standalone lines, each sitting
      above (i.e. before, in scroll order) its own image — jellyfish: "Ever
-     wonder", water: "what good marketing", glasses: "looks like", crystal
+     wonder", water: "what good marketing", glasses: "actually looks like", crystal
      (the last image): "wonder no more". -->
 <section style="padding: 220px 40px; background: #0a0a0c; position: relative;">
   <div style="max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
@@ -57,7 +85,7 @@
       <img src="assets/photos/crystal-02.png" alt="" class="photo-bw-mask" style="width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1);">
     </div>
 
-    <p class="photo-reveal" style="font-size: clamp(32px, 7vw, 130px); line-height: 1.0; letter-spacing: -0.03em; font-weight: 700; text-align: center; color: #f2f2f4; margin: 0 0 10vh; max-width: 900px; transition-delay: 0.3s;">looks like</p>
+    <p class="photo-reveal" style="font-size: clamp(32px, 7vw, 130px); line-height: 1.0; letter-spacing: -0.03em; font-weight: 700; text-align: center; color: #f2f2f4; margin: 0 0 10vh; max-width: 900px; transition-delay: 0.3s;">actually looks like?</p>
 
     <div class="photo-reveal photo-spotlight" style="width: clamp(220px, 24vw, 380px); aspect-ratio: 3 / 4; margin-bottom: 42vh; transition-delay: 0.22s;">
       <img src="assets/sparkle/glasses.png" alt="" class="photo-color-layer">
@@ -74,46 +102,71 @@
 </section>
 
 <!-- ============ HERO ============ -->
-<section style="position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; padding: 140px 40px 64px; overflow: hidden;">
+<section style="position: relative; min-height: 100vh; display: flex; flex-direction: column; padding: 100px 40px 48px; overflow: hidden;">
 
-  <!-- 3D interactive logo -->
-  <div style="position: absolute; top: 90px; right: 0px; width: 512px; height: 512px; max-width: 58vw; max-height: 58vw; aspect-ratio: 1 / 1; border-radius: 16px; overflow: hidden;">
-    <spline-viewer url="https://prod.spline.design/H2OXDXgamim261ZG/scene.splinecode?v=1783706571" style="width: 100%; height: 100%; display: block;"></spline-viewer>
+  <!-- 3D interactive logo — a flex-growing box that fills the hero ABOVE the
+       CTAs (flex: 1), so the buttons sit in normal flow directly underneath the
+       render instead of overlapping its lower half. -->
+  <div style="flex: 1; min-height: 0; width: min(1200px, 92vw); margin: 0 auto; overflow: hidden;">
+    <spline-viewer url="https://prod.spline.design/H2OXDXgamim261ZG/scene.splinecode?v=1784076895" style="width: 100%; height: 100%; display: block; transform: translateX(8%);"></spline-viewer>
   </div>
 
-  <!-- AI Literate rotating badge -->
-  <div style="position: absolute; top: 130px; right: 56px; width: 120px; height: 120px; z-index: 5; pointer-events: none;">
-    <svg viewBox="0 0 120 120" style="width: 120px; height: 120px; animation: spin 18s linear infinite;">
-      <defs>
-        <path id="badgecircle" d="M 60,60 m -44,0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0"></path>
-      </defs>
-      <circle cx="60" cy="60" r="58" fill="#0a0a0c" stroke="#2c2c32" stroke-width="1"></circle>
-      <text style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; letter-spacing: 0.32em; fill: #f2f2f4;">
-        <textPath href="#badgecircle">AI LITERATE • AI LITERATE • AI LITERATE •</textPath>
-      </text>
-      <circle cx="60" cy="60" r="22" fill="var(--accent)"></circle>
-      <text x="60" y="64" text-anchor="middle" style="font-family: 'Archivo', sans-serif; font-size: 13px; font-weight: 700; fill: #ffffff;">AI</text>
-    </svg>
-  </div>
-
-  <div style="position: relative; z-index: 2; max-width: 1100px;">
-    <p style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; letter-spacing: 0.08em; color: var(--accent); margin: 0 0 24px;">Ever wonder what good marketing actually looks like?</p>
-    <h1 style="font-size: clamp(56px, 9vw, 128px); line-height: 0.96; letter-spacing: -0.03em; font-weight: 700; margin: 0 0 32px;">You're looking<br>at it.</h1>
-    <p style="font-size: clamp(17px, 1.6vw, 22px); line-height: 1.5; color: #b8b8be; max-width: 560px; margin: 0 0 40px; text-wrap: pretty;">Creative Stone builds websites, brands, and emails that make your business easy to trust.</p>
-    <div style="display: flex; align-items: center; gap: 16px;">
-      <a href="#contact" class="btn-primary" style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; border-radius: 0; font-weight: 600; font-size: 16px;">book a 15-minute fit call</a>
-      <a href="#services" class="btn-outline" style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; border-radius: 0; font-weight: 500; font-size: 16px;">see what we do</a>
-    </div>
+  <!-- Big bottom-right CTAs. At rest: label + up-right arrow. On hover the
+       label morphs into an animated icon (ringing phone / magnifying glass). -->
+  <div class="hero-cta-group">
+    <a href="#contact" class="hero-cta">
+      <span class="hero-cta__text">
+        <span class="hero-cta__label">book a 15-minute fit call</span>
+        <span class="hero-cta__hover hero-cta__hover--phone" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </span>
+      </span>
+      <span class="hero-cta__arrow" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+      </span>
+    </a>
+    <a href="#services" class="hero-cta">
+      <span class="hero-cta__text">
+        <span class="hero-cta__label">see what we do</span>
+        <span class="hero-cta__hover hero-cta__hover--eyes" aria-hidden="true">
+          <svg viewBox="0 0 40 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path class="eye-lid" d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
+            <circle class="eye-ball" cx="12" cy="12" r="3.2" fill="currentColor" stroke="none"/>
+            <path class="eye-lid" d="M18 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
+            <circle class="eye-ball" cx="28" cy="12" r="3.2" fill="currentColor" stroke="none"/>
+          </svg>
+        </span>
+      </span>
+      <span class="hero-cta__arrow" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+      </span>
+    </a>
   </div>
 </section>
 
-<!-- ============ TICKER ============ -->
-<div style="border-top: 1px solid #1c1c20; border-bottom: 1px solid #1c1c20; overflow: hidden; padding: 18px 0; background: #0d0d10;">
-  <div style="display: flex; width: max-content; animation: ticker 28s linear infinite; font-family: 'IBM Plex Mono', monospace; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: #8a8a92; white-space: nowrap;">
-    <span style="padding-right: 48px;">websites — brands — emails — AI marketing — SEO — AEO — websites — brands — emails — AI marketing — SEO — AEO —&nbsp;</span>
-    <span style="padding-right: 48px;">websites — brands — emails — AI marketing — SEO — AEO — websites — brands — emails — AI marketing — SEO — AEO —&nbsp;</span>
+<!-- ============ TIC-TAC-TOE — scroll-driven service board ============
+     Replaces the old auto-scrolling ticker. The section is tall so the
+     pinned board has scroll room; script.js writes scroll progress into
+     the tokens (placing the nine services one at a time) and into the
+     --strike property (drawing a diagonal "winning" line through three
+     of them). See .ttt* in styles.css. -->
+<section id="ttt" class="ttt" aria-label="What we do — a winning lineup of services">
+  <div class="ttt__pin">
+    <p class="ttt__eyebrow">three in a row</p>
+    <div class="ttt__grid">
+      <div class="ttt__cell ttt__cell--win"><span>Websites</span></div>
+      <div class="ttt__cell"><span>SEO</span></div>
+      <div class="ttt__cell"><span>Emails</span></div>
+      <div class="ttt__cell"><span>Social</span></div>
+      <div class="ttt__cell ttt__cell--win"><span>AI&nbsp;Marketing</span></div>
+      <div class="ttt__cell"><span>AEO</span></div>
+      <div class="ttt__cell"><span>Brands</span></div>
+      <div class="ttt__cell"><span>Strategy</span></div>
+      <div class="ttt__cell ttt__cell--win"><span>Design</span></div>
+      <span class="ttt__strike" aria-hidden="true"></span>
+    </div>
   </div>
-</div>
+</section>
 
 <!-- ============ SERVICES — sticky stacked cards ============ -->
 <section id="services" style="padding: 120px 40px 80px;">
