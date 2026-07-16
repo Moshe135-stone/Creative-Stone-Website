@@ -146,24 +146,21 @@
 
 <!-- ============ TIC-TAC-TOE — scroll-driven service board ============
      Replaces the old auto-scrolling ticker. The section is tall so the
-     pinned board has scroll room; script.js writes scroll progress into
-     the tokens (placing the nine services one at a time) and into the
-     --strike property (drawing a diagonal "winning" line through three
-     of them). See .ttt* in styles.css. -->
+     pinned board has scroll room; script.js uses scroll progress to place
+     the nine services into the grid one at a time. Hovering a cell lights
+     a cursor-tracked blue noise spotlight. See .ttt* in styles.css. -->
 <section id="ttt" class="ttt" aria-label="What we do — a winning lineup of services">
   <div class="ttt__pin">
-    <p class="ttt__eyebrow">three in a row</p>
     <div class="ttt__grid">
-      <div class="ttt__cell ttt__cell--win"><span>Websites</span></div>
+      <div class="ttt__cell"><span>Websites</span></div>
       <div class="ttt__cell"><span>SEO</span></div>
       <div class="ttt__cell"><span>Emails</span></div>
       <div class="ttt__cell"><span>Social</span></div>
-      <div class="ttt__cell ttt__cell--win"><span>AI&nbsp;Marketing</span></div>
+      <div class="ttt__cell"><span>AI&nbsp;Marketing</span></div>
       <div class="ttt__cell"><span>AEO</span></div>
       <div class="ttt__cell"><span>Brands</span></div>
       <div class="ttt__cell"><span>Strategy</span></div>
-      <div class="ttt__cell ttt__cell--win"><span>Design</span></div>
-      <span class="ttt__strike" aria-hidden="true"></span>
+      <div class="ttt__cell"><span>Design</span></div>
     </div>
   </div>
 </section>

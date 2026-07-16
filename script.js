@@ -26,10 +26,11 @@ document.getElementById('contactForm')?.addEventListener('submit', function (e) 
   });
 })();
 
-// Cursor-tracking spotlight on buttons: sets --mx/--my custom properties
-// (consumed by the ::before radial-gradient in styles.css) to the pointer's
-// position within the button, so the cyan glow follows the mouse on hover.
-document.querySelectorAll('.btn-nav-cta, .btn-primary, .btn-outline, .btn-dark, .hero-cta').forEach(function (btn) {
+// Cursor-tracking spotlight on buttons and the tic-tac-toe service cells:
+// sets --mx/--my custom properties (consumed by the ::before radial-gradient
+// in styles.css) to the pointer's position within the element, so the glow
+// follows the mouse on hover — cyan/purple on the buttons, blue on the cells.
+document.querySelectorAll('.btn-nav-cta, .btn-primary, .btn-outline, .btn-dark, .hero-cta, .ttt__cell').forEach(function (btn) {
   btn.addEventListener('pointermove', function (e) {
     var rect = btn.getBoundingClientRect();
     btn.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
@@ -64,42 +65,48 @@ document.querySelectorAll('.btn-nav-cta, .btn-primary, .btn-outline, .btn-dark, 
   updateDissolve();
 })();
 
-// Tic-tac-toe service board: scrubbed entirely by scroll position through
-// the tall #ttt section (see .ttt* in styles.css). As the board is pinned,
-// progress runs 0→1; the first ~66% places the nine service tokens one at a
-// time (row-major, so the last one placed completes the winning diagonal),
-// and the tail draws the diagonal strike by scaling --strike from 0 to 1.
+// Tic-tac-toe service board: scrubbed by scroll position through the tall
+// #ttt section (see .ttt* in styles.css). While the board is pinned, progress
+// runs 0→1: the grid frame first scales + fades in, then the nine service
+// tokens drop into it one at a time (row-major). Hovering a cell is handled
+// by the blue-noise spotlight below.
 (function () {
   var section = document.getElementById('ttt');
   if (!section) return;
 
+  var grid = section.querySelector('.ttt__grid');
   var cells = Array.prototype.slice.call(section.querySelectorAll('.ttt__cell'));
-  var winCells = section.querySelectorAll('.ttt__cell--win');
-  var strikeEl = section.querySelector('.ttt__strike');
-  if (!cells.length || !strikeEl) return;
+  if (!cells.length) return;
 
-  var PLACE_END = 0.66;   // last token lands at 66% of the scroll-through
-  var STRIKE_FROM = 0.72; // strike starts drawing just after
-  var STRIKE_SPAN = 0.2;  // ...and finishes over the next 20%
+  var GRID_IN = 0.14;      // grid frame finishes appearing at 14% of the scroll
+  var PLACE_START = 0.16;  // tokens then drop in...
+  var PLACE_END = 0.85;    // ...finishing near the end
   var ticking = false;
 
   function clamp(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+  function ease(t) { return t * t * (3 - 2 * t); } // smoothstep
+
+  // Reduced motion: no pin/scrub — show the finished board and bail.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    cells.forEach(function (cell) { cell.classList.add('is-placed'); });
+    return;
+  }
 
   function update() {
     var rect = section.getBoundingClientRect();
     var travel = rect.height - window.innerHeight;
     var progress = travel > 0 ? clamp(-rect.top / travel) : 0;
 
+    var gridIn = ease(clamp(progress / GRID_IN));
+    if (grid) {
+      grid.style.opacity = gridIn;
+      grid.style.transform = 'scale(' + (0.85 + 0.15 * gridIn) + ')';
+    }
+
     cells.forEach(function (cell, i) {
-      var threshold = ((i + 1) / cells.length) * PLACE_END;
+      var threshold = PLACE_START + (i / cells.length) * (PLACE_END - PLACE_START);
       cell.classList.toggle('is-placed', progress >= threshold);
     });
-
-    var strike = clamp((progress - STRIKE_FROM) / STRIKE_SPAN);
-    strikeEl.style.setProperty('--strike', strike);
-    for (var j = 0; j < winCells.length; j++) {
-      winCells[j].classList.toggle('is-won', strike > 0.5);
-    }
 
     ticking = false;
   }
@@ -115,46 +122,30 @@ document.querySelectorAll('.btn-nav-cta, .btn-primary, .btn-outline, .btn-dark, 
   update();
 })();
 
-// Scroll-linked reveal for the black & white photo grid: each line of copy
-// and each framed photo rises and fades into place as it scrolls up through
-// the viewport, scrubbed continuously by scroll position rather than firing
-// once on entry (see .photo-reveal in styles.css). Reduced motion / no JS
-// leaves the grid in its natural, fully-visible state.
+// Smooth fade-in for the black & white photo grid: each line of copy and each
+// framed photo gets .revealed the first time it scrolls into view, which
+// triggers the CSS opacity/transform transition (see .photo-reveal in
+// styles.css). rootMargin trims the bottom of the viewport so the fade starts
+// once the element is comfortably in view rather than right at the edge.
 (function () {
-  var items = Array.prototype.slice.call(document.querySelectorAll('.photo-reveal'));
+  var items = document.querySelectorAll('.photo-reveal');
   if (!items.length) return;
 
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-  var ticking = false;
-
-  function clamp(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
-
-  function update() {
-    var ih = window.innerHeight;
-    var start = ih * 0.9;   // starts revealing as the element nears the bottom edge
-    var end = ih * 0.55;    // fully revealed once it rises just past centre
-    items.forEach(function (el) {
-      var top = el.getBoundingClientRect().top;
-      var p = clamp((start - top) / (start - end));
-      // Photo tiles scale up noticeably as they scroll in; the text lines
-      // just get a subtle settle so the words stay readable.
-      var minScale = el.classList.contains('photo-spotlight') ? 0.7 : 0.94;
-      el.style.opacity = p;
-      el.style.transform = 'translateY(' + ((1 - p) * 64) + 'px) scale(' + (minScale + (1 - minScale) * p) + ')';
-    });
-    ticking = false;
+  if (!('IntersectionObserver' in window)) {
+    items.forEach(function (el) { el.classList.add('revealed'); });
+    return;
   }
 
-  window.addEventListener('scroll', function () {
-    if (!ticking) {
-      requestAnimationFrame(update);
-      ticking = true;
-    }
-  }, { passive: true });
-  window.addEventListener('resize', update, { passive: true });
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -12% 0px' });
 
-  update();
+  items.forEach(function (el) { observer.observe(el); });
 })();
 
 // Sparkle color-reveal spotlight on the B&W photo grid: same --mx/--my

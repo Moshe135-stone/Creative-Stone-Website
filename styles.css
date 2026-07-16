@@ -9,15 +9,13 @@ input::placeholder { color: #6a6a72; }
 
 /* ============ TIC-TAC-TOE service board ============
    Replaces the old auto-scrolling ticker. A 3x3 hash grid is pinned in a
-   tall section; script.js computes scroll progress through that section
-   and drives it two ways: toggling .is-placed on each cell (so the nine
-   service tokens pop in one at a time as you scroll) and writing the
-   --strike custom property (0→1) on .ttt__strike, which scales a diagonal
-   line across the three .ttt__cell--win cells like a winning move. All
-   motion is scrubbed by scroll — nothing loops on its own. */
+   tall section; script.js computes scroll progress through that section and
+   toggles .is-placed on each cell, so the nine service tokens pop in one at
+   a time as you scroll. Hovering a cell lights a cursor-tracked blue noise
+   spotlight (see .ttt__cell::before). */
 .ttt {
   position: relative;
-  height: 320vh;                 /* scroll room for the pinned board */
+  height: 220vh;                 /* scroll room for the pinned board */
   background: #0d0d10;
   border-top: 1px solid #1c1c20;
   border-bottom: 1px solid #1c1c20;
@@ -27,42 +25,53 @@ input::placeholder { color: #6a6a72; }
   top: 0;
   height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 40px;
   overflow: hidden;
-}
-.ttt__eyebrow {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 13px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin: 0;
 }
 .ttt__grid {
   position: relative;
   width: min(560px, 80vw);
-  aspect-ratio: 1;               /* square, so the 45° strike hits the corners */
+  aspect-ratio: 1;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
+  will-change: transform, opacity;   /* scaled + faded in by script.js on scroll */
 }
 /* The hash "#": inner separators only (columns 1–2 get a right edge, rows
-   1–2 a bottom edge), no outer frame. The 10th grid child is .ttt__strike,
-   which isn't a .ttt__cell, so these nth-child rules never touch it. */
+   1–2 a bottom edge), no outer frame. */
 .ttt__cell:nth-child(3n+1),
 .ttt__cell:nth-child(3n+2) { border-right: 1px solid #26262c; }
 .ttt__cell:nth-child(-n+6)  { border-bottom: 1px solid #26262c; }
 .ttt__cell {
+  position: relative;
+  overflow: hidden;              /* clips the hover spotlight to the cell */
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   padding: 10px;
 }
+/* Blue noise spotlight on hover: a cursor-tracked radial glow whose centre
+   follows --mx/--my (set by script.js on pointermove) blended with a fine
+   noise texture — the same trick as the site's buttons, tinted blue and
+   scoped to the hovered service cell. The token span sits above it (its own
+   transform gives it a stacking context). */
+.ttt__cell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .3s ease;
+  background:
+    radial-gradient(circle 170px at var(--mx, 50%) var(--my, 50%), rgba(56, 132, 255, 0.9), rgba(56, 132, 255, 0.32) 45%, transparent 72%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-blend-mode: overlay;
+}
+.ttt__cell:hover::before { opacity: 1; }
 .ttt__cell span {
+  position: relative;
   font-family: 'IBM Plex Mono', monospace;
   font-size: clamp(13px, 1.7vw, 18px);
   letter-spacing: 0.08em;
@@ -75,33 +84,13 @@ input::placeholder { color: #6a6a72; }
               color .3s ease;
 }
 .ttt__cell.is-placed span { opacity: 1; transform: scale(1) rotate(0deg); }
-.ttt__cell--win.is-won span { color: #ffffff; }
-
-/* The winning strike: a horizontal bar centred on the grid, rotated 45°
-   onto the top-left→bottom-right diagonal, revealed by scaling it out from
-   the middle (--strike, set by script.js). Transparent gradient ends keep
-   it looking like a drawn stroke while it grows. */
-.ttt__strike {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 141.4%;                 /* diagonal of a square = side × √2 */
-  height: 4px;
-  border-radius: 4px;
-  background: linear-gradient(90deg, transparent, var(--accent), #67f0ff, var(--accent), transparent);
-  box-shadow: 0 0 18px rgba(139, 92, 246, 0.85);
-  transform: translate(-50%, -50%) rotate(45deg) scaleX(var(--strike, 0));
-  transform-origin: center;
-  pointer-events: none;
-}
+.ttt__cell:hover span { color: #ffffff; }
 
 /* No pinning / scrubbing when motion is reduced — show the finished board. */
 @media (prefers-reduced-motion: reduce) {
   .ttt { height: auto; }
   .ttt__pin { position: static; height: auto; padding: 96px 0; }
   .ttt__cell span { opacity: 1; transform: none; }
-  .ttt__cell--win span { color: #ffffff; }
-  .ttt__strike { transform: translate(-50%, -50%) rotate(45deg) scaleX(1); }
 }
 
 /* Interactive elements — base + hover/focus states live here since inline
@@ -225,16 +214,14 @@ input::placeholder { color: #6a6a72; }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Both buttons share one look: a thin stroke, no fill. The stroke is drawn by
-   two masked pseudo-element rings — the "fill the box, then punch out the
-   content box" border trick — instead of a real border, so a cursor-tracked
-   radial spotlight can light ONLY the stroke. ::before is the dim resting
-   stroke; ::after is the coloured spotlight that fades in on hover and follows
-   the pointer via --mx/--my (set by script.js on pointermove). The overflow
-   clip for the label→icon morph lives on .hero-cta__text (below), not here, so
-   these edge rings aren't clipped away. */
-.hero-cta::before,
-.hero-cta::after {
+/* Resting look: a thin grey stroke drawn by the ::before ring (the "fill the
+   box, then punch out the content box" mask trick, so it reads as a border
+   without being one). On hover, instead of lighting that stroke, ::after
+   fills the button with the same cursor-tracked blue noise spotlight as the
+   grid service cells — a blue radial glow centred on --mx/--my (set by
+   script.js on pointermove) blended with a faint noise texture. The label and
+   arrow sit above the fill via z-index (below). */
+.hero-cta::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -243,16 +230,25 @@ input::placeholder { color: #6a6a72; }
   -webkit-mask-composite: xor;
           mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
           mask-composite: exclude;
+  background: #2c2c32;
   pointer-events: none;
 }
-.hero-cta::before { background: #2c2c32; }
 .hero-cta::after {
-  background: radial-gradient(circle 190px at var(--mx, 50%) var(--my, 50%),
-    #67f0ff 0%, #8b5cf6 40%, transparent 70%);
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
   opacity: 0;
   transition: opacity .3s ease;
+  background:
+    radial-gradient(circle 240px at var(--mx, 50%) var(--my, 50%), rgba(56, 132, 255, 0.9), rgba(56, 132, 255, 0.32) 45%, transparent 72%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-blend-mode: overlay;
 }
 .hero-cta:hover::after { opacity: 1; }
+/* Keep the label/icon and arrow above the blue fill. */
+.hero-cta__text { z-index: 1; }
+.hero-cta__arrow { position: relative; z-index: 1; }
 
 /* the morph slot — fixed height so the swap doesn't reflow the button;
    overflow: hidden clips the label sliding out and the icon rising in (this
@@ -337,16 +333,25 @@ input::placeholder { color: #6a6a72; }
 .form-input:focus { border-color: var(--accent); }
 
 /* Black & white photo grid on the landing page: each line of copy and each
-   framed photo rises and fades into place as it scrolls up through the
-   viewport. script.js writes opacity + transform every frame (scrubbed by
-   scroll position, not a one-shot transition — see the photo-reveal block
-   there), so there is no CSS transition here; will-change just keeps the
-   scrubbed transform on the compositor. The default state below is fully
-   visible, so with JS disabled — or reduced motion, where script.js bails —
-   the grid still shows normally. */
+   framed photo fades and drifts up into place the first time it scrolls into
+   view. script.js adds .revealed via an IntersectionObserver (once per
+   element); the smooth fade itself is this CSS transition, so it plays at a
+   steady pace independent of scroll speed. The inline transition-delay on
+   each element (in the HTML) staggers them. If JS is disabled the observer
+   fallback reveals everything; reduced motion skips the motion entirely. */
 .photo-reveal {
+  opacity: 0;
+  transform: translateY(48px);
   transform-origin: center;
-  will-change: transform, opacity;
+  will-change: opacity, transform;
+  transition: opacity 1.1s ease, transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.photo-reveal.revealed {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .photo-reveal { opacity: 1; transform: none; transition: none; }
 }
 
 /* Sparkle color-reveal: the color "sparkle" photo sits underneath, and the
