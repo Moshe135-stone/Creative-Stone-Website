@@ -26,15 +26,18 @@ document.getElementById('contactForm')?.addEventListener('submit', function (e) 
   });
 })();
 
-// Cursor-tracking spotlight on buttons and the tic-tac-toe service cells:
-// sets --mx/--my custom properties (consumed by the ::before radial-gradient
-// in styles.css) to the pointer's position within the element, so the glow
-// follows the mouse on hover — cyan/purple on the buttons, blue on the cells.
-document.querySelectorAll('.btn-nav-cta, .btn-primary, .btn-outline, .btn-dark, .hero-cta, .ttt__cell').forEach(function (btn) {
-  btn.addEventListener('pointermove', function (e) {
-    var rect = btn.getBoundingClientRect();
-    btn.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
-    btn.style.setProperty('--my', (e.clientY - rect.top) + 'px');
+// Cursor-tracking blue spotlight: sets --mx/--my (consumed by the ::before /
+// ::after radial-gradients in styles.css) to the pointer's position within the
+// element, so the glow follows the mouse on hover. One handler drives every
+// spotlit surface on the site — buttons, the hero CTAs, the tic-tac-toe
+// service cells, and anything carrying the shared .noise-spot utility.
+document.querySelectorAll(
+  '.btn-nav-cta, .btn-primary, .btn-outline, .btn-dark, .hero-cta, .ttt__cell, .noise-spot'
+).forEach(function (el) {
+  el.addEventListener('pointermove', function (e) {
+    var rect = el.getBoundingClientRect();
+    el.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
+    el.style.setProperty('--my', (e.clientY - rect.top) + 'px');
   });
 });
 
@@ -63,6 +66,38 @@ document.querySelectorAll('.btn-nav-cta, .btn-primary, .btn-outline, .btn-dark, 
   }, { passive: true });
 
   updateDissolve();
+})();
+
+// Hero panel slide-over: as the hero rises up over the photo section, scrub
+// its top corner radius from rounded (arriving from below) to flat (once it
+// has scrolled up to fill the viewport), so it reads as a panel sliding over
+// the previous section. See .hero-panel in styles.css.
+(function () {
+  var panel = document.querySelector('.hero-panel');
+  if (!panel) return;
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var MAX_RADIUS = 40; // px, while the panel is first arriving from below
+  var ticking = false;
+
+  function clamp(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+
+  function update() {
+    var top = panel.getBoundingClientRect().top;
+    var p = clamp(top / window.innerHeight); // 1 = arriving, 0 = pinned to top
+    panel.style.setProperty('--slide-radius', (p * MAX_RADIUS) + 'px');
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', function () {
+    if (!ticking) {
+      requestAnimationFrame(update);
+      ticking = true;
+    }
+  }, { passive: true });
+  window.addEventListener('resize', update, { passive: true });
+
+  update();
 })();
 
 // Tic-tac-toe service board: scrubbed by scroll position through the tall
@@ -122,13 +157,212 @@ document.querySelectorAll('.btn-nav-cta, .btn-primary, .btn-outline, .btn-dark, 
   update();
 })();
 
-// Smooth fade-in for the black & white photo grid: each line of copy and each
-// framed photo gets .revealed the first time it scrolls into view, which
-// triggers the CSS opacity/transform transition (see .photo-reveal in
-// styles.css). rootMargin trims the bottom of the viewport so the fade starts
+// Hero CTA dock: the two buttons ride the scroll in two steps (see
+// .hero-cta-group in styles.css for the matching CSS).
+//   1. .is-docked  — the moment their natural spot in the panel would carry
+//      them above the bottom edge of the screen, they go fixed and stay flush
+//      to that edge at full size. Handing over exactly at that crossing point
+//      means the switch to fixed lands them where they already were, so there
+//      is nothing to see.
+//   2. .is-compact — once the hero panel itself has scrolled by, they shrink
+//      to a small dock and follow you down the rest of the page.
+// The slot keeps their height in the panel's flow, so going fixed can't make
+// the layout jump.
+(function () {
+  var slot = document.querySelector('.hero-cta-slot');
+  var panel = document.querySelector('.hero-panel');
+  var group = slot && slot.querySelector('.hero-cta-group');
+  if (!slot || !panel || !group) return;
+
+  var ticking = false;
+
+  // Reserve the row's height. Measured undocked, since a fixed group would
+  // otherwise measure against a collapsed slot.
+  function measure() {
+    group.classList.remove('is-docked');
+    slot.style.height = '';
+    slot.style.height = group.offsetHeight + 'px';
+  }
+
+  function update() {
+    ticking = false;
+    var vh = window.innerHeight;
+    group.classList.toggle('is-docked', slot.getBoundingClientRect().bottom <= vh);
+    group.classList.toggle('is-compact', panel.getBoundingClientRect().bottom <= vh);
+  }
+
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  }
+
+  function onResize() {
+    measure();
+    update();
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onResize, { passive: true });
+  // Fonts landing late would change the row's height, so re-measure once ready.
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(onResize);
+  measure();
+  update();
+})();
+
+// Range selector text: the hero statement, animated the way an After Effects
+// text animator with a range selector would do it. The line is rebuilt as one
+// span per character, and scrolling sweeps a soft-edged selector (FEATHER
+// characters wide) across them from the first character to the last. Inside
+// that band each character runs its own grey → white → blue ramp, so the sweep
+// reads as a band of white light travelling along the line and leaving the
+// brand blue behind it. Characters ahead of the band stay grey, characters
+// behind it stay blue.
+//
+// The colors are only ever set here, so reduced motion (and no JS at all)
+// simply leaves the plain white .range-text from styles.css alone.
+(function () {
+  var el = document.querySelector('.range-text');
+  if (!el) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var GREY = [90, 90, 99];
+  var WHITE = [242, 242, 244];
+  var BLUE = (function () {
+    var raw = getComputedStyle(document.documentElement).getPropertyValue('--accent-rgb');
+    var parts = raw.split(',').map(function (v) { return parseInt(v, 10); });
+    return parts.length === 3 && parts.every(function (v) { return v >= 0; }) ? parts : [56, 132, 255];
+  })();
+
+  var FEATHER = 8;      // width of the sweeping band, in characters
+  var START = 0.88;     // sweep starts when the line's top is 88% down the viewport
+  var END = 0.3;        // and finishes once it reaches 30%
+
+  // Rebuild the line: a span per character, grouped into a span per word so
+  // words still wrap as units. The characters stay real text nodes, so the
+  // sentence is still read normally.
+  var text = el.textContent.trim().replace(/\s+/g, ' ');
+  var frag = document.createDocumentFragment();
+  var chars = [];
+  text.split(' ').forEach(function (word, wi) {
+    if (wi) frag.appendChild(document.createTextNode(' '));
+    var wordEl = document.createElement('span');
+    wordEl.className = 'rt-word';
+    word.split('').forEach(function (ch) {
+      var charEl = document.createElement('span');
+      charEl.className = 'rt-char';
+      charEl.textContent = ch;
+      wordEl.appendChild(charEl);
+      chars.push(charEl);
+    });
+    frag.appendChild(wordEl);
+  });
+  el.textContent = '';
+  el.appendChild(frag);
+
+  var n = chars.length;
+  var last = new Array(n).fill(-1);
+  var ticking = false;
+
+  function mix(a, b, t) {
+    return [
+      Math.round(a[0] + (b[0] - a[0]) * t),
+      Math.round(a[1] + (b[1] - a[1]) * t),
+      Math.round(a[2] + (b[2] - a[2]) * t)
+    ];
+  }
+
+  function update() {
+    ticking = false;
+    var vh = window.innerHeight;
+    var rect = el.getBoundingClientRect();
+    var from = vh * START;
+    var to = vh * END;
+    var p = Math.min(1, Math.max(0, (from - rect.top) / (from - to)));
+
+    // Leading edge of the selector, in character units. It starts one feather
+    // before the first character and ends one feather past the last, so every
+    // character gets the full ramp.
+    var head = p * (n + FEATHER);
+
+    for (var i = 0; i < n; i++) {
+      var t = Math.min(1, Math.max(0, (head - i) / FEATHER));
+      if (t === last[i]) continue;   // skip the characters the band has passed
+      last[i] = t;
+      var rgb = t < 0.5 ? mix(GREY, WHITE, t * 2) : mix(WHITE, BLUE, (t - 0.5) * 2);
+      chars[i].style.color = 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+    }
+  }
+
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  update();
+})();
+
+// Magic scroll: drives the diagonal rail in the black & white photo section
+// (see .magic-scroll in styles.css). Progress through the tall section maps to
+// --focus — the rail slot currently centred — which runs from -1 (slot 0 still
+// off the bottom-right) to N (the last slot gone past the top-left), so every
+// item crosses the screen. Each item's scale/opacity comes from how far it is
+// from centre, giving the pass-through-the-middle "focus" feel. Adding
+// .magic-on is what switches the section out of its plain stacked fallback, so
+// reduced motion simply leaves the fallback in place.
+(function () {
+  var section = document.querySelector('.magic-scroll');
+  if (!section) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var rail = section.querySelector('.magic-scroll__rail');
+  var items = [].slice.call(section.querySelectorAll('.magic-item'));
+  if (!rail || !items.length) return;
+
+  section.classList.add('magic-on');
+
+  var n = items.length;
+  var ticking = false;
+
+  function update() {
+    ticking = false;
+    var rect = section.getBoundingClientRect();
+    var distance = rect.height - window.innerHeight;
+    if (distance <= 0) return;
+
+    var p = Math.min(1, Math.max(0, -rect.top / distance));
+    var focus = -1 + p * (n + 1);
+    rail.style.setProperty('--focus', focus.toFixed(4));
+
+    items.forEach(function (el, i) {
+      // 0 at dead centre, 1 once ~1.4 slots away — by then the item is at the
+      // corner of the screen, so it is fully faded and shrunk out.
+      var d = Math.min(1, Math.abs(i - focus) / 1.4);
+      el.style.setProperty('--s', (1 - d * 0.25).toFixed(4));
+      el.style.setProperty('--o', (1 - d * d).toFixed(4));
+    });
+  }
+
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  update();
+})();
+
+// Scroll reveal: anything marked .reveal (headings, cards and rows from "what
+// we do" down) gets .revealed the first time it scrolls into view, which plays
+// its CSS fade. rootMargin trims the bottom of the viewport so the fade starts
 // once the element is comfortably in view rather than right at the edge.
 (function () {
-  var items = document.querySelectorAll('.photo-reveal');
+  var items = document.querySelectorAll('.reveal');
   if (!items.length) return;
 
   if (!('IntersectionObserver' in window)) {

@@ -1,4 +1,61 @@
-:root { --accent: #8b5cf6; --spotlight: 34, 229, 255; --spotlight-purple: 139, 92, 246; }
+/* One accent for the whole site: blue. It replaced the old purple/cyan pair —
+   every spotlight (buttons, hero CTAs, the service grid, the cards below "what
+   we do") is now the same blue glow over the same faint noise, so the
+   interactive language reads as one system. --noise is shared by all of them;
+   its alpha is deliberately low (.12) so it reads as grain, not static. */
+:root {
+  --accent: #3884ff;
+  --accent-rgb: 56, 132, 255;
+  --spotlight: var(--accent-rgb);
+  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============ Blue noise spotlight (shared) ============
+   The site's one hover treatment: a cursor-tracked blue radial glow (centred
+   on --mx/--my, set by script.js on pointermove) blended with the shared noise
+   grain. Tune per-element with --spot-size / --spot-a1 / --spot-a2 — buttons
+   and grid cells use the strong default fill; large cards dial it down to a
+   soft ambient wash. Content is lifted above the glow via the child rule. */
+.noise-spot { position: relative; overflow: hidden; }
+.noise-spot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .3s ease;
+  background:
+    radial-gradient(circle var(--spot-size, 220px) at var(--mx, 50%) var(--my, 50%),
+      rgba(var(--accent-rgb), var(--spot-a1, .9)),
+      rgba(var(--accent-rgb), var(--spot-a2, .32)) 45%,
+      transparent 72%),
+    var(--noise);
+  background-blend-mode: overlay;
+}
+.noise-spot:hover::before { opacity: 1; }
+.noise-spot > * { position: relative; z-index: 1; }
+
+/* ============ Scroll reveal (shared) ============
+   Fade + drift up the first time an element scrolls into view. script.js adds
+   .revealed via an IntersectionObserver; stagger siblings with an inline
+   animation-delay.
+
+   This deliberately uses an animation, NOT a transition: .reveal is applied to
+   elements that declare their own transition for hover (.industry-card, .step,
+   .btn-primary), and those rules come later in the cascade — a transition-based
+   reveal would be overridden by them and snap instead of fading. An animation
+   runs on a separate channel, so both work. Don't "simplify" this back into a
+   transition. */
+.reveal { opacity: 0; }
+.reveal.revealed { animation: reveal-in .9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes reveal-in {
+  from { opacity: 0; transform: translateY(36px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; }
+  .reveal.revealed { animation: none; }
+}
 html { scroll-behavior: smooth; }
 body { margin: 0; background: #0a0a0c; color: #f2f2f4; font-family: 'Archivo', sans-serif; -webkit-font-smoothing: antialiased; }
 a { color: #f2f2f4; text-decoration: none; }
@@ -6,6 +63,22 @@ a:hover { color: var(--accent); }
 * { box-sizing: border-box; }
 input, select, button { font-family: 'Archivo', sans-serif; }
 input::placeholder { color: #6a6a72; }
+
+/* ============ HERO panel slide-over ============
+   The hero (Spline render + CTAs) rises over the photo section above it like
+   a panel: the negative margin-top pulls it up into the previous section, and
+   the opaque background + upward shadow make it read as a sheet floating over.
+   script.js scrubs --slide-radius on scroll — rounded corners while the panel
+   is arriving from below, flattening to 0 once it has scrolled up to fill the
+   viewport. Reduced motion just leaves it lightly rounded. */
+.hero-panel {
+  z-index: 2;
+  margin-top: -14vh;
+  background: #0a0a0c;
+  border-top-left-radius: var(--slide-radius, 32px);
+  border-top-right-radius: var(--slide-radius, 32px);
+  box-shadow: 0 -34px 70px -24px rgba(0, 0, 0, 0.75);
+}
 
 /* ============ TIC-TAC-TOE service board ============
    Replaces the old auto-scrolling ticker. A 3x3 hash grid is pinned in a
@@ -65,8 +138,8 @@ input::placeholder { color: #6a6a72; }
   opacity: 0;
   transition: opacity .3s ease;
   background:
-    radial-gradient(circle 170px at var(--mx, 50%) var(--my, 50%), rgba(56, 132, 255, 0.9), rgba(56, 132, 255, 0.32) 45%, transparent 72%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    radial-gradient(circle 170px at var(--mx, 50%) var(--my, 50%), rgba(var(--accent-rgb), .9), rgba(var(--accent-rgb), .32) 45%, transparent 72%),
+    var(--noise);
   background-blend-mode: overlay;
 }
 .ttt__cell:hover::before { opacity: 1; }
@@ -125,7 +198,7 @@ input::placeholder { color: #6a6a72; }
   transition: opacity .25s ease;
   background:
     radial-gradient(circle 140px at var(--mx, 50%) var(--my, 50%), rgba(var(--spotlight), .9), rgba(var(--spotlight), .35) 45%, transparent 72%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.45 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    var(--noise);
   background-blend-mode: overlay;
 }
 .btn-nav-cta:hover::before, .btn-nav-cta:focus-visible::before,
@@ -135,10 +208,9 @@ input::placeholder { color: #6a6a72; }
   opacity: 1;
 }
 
-/* All four buttons share the exact same base look as .btn-outline
-   (transparent fill, thin gray border, light text) — the only thing that
-   differs between them is the spotlight color: purple for nav/primary/dark,
-   cyan for outline (via the --spotlight custom-property override). */
+/* All four buttons share one look — the old .btn-outline base (transparent
+   fill, thin gray border, light text) — and one blue spotlight, inherited
+   from --spotlight in :root. */
 .btn-nav-cta,
 .btn-primary,
 .btn-outline,
@@ -148,11 +220,6 @@ input::placeholder { color: #6a6a72; }
   border-style: solid;
   border-color: #2c2c32;
   color: #f2f2f4;
-}
-.btn-nav-cta,
-.btn-primary,
-.btn-dark {
-  --spotlight: var(--spotlight-purple);
 }
 .btn-nav-cta:hover, .btn-nav-cta:focus-visible,
 .btn-primary:hover, .btn-primary:focus-visible,
@@ -170,35 +237,72 @@ input::placeholder { color: #6a6a72; }
    call" button, a pair of blinking eyes on the "see what we do" button.
    The label/icon share one fixed-height slot (.hero-cta__text) and are
    stacked so one exits as the other enters (the morph). */
-/* In normal flow, sitting directly beneath the flex-growing Spline render and
-   aligned to the right. The ticker section that follows lands beneath these. */
+/* The pair sits side by side, centred, a good drop below the statement, and
+   rides the scroll in two steps driven by script.js:
+     .is-docked  — pinned flush to the bottom edge of the screen, at full size,
+                   picked up as they rise into view and held all through the hero
+     .is-compact — scrolled past the hero, so they shrink into a small dock and
+                   follow you down the rest of the page
+   Fixed rather than sticky, because a sticky element can't outlive its own
+   section and these have to. .hero-cta-slot keeps their space in the panel so
+   nothing jumps at the moment they go fixed. Scaling (rather than restyling)
+   is what shrinks them, so the button internals — the fixed-height morph slot
+   included — can't reflow on the way down. */
+.hero-cta-slot {
+  margin-top: clamp(80px, 16vh, 190px);
+}
 .hero-cta-group {
+  --dock-scale: 0.62;
   position: relative;
   z-index: 3;
   display: flex;
-  flex-direction: column;
-  gap: 20px;
-  align-items: flex-end;
-  pointer-events: auto;
+  gap: clamp(16px, 1.6vw, 24px);
+  align-items: stretch;
+  justify-content: center;
+  width: min(1060px, 100%);
+  margin: 0 auto;
+  transform-origin: bottom center;
+  transition: transform .55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-cta-group.is-docked {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  z-index: 40;                 /* under the fixed header (50) */
+  pointer-events: none;        /* the full-width strip must not eat clicks */
+}
+.hero-cta-group.is-compact {
+  transform: scale(var(--dock-scale));
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-cta-group { transition: none; }
 }
 
+/* flex: 1 1 0 keeps the two exactly equal despite their different label
+   lengths; the clamps let the row survive narrow screens now that the buttons
+   sit beside each other rather than stacked. */
 .hero-cta {
   position: relative;
   isolation: isolate;
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 40px;
-  min-width: 460px;
-  padding: 34px 42px;
+  gap: clamp(16px, 1.6vw, 40px);
+  padding: clamp(22px, 2.2vw, 34px) clamp(24px, 2.6vw, 42px);
+  pointer-events: auto;        /* the docked group turns pointer events off */
   background: rgba(13, 13, 16, 0.5);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   color: #f2f2f4;
-  font-size: 30px;
+  font-size: clamp(17px, 1.9vw, 30px);
   font-weight: 600;
   letter-spacing: -0.01em;
   line-height: 1;
+  white-space: nowrap;
   opacity: 0;
   transform: translateY(42px);
   animation: hero-cta-in .7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -241,8 +345,8 @@ input::placeholder { color: #6a6a72; }
   opacity: 0;
   transition: opacity .3s ease;
   background:
-    radial-gradient(circle 240px at var(--mx, 50%) var(--my, 50%), rgba(56, 132, 255, 0.9), rgba(56, 132, 255, 0.32) 45%, transparent 72%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    radial-gradient(circle 240px at var(--mx, 50%) var(--my, 50%), rgba(var(--accent-rgb), .9), rgba(var(--accent-rgb), .32) 45%, transparent 72%),
+    var(--noise);
   background-blend-mode: overlay;
 }
 .hero-cta:hover::after { opacity: 1; }
@@ -315,43 +419,209 @@ input::placeholder { color: #6a6a72; }
   animation: eyes-blink 2.8s ease-in-out infinite;
 }
 
-.industry-card {
-  border-width: 1px;
-  border-style: solid;
-  border-color: #232328;
-  transition: border-color .15s ease;
+/* ============ "What we do" and everything below ============
+   This half of the page speaks the same language as the grid and buttons
+   above: flat and sharp-cornered (no radii), hairline #26262c rules instead of
+   soft filled cards, mono uppercase eyebrows, and the single blue noise
+   spotlight on anything hoverable. The spotlight is tuned per surface via
+   --spot-size/--spot-a1/--spot-a2 — small and strong on buttons, wide and
+   faint on big cards so it reads as an ambient wash following the cursor. */
+
+/* The "what we do" column. The cards used to pin and deal onto a sticky pile;
+   now they're a plain flex stack that scrolls normally — 1200px wide,
+   left-aligned, 24px between items — and each block fades up on its own as it
+   comes into view (.reveal) instead of stacking. */
+.svc-stack {
+  display: flex;
+  flex-flow: column;
+  place-content: flex-start;
+  align-items: flex-start;
+  gap: 24px;
+  width: 100%;
+  max-width: 1200px;
+  height: min-content;
+  margin: 0 auto;
+  padding: 100px 24px 80px;
+  position: relative;
+  overflow: visible;
 }
-.industry-card:hover { border-color: var(--accent); }
+/* Each quote block. align-items: flex-start on the stack would otherwise
+   shrink these to their content width, so they claim the full column. */
+.svc-card {
+  --spot-size: 520px;
+  --spot-a1: .16;
+  --spot-a2: .05;
+  width: 100%;
+  border: 1px solid #26262c;
+  transition: border-color .3s ease;
+}
+.svc-card:hover { border-color: rgba(var(--accent-rgb), .55); }
+/* card 04 is the lead offer — it carries the accent stroke at rest */
+.svc-card--lead { border-color: rgba(var(--accent-rgb), .5); }
+.svc-card--lead:hover { border-color: var(--accent); }
+
+/* Capability chips: sharp, hairline, they light up individually on hover. */
+.svc-tag {
+  border: 1px solid #2c2c32;
+  padding: 10px 18px;
+  font-size: 14px;
+  color: #cfcfd4;
+  transition: border-color .2s ease, color .2s ease;
+}
+.svc-tag:hover { border-color: rgba(var(--accent-rgb), .6); color: #ffffff; }
+
+/* Pricing banner: was a solid purple block. Now a dark panel carrying a static
+   blue wash + grain, with the cursor-tracked spotlight layered on hover. */
+.price-panel {
+  --spot-size: 620px;
+  --spot-a1: .26;
+  --spot-a2: .09;
+  border: 1px solid rgba(var(--accent-rgb), .5);
+  background:
+    var(--noise),
+    radial-gradient(circle 760px at 12% -20%, rgba(var(--accent-rgb), .34), transparent 70%),
+    #0b0e14;
+  background-blend-mode: overlay, normal, normal;
+}
+
+.industry-card {
+  --spot-size: 380px;
+  --spot-a1: .18;
+  --spot-a2: .06;
+  border: 1px solid #26262c;
+  transition: border-color .3s ease;
+}
+.industry-card:hover { border-color: rgba(var(--accent-rgb), .6); }
+
+/* Flat panels (the form, and any plain bordered surface down here). */
+.panel { background: #0d0d10; border: 1px solid #26262c; }
+
+/* Process steps: hairline-ruled rows, the rule lights up as you pass over. */
+.step { border-top: 1px solid #232328; transition: border-color .3s ease; }
+.step:last-child { border-bottom: 1px solid #232328; }
+.step:hover { border-color: rgba(var(--accent-rgb), .5); }
 
 .form-input {
   border-width: 1px;
   border-style: solid;
   border-color: #2c2c32;
   outline: none;
-  transition: border-color .15s ease;
+  transition: border-color .2s ease, box-shadow .2s ease;
 }
-.form-input:focus { border-color: var(--accent); }
+.form-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .16);
+}
 
-/* Black & white photo grid on the landing page: each line of copy and each
-   framed photo fades and drifts up into place the first time it scrolls into
-   view. script.js adds .revealed via an IntersectionObserver (once per
-   element); the smooth fade itself is this CSS transition, so it plays at a
-   steady pace independent of scroll speed. The inline transition-delay on
-   each element (in the HTML) staggers them. If JS is disabled the observer
-   fallback reveals everything; reduced motion skips the motion entirely. */
-.photo-reveal {
-  opacity: 0;
-  transform: translateY(48px);
-  transform-origin: center;
-  will-change: opacity, transform;
-  transition: opacity 1.1s ease, transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+/* ============ RANGE SELECTOR text ============
+   The hero statement. script.js rebuilds the line as one span per character
+   and drives each character's color on scroll, so the colors below are only
+   the resting state: plain white if the script never runs or motion is
+   reduced. Words are inline-block so a word never breaks across lines once it
+   has been split into characters. */
+.range-text {
+  font-size: clamp(26px, 3.6vw, 60px);
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  font-weight: 700;
+  text-align: center;
+  text-wrap: pretty;
+  color: #f2f2f4;
+  margin: 0;
+  max-width: min(1000px, 90vw);
 }
-.photo-reveal.revealed {
-  opacity: 1;
-  transform: none;
+.rt-word {
+  display: inline-block;
+  white-space: pre;
 }
-@media (prefers-reduced-motion: reduce) {
-  .photo-reveal { opacity: 1; transform: none; transition: none; }
+.rt-char {
+  will-change: color;
+}
+
+/* ============ MAGIC SCROLL (diagonal) ============
+   The black & white photo copy and its four photos hang off one diagonal
+   rail. The stage pins to the viewport for the length of the (tall) section
+   and script.js maps scroll progress through it onto --focus: the rail slot
+   currently sitting in the middle of the screen. Slot --i is placed --i steps
+   down-and-right of centre and the rail is pulled back by --focus steps, so an
+   item's on-screen position is (--i - --focus) steps along the diagonal —
+   items arrive from the bottom-right and leave through the top-left. Scale and
+   opacity are set per item by script.js from its distance to the centre.
+
+   The base rules below are the no-JS / reduced-motion layout: an ordinary
+   centred column. script.js adds .magic-on to the section to switch the
+   pinning and the diagonal on, so the rail can never strand the copy
+   off-screen if the script doesn't run. */
+.magic-scroll {
+  position: relative;
+  background: #0a0a0c;
+  padding: 220px 40px;
+}
+.magic-scroll__rail {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10vh;
+}
+.magic-item--text {
+  font-size: clamp(28px, 5.4vw, 96px);
+  line-height: 1.0;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  text-align: center;
+  color: #f2f2f4;
+  margin: 0;
+  max-width: 760px;
+}
+.magic-item--photo {
+  width: clamp(220px, 24vw, 380px);
+  aspect-ratio: 3 / 4;
+}
+
+/* Pinned diagonal mode (JS only). --step-x/--step-y are one slot's worth of
+   travel; the section is tall enough for every slot to cross the screen. */
+.magic-scroll.magic-on {
+  --step-x: clamp(90px, 17vw, 260px);
+  --step-y: 46vh;
+  height: 520vh;
+  padding: 0;
+}
+.magic-scroll.magic-on .magic-scroll__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+.magic-scroll.magic-on .magic-scroll__rail {
+  position: absolute;
+  inset: 0;
+  max-width: none;
+  display: block;
+  gap: 0;
+  transform: translate3d(
+    calc(var(--focus, 0) * var(--step-x) * -1),
+    calc(var(--focus, 0) * var(--step-y) * -1),
+    0
+  );
+  will-change: transform;
+}
+.magic-scroll.magic-on .magic-item {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform:
+    translate(-50%, -50%)
+    translate(calc(var(--i) * var(--step-x)), calc(var(--i) * var(--step-y)))
+    scale(var(--s, 1));
+  opacity: var(--o, 1);
+  will-change: transform, opacity;
+}
+/* Absolute positioning would otherwise shrink-to-fit against the right half of
+   the stage only, so the lines need an explicit width to stay centred. */
+.magic-scroll.magic-on .magic-item--text {
+  width: min(760px, 82vw);
 }
 
 /* Sparkle color-reveal: the color "sparkle" photo sits underneath, and the

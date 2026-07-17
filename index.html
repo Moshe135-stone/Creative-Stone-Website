@@ -60,59 +60,81 @@
   <h1 id="intro-title" style="position: relative; z-index: 2; margin: 0; padding: 0 0 0 clamp(24px, 6vw, 80px); font-size: clamp(56px, 11vw, 200px); line-height: 0.88; letter-spacing: -0.04em; font-weight: 700; text-align: left; color: #f2f2f4; text-transform: uppercase; pointer-events: none; --dissolve: 0; opacity: calc(1 - var(--dissolve)); filter: blur(calc(var(--dissolve) * 26px)); transform: scale(calc(1 + var(--dissolve) * 0.18)); will-change: opacity, filter, transform;">Creative<br>Stone</h1>
 </section>
 
-<!-- ============ PHOTO REVEAL ============ -->
-<!-- A tall scroll stretch: each photo reveals individually (scaling up from
-     0) as it enters the viewport. All tiles are center-aligned with equal
-     side padding (via the shared max-width container), spread far apart
-     vertically so they pop in one after another rather than all at once.
-     The thought is broken into four giant standalone lines, each sitting
-     above (i.e. before, in scroll order) its own image — jellyfish: "Ever
-     wonder", water: "what good marketing", glasses: "actually looks like", crystal
-     (the last image): "wonder no more". -->
-<section style="padding: 220px 40px; background: #0a0a0c; position: relative;">
-  <div style="max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
-    <p class="photo-reveal" style="font-size: clamp(32px, 7vw, 130px); line-height: 1.0; letter-spacing: -0.03em; font-weight: 700; text-align: center; color: #f2f2f4; margin: 0 0 10vh; max-width: 900px; transition-delay: 0.05s;">Ever wonder</p>
+<!-- ============ MAGIC SCROLL (diagonal) ============ -->
+<!-- The four-line thought and its four photos are strung along one diagonal
+     rail. The stage pins to the viewport while the section scrolls past, and
+     the rail slides along that diagonal, so each item drifts in from the
+     bottom-right corner, passes through the middle (where it is full size and
+     opaque) and exits top-left. --i is the item's slot on the rail; script.js
+     drives --focus (which slot is currently centred) plus each item's scale
+     and opacity. Order down the rail: jellyfish "Ever wonder", water "what good
+     marketing", glasses "actually looks like", crystal "wonder no more".
+     Without JS (or under reduced motion) the rail stays unpinned and the items
+     simply stack in a centred column. -->
+<section class="magic-scroll">
+  <div class="magic-scroll__stage">
+    <div class="magic-scroll__rail">
+      <p class="magic-item magic-item--text" style="--i: 0;">Ever wonder</p>
 
-    <div class="photo-reveal photo-spotlight" style="width: clamp(220px, 24vw, 380px); aspect-ratio: 3 / 4; margin-bottom: 40vh; transition-delay: 0.12s;">
-      <img src="assets/sparkle/jellyfish.png" alt="" class="photo-color-layer">
-      <img src="assets/photos/jellyfish.png" alt="" class="photo-bw-mask" style="width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1);">
-    </div>
+      <div class="magic-item magic-item--photo photo-spotlight" style="--i: 1;">
+        <img src="assets/sparkle/jellyfish.png" alt="" class="photo-color-layer">
+        <img src="assets/photos/jellyfish.png" alt="" class="photo-bw-mask" style="width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1);">
+      </div>
 
-    <p class="photo-reveal" style="font-size: clamp(32px, 7vw, 130px); line-height: 1.0; letter-spacing: -0.03em; font-weight: 700; text-align: center; color: #f2f2f4; margin: 0 0 10vh; max-width: 900px; transition-delay: 0.08s;">what good marketing</p>
+      <p class="magic-item magic-item--text" style="--i: 2;">what good marketing</p>
 
-    <div class="photo-reveal photo-spotlight" style="width: clamp(220px, 24vw, 380px); aspect-ratio: 3 / 4; margin-bottom: 44vh; transition-delay: 0.4s;">
-      <img src="assets/sparkle/crystal-02.png" alt="" class="photo-color-layer">
-      <img src="assets/photos/crystal-02.png" alt="" class="photo-bw-mask" style="width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1);">
-    </div>
+      <div class="magic-item magic-item--photo photo-spotlight" style="--i: 3;">
+        <img src="assets/sparkle/crystal-02.png" alt="" class="photo-color-layer">
+        <img src="assets/photos/crystal-02.png" alt="" class="photo-bw-mask" style="width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1);">
+      </div>
 
-    <p class="photo-reveal" style="font-size: clamp(32px, 7vw, 130px); line-height: 1.0; letter-spacing: -0.03em; font-weight: 700; text-align: center; color: #f2f2f4; margin: 0 0 10vh; max-width: 900px; transition-delay: 0.3s;">actually looks like?</p>
+      <p class="magic-item magic-item--text" style="--i: 4;">actually looks like?</p>
 
-    <div class="photo-reveal photo-spotlight" style="width: clamp(220px, 24vw, 380px); aspect-ratio: 3 / 4; margin-bottom: 42vh; transition-delay: 0.22s;">
-      <img src="assets/sparkle/glasses.png" alt="" class="photo-color-layer">
-      <img src="assets/photos/glasses.png" alt="" class="photo-bw-mask" style="width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1);">
-    </div>
+      <div class="magic-item magic-item--photo photo-spotlight" style="--i: 5;">
+        <img src="assets/sparkle/glasses.png" alt="" class="photo-color-layer">
+        <img src="assets/photos/glasses.png" alt="" class="photo-bw-mask" style="width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1);">
+      </div>
 
-    <p class="photo-reveal" style="font-size: clamp(32px, 7vw, 130px); line-height: 1.0; letter-spacing: -0.03em; font-weight: 700; text-align: center; color: #f2f2f4; margin: 0 0 10vh; max-width: 900px; transition-delay: 0.15s;">wonder no more</p>
+      <p class="magic-item magic-item--text" style="--i: 6;">wonder no more</p>
 
-    <div class="photo-reveal photo-spotlight" style="width: clamp(220px, 24vw, 380px); aspect-ratio: 3 / 4; transition-delay: 0.18s;">
-      <img src="assets/sparkle/crystal-01.png" alt="" class="photo-color-layer">
-      <img src="assets/photos/crystal-01.png" alt="" class="photo-bw-mask" style="width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1);">
+      <div class="magic-item magic-item--photo photo-spotlight" style="--i: 7;">
+        <img src="assets/sparkle/crystal-01.png" alt="" class="photo-color-layer">
+        <img src="assets/photos/crystal-01.png" alt="" class="photo-bw-mask" style="width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1);">
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ============ HERO ============ -->
-<section style="position: relative; min-height: 100vh; display: flex; flex-direction: column; padding: 100px 40px 48px; overflow: hidden;">
+<!-- ============ HERO ============
+     Rises up over the photo section as a rounded, shadowed panel: a negative
+     margin-top overlaps the section above, and script.js scrubs the top
+     corner radius from rounded → flat (--slide-radius) as the panel scrolls
+     up to cover it. See .hero-panel in styles.css.
 
-  <!-- 3D interactive logo — a flex-growing box that fills the hero ABOVE the
-       CTAs (flex: 1), so the buttons sit in normal flow directly underneath the
-       render instead of overlapping its lower half. -->
-  <div style="flex: 1; min-height: 0; width: min(1200px, 92vw); margin: 0 auto; overflow: hidden;">
-    <spline-viewer url="https://prod.spline.design/H2OXDXgamim261ZG/scene.splinecode?v=1784076895" style="width: 100%; height: 100%; display: block; transform: translateX(8%);"></spline-viewer>
+     Taller than one screen on purpose: the statement fills the first screenful,
+     the CTAs catch on the bottom edge below it, and the extra height is the
+     stretch they stay docked at full size before the panel's end scrolls by and
+     shrinks them (see .hero-cta-group in styles.css). -->
+<section class="hero-panel" style="position: relative; min-height: 140vh; display: flex; flex-direction: column; padding: 100px 40px 48px;">
+
+  <!-- The 3D logo that used to fill this box now lives in the closing CTA; the
+       statement below took its place, centred in the first screenful.
+
+       script.js splits the line into per-character spans and sweeps an After
+       Effects style range selector through them on scroll: grey → white → blue.
+       The plain text here is the no-JS/reduced-motion fallback. -->
+  <div style="min-height: 62vh; width: min(1200px, 92vw); margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+    <p class="range-text">You're looking at it. Creative Stone builds websites, brands, and emails that makes your business easy to trust</p>
   </div>
 
-  <!-- Big bottom-right CTAs. At rest: label + up-right arrow. On hover the
-       label morphs into an animated icon (ringing phone / magnifying glass). -->
+  <!-- The two CTAs, side by side and centred a good drop below the statement.
+       At rest: label + up-right arrow. On hover the label morphs into an
+       animated icon (ringing phone / blinking eyes). script.js sticks the pair
+       to the bottom edge of the screen as they rise into view (.is-docked) and
+       then scales them down into a compact dock once you scroll past the hero
+       (.is-compact). The slot around them reserves their height so the panel
+       doesn't jump when they go fixed. -->
+  <div class="hero-cta-slot">
   <div class="hero-cta-group">
     <a href="#contact" class="hero-cta">
       <span class="hero-cta__text">
@@ -142,6 +164,7 @@
       </span>
     </a>
   </div>
+  </div>
 </section>
 
 <!-- ============ TIC-TAC-TOE — scroll-driven service board ============
@@ -165,15 +188,22 @@
   </div>
 </section>
 
-<!-- ============ SERVICES — sticky stacked cards ============ -->
-<section id="services" style="padding: 120px 40px 80px;">
-  <div style="max-width: 1240px; margin: 0 auto;">
-    <p style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 16px;">what we do</p>
-    <h2 style="font-size: clamp(36px, 4.5vw, 60px); line-height: 1.04; letter-spacing: -0.02em; font-weight: 700; margin: 0 0 64px; max-width: 760px;">Start with what you want. We'll handle how.</h2>
+<!-- ============ SERVICES — quote column ============
+     A plain flex stack (see .svc-stack): 1200px wide, left-aligned, 24px
+     between blocks, scrolling normally — the sticky "business card" pile is
+     gone. Each quote block fades up on its own as it enters view. Flat and
+     sharp-cornered to match the grid/buttons; each carries the blue noise
+     spotlight, dialled down to an ambient wash by .svc-card. -->
+<section id="services" style="padding: 0 16px;">
+  <div class="svc-stack">
+    <div style="width: 100%; margin-bottom: 40px;">
+      <p class="reveal" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 16px;">what we do</p>
+      <h2 class="reveal" style="font-size: clamp(36px, 4.5vw, 60px); line-height: 1.04; letter-spacing: -0.02em; font-weight: 700; margin: 0; max-width: 760px; animation-delay: 0.08s;">Start with what you want. We'll handle how.</h2>
+    </div>
 
-    <!-- card 01 -->
-    <div style="position: sticky; top: 96px; background: #131316; border: 1px solid #232328; border-radius: 20px; padding: 48px 56px; margin-bottom: 24px;">
-      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-bottom: 1px solid #232328; padding-bottom: 28px; margin-bottom: 32px;">
+    <!-- 01 -->
+    <div class="svc-card noise-spot reveal" style="background: #0f0f12; padding: 48px 56px;">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-bottom: 1px solid #26262c; padding-bottom: 28px; margin-bottom: 32px;">
         <h3 style="font-size: clamp(26px, 3vw, 40px); line-height: 1.1; letter-spacing: -0.02em; font-weight: 600; margin: 0; max-width: 640px;">"I want my brand to be as good as my business."</h3>
         <div style="display: flex; align-items: baseline; gap: 16px; white-space: nowrap;">
           <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent);">{01}</span>
@@ -181,17 +211,17 @@
         </div>
       </div>
       <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-        <span style="border: 1px solid #2c2c32; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Logo & visual identity — logo, color, typography system</span>
-        <span style="border: 1px solid #2c2c32; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Brand guidelines / style guide</span>
-        <span style="border: 1px solid #2c2c32; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Marketing collateral — flyers, one-pagers, business cards, decks</span>
-        <span style="border: 1px solid #2c2c32; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Social media templates & post design</span>
-        <span style="border: 1px solid #2c2c32; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Motion & animation — logo animation, explainer clips, animated ads</span>
-        <span style="border: 1px solid #2c2c32; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Print & packaging design — listing images, inserts, packaging</span>
+        <span class="svc-tag">Logo & visual identity — logo, color, typography system</span>
+        <span class="svc-tag">Brand guidelines / style guide</span>
+        <span class="svc-tag">Marketing collateral — flyers, one-pagers, business cards, decks</span>
+        <span class="svc-tag">Social media templates & post design</span>
+        <span class="svc-tag">Motion & animation — logo animation, explainer clips, animated ads</span>
+        <span class="svc-tag">Print & packaging design — listing images, inserts, packaging</span>
       </div>
     </div>
 
-    <!-- card 02 -->
-    <div style="position: sticky; top: 112px; background: #16161a; border: 1px solid #26262c; border-radius: 20px; padding: 48px 56px; margin-bottom: 24px;">
+    <!-- 02 -->
+    <div class="svc-card noise-spot reveal" style="background: #0f0f12; padding: 48px 56px;">
       <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-bottom: 1px solid #26262c; padding-bottom: 28px; margin-bottom: 32px;">
         <h3 style="font-size: clamp(26px, 3vw, 40px); line-height: 1.1; letter-spacing: -0.02em; font-weight: 600; margin: 0; max-width: 640px;">"I want to attract leads and customers online."</h3>
         <div style="display: flex; align-items: baseline; gap: 16px; white-space: nowrap;">
@@ -200,18 +230,18 @@
         </div>
       </div>
       <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-        <span style="border: 1px solid #2f2f36; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Custom website design & build</span>
-        <span style="border: 1px solid #2f2f36; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Landing pages / lead-gen pages</span>
-        <span style="border: 1px solid #2f2f36; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Website redesign & refresh</span>
-        <span style="border: 1px solid #2f2f36; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Conversion optimization (CRO)</span>
-        <span style="border: 1px solid #2f2f36; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Maintenance & care plans</span>
-        <span style="border: 1px solid #2f2f36; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">E-commerce / Amazon storefront design</span>
+        <span class="svc-tag">Custom website design & build</span>
+        <span class="svc-tag">Landing pages / lead-gen pages</span>
+        <span class="svc-tag">Website redesign & refresh</span>
+        <span class="svc-tag">Conversion optimization (CRO)</span>
+        <span class="svc-tag">Maintenance & care plans</span>
+        <span class="svc-tag">E-commerce / Amazon storefront design</span>
       </div>
     </div>
 
-    <!-- card 03 -->
-    <div style="position: sticky; top: 128px; background: #191920; border: 1px solid #2a2a31; border-radius: 20px; padding: 48px 56px; margin-bottom: 24px;">
-      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-bottom: 1px solid #2a2a31; padding-bottom: 28px; margin-bottom: 32px;">
+    <!-- 03 -->
+    <div class="svc-card noise-spot reveal" style="background: #0f0f12; padding: 48px 56px;">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-bottom: 1px solid #26262c; padding-bottom: 28px; margin-bottom: 32px;">
         <h3 style="font-size: clamp(26px, 3vw, 40px); line-height: 1.1; letter-spacing: -0.02em; font-weight: 600; margin: 0; max-width: 640px;">"I want to be found easily."</h3>
         <div style="display: flex; align-items: baseline; gap: 16px; white-space: nowrap;">
           <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent);">{03}</span>
@@ -219,18 +249,18 @@
         </div>
       </div>
       <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-        <span style="border: 1px solid #33333b; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Local SEO — win the "near me" searches</span>
-        <span style="border: 1px solid #33333b; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">On-page SEO & technical audits</span>
-        <span style="border: 1px solid #33333b; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">AEO / AI-answer optimization — get cited by ChatGPT, Google AI, Perplexity</span>
-        <span style="border: 1px solid #33333b; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Content & blog strategy</span>
-        <span style="border: 1px solid #33333b; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Google Business Profile optimization</span>
-        <span style="border: 1px solid #33333b; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #cfcfd4;">Schema / structured data markup</span>
+        <span class="svc-tag">Local SEO — win the "near me" searches</span>
+        <span class="svc-tag">On-page SEO & technical audits</span>
+        <span class="svc-tag">AEO / AI-answer optimization — get cited by ChatGPT, Google AI, Perplexity</span>
+        <span class="svc-tag">Content & blog strategy</span>
+        <span class="svc-tag">Google Business Profile optimization</span>
+        <span class="svc-tag">Schema / structured data markup</span>
       </div>
     </div>
 
-    <!-- card 04 -->
-    <div style="position: sticky; top: 144px; background: #1b1826; border: 1px solid var(--accent); border-radius: 20px; padding: 48px 56px; margin-bottom: 24px;">
-      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-bottom: 1px solid #3a3348; padding-bottom: 28px; margin-bottom: 32px;">
+    <!-- 04 — the lead offer, so it wears the accent stroke at rest -->
+    <div class="svc-card svc-card--lead noise-spot reveal" style="background: #0b0e14; padding: 48px 56px;">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-bottom: 1px solid rgba(56, 132, 255, 0.28); padding-bottom: 28px; margin-bottom: 32px;">
         <h3 style="font-size: clamp(26px, 3vw, 40px); line-height: 1.1; letter-spacing: -0.02em; font-weight: 600; margin: 0; max-width: 640px;">"I want to invest my effort in the important stuff."</h3>
         <div style="display: flex; align-items: baseline; gap: 16px; white-space: nowrap;">
           <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent);">{04}</span>
@@ -238,20 +268,22 @@
         </div>
       </div>
       <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-        <span style="border: 1px solid #453a5e; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #e2dcf2;">AI email automation & flows — welcome, nurture, win-back, birthday</span>
-        <span style="border: 1px solid #453a5e; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #e2dcf2;">AI content generation — posts, emails, ad copy at scale</span>
-        <span style="border: 1px solid #453a5e; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #e2dcf2;">Chatbots & lead-capture assistants</span>
-        <span style="border: 1px solid #453a5e; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #e2dcf2;">Personalization & audience segmentation</span>
-        <span style="border: 1px solid #453a5e; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #e2dcf2;">Marketing workflow automation — auto-follow-ups, CRM syncing</span>
-        <span style="border: 1px solid #453a5e; border-radius: 999px; padding: 10px 18px; font-size: 14px; color: #e2dcf2;">AI-powered ad creative & testing</span>
+        <span class="svc-tag" style="border-color: rgba(56, 132, 255, 0.32); color: #dbe6ff;">AI email automation & flows — welcome, nurture, win-back, birthday</span>
+        <span class="svc-tag" style="border-color: rgba(56, 132, 255, 0.32); color: #dbe6ff;">AI content generation — posts, emails, ad copy at scale</span>
+        <span class="svc-tag" style="border-color: rgba(56, 132, 255, 0.32); color: #dbe6ff;">Chatbots & lead-capture assistants</span>
+        <span class="svc-tag" style="border-color: rgba(56, 132, 255, 0.32); color: #dbe6ff;">Personalization & audience segmentation</span>
+        <span class="svc-tag" style="border-color: rgba(56, 132, 255, 0.32); color: #dbe6ff;">Marketing workflow automation — auto-follow-ups, CRM syncing</span>
+        <span class="svc-tag" style="border-color: rgba(56, 132, 255, 0.32); color: #dbe6ff;">AI-powered ad creative & testing</span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============ PRICING BANNER ============ -->
+<!-- ============ PRICING BANNER ============
+     Was a solid purple block; now a dark panel carrying a static blue wash +
+     grain, with the cursor-tracked spotlight on hover. See .price-panel. -->
 <section style="padding: 40px 40px 120px;">
-  <div style="max-width: 1240px; margin: 0 auto; background: var(--accent); border-radius: 20px; padding: 72px 64px; display: flex; align-items: center; justify-content: space-between; gap: 40px; flex-wrap: wrap;">
+  <div class="price-panel noise-spot reveal" style="max-width: 1240px; margin: 0 auto; padding: 72px 64px; display: flex; align-items: center; justify-content: space-between; gap: 40px; flex-wrap: wrap;">
     <h2 style="font-size: clamp(32px, 4vw, 56px); line-height: 1.05; letter-spacing: -0.02em; font-weight: 700; margin: 0; color: #ffffff; max-width: 640px;">Clear prices. Fair prices.<br>No surprises.</h2>
     <a href="plans.html" class="btn-dark" style="display: inline-flex; align-items: center; gap: 10px; padding: 18px 36px; border-radius: 0; font-weight: 600; font-size: 17px; white-space: nowrap;">see our plans →</a>
   </div>
@@ -260,20 +292,20 @@
 <!-- ============ INDUSTRIES ============ -->
 <section id="industries" style="padding: 0 40px 120px;">
   <div style="max-width: 1240px; margin: 0 auto;">
-    <p style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 16px;">who we serve</p>
-    <h2 style="font-size: clamp(36px, 4.5vw, 60px); line-height: 1.04; letter-spacing: -0.02em; font-weight: 700; margin: 0 0 56px; max-width: 760px;">Businesses we work especially well with</h2>
+    <p class="reveal" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 16px;">who we serve</p>
+    <h2 class="reveal" style="font-size: clamp(36px, 4.5vw, 60px); line-height: 1.04; letter-spacing: -0.02em; font-weight: 700; margin: 0 0 56px; max-width: 760px; animation-delay: 0.08s;">Businesses we work especially well with</h2>
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-      <div class="industry-card" style="background: #131316; border-radius: 20px; padding: 40px; display: flex; flex-direction: column; gap: 16px;">
+      <div class="industry-card noise-spot reveal" style="background: #0f0f12; padding: 40px; display: flex; flex-direction: column; gap: 16px;">
         <h3 style="font-size: 26px; font-weight: 600; letter-spacing: -0.01em; margin: 0;">ABA clinics</h3>
         <p style="font-size: 15px; line-height: 1.55; color: #9a9aa2; margin: 0; flex: 1; text-wrap: pretty;">Families search local. We make sure they find you — and trust what they see.</p>
         <a href="#contact" style="display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-weight: 600; font-size: 15px;">how we help clinics →</a>
       </div>
-      <div class="industry-card" style="background: #131316; border-radius: 20px; padding: 40px; display: flex; flex-direction: column; gap: 16px;">
+      <div class="industry-card noise-spot reveal" style="background: #0f0f12; padding: 40px; display: flex; flex-direction: column; gap: 16px; animation-delay: 0.1s;">
         <h3 style="font-size: 26px; font-weight: 600; letter-spacing: -0.01em; margin: 0;">Senior care</h3>
         <p style="font-size: 15px; line-height: 1.55; color: #9a9aa2; margin: 0; flex: 1; text-wrap: pretty;">Adult children choose for their parents. Trust is the whole sale — we build it.</p>
         <a href="#contact" style="display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-weight: 600; font-size: 15px;">how we help senior care →</a>
       </div>
-      <div class="industry-card" style="background: #131316; border-radius: 20px; padding: 40px; display: flex; flex-direction: column; gap: 16px;">
+      <div class="industry-card noise-spot reveal" style="background: #0f0f12; padding: 40px; display: flex; flex-direction: column; gap: 16px; animation-delay: 0.2s;">
         <h3 style="font-size: 26px; font-weight: 600; letter-spacing: -0.01em; margin: 0;">Amazon sellers</h3>
         <p style="font-size: 15px; line-height: 1.55; color: #9a9aa2; margin: 0; flex: 1; text-wrap: pretty;">Listing images, inserts, storefronts, packaging — creative that converts browsers.</p>
         <a href="#contact" style="display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-weight: 600; font-size: 15px;">how we help sellers →</a>
@@ -286,24 +318,24 @@
 <section id="process" style="padding: 0 40px 120px;">
   <div style="max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start;">
     <div>
-      <p style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 16px;">how it works</p>
-      <h2 style="font-size: clamp(36px, 4.5vw, 56px); line-height: 1.04; letter-spacing: -0.02em; font-weight: 700; margin: 0 0 48px;">Three steps.<br>No mystery.</h2>
+      <p class="reveal" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 16px;">how it works</p>
+      <h2 class="reveal" style="font-size: clamp(36px, 4.5vw, 56px); line-height: 1.04; letter-spacing: -0.02em; font-weight: 700; margin: 0 0 48px; animation-delay: 0.08s;">Three steps.<br>No mystery.</h2>
       <div style="display: flex; flex-direction: column;">
-        <div style="display: flex; gap: 24px; padding: 28px 0; border-top: 1px solid #232328;">
+        <div class="step reveal" style="display: flex; gap: 24px; padding: 28px 0;">
           <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent); padding-top: 4px;">{01}</span>
           <div>
             <h3 style="font-size: 22px; font-weight: 600; margin: 0 0 8px;">Quick fit call</h3>
             <p style="font-size: 15px; line-height: 1.55; color: #9a9aa2; margin: 0; text-wrap: pretty;">Fifteen minutes. We learn your business and tell you honestly if we're a match.</p>
           </div>
         </div>
-        <div style="display: flex; gap: 24px; padding: 28px 0; border-top: 1px solid #232328;">
+        <div class="step reveal" style="display: flex; gap: 24px; padding: 28px 0; animation-delay: 0.1s;">
           <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent); padding-top: 4px;">{02}</span>
           <div>
             <h3 style="font-size: 22px; font-weight: 600; margin: 0 0 8px;">A clear plan</h3>
             <p style="font-size: 15px; line-height: 1.55; color: #9a9aa2; margin: 0; text-wrap: pretty;">No mystery. You'll know exactly what we'll do, what it costs, and what to expect.</p>
           </div>
         </div>
-        <div style="display: flex; gap: 24px; padding: 28px 0; border-top: 1px solid #232328; border-bottom: 1px solid #232328;">
+        <div class="step reveal" style="display: flex; gap: 24px; padding: 28px 0; animation-delay: 0.2s;">
           <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent); padding-top: 4px;">{03}</span>
           <div>
             <h3 style="font-size: 22px; font-weight: 600; margin: 0 0 8px;">We build, you grow</h3>
@@ -314,17 +346,17 @@
     </div>
 
     <!-- form -->
-    <div id="contact" style="background: #131316; border: 1px solid #232328; border-radius: 20px; padding: 48px; scroll-margin-top: 120px;">
+    <div id="contact" class="panel reveal" style="padding: 48px; scroll-margin-top: 120px;">
       <h3 style="font-size: 30px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 8px;">Let's get acquainted</h3>
       <p style="font-size: 15px; line-height: 1.5; color: #9a9aa2; margin: 0 0 32px;">Book a 15-minute fit call. Straight answers, no pitch.</p>
 
       <form id="contactForm" style="display: flex; flex-direction: column; gap: 16px;">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-          <input class="form-input" name="firstName" placeholder="First name" required style="background: #0d0d10; border-radius: 10px; padding: 14px 16px; font-size: 15px; color: #f2f2f4; width: 100%;">
-          <input class="form-input" name="lastName" placeholder="Last name" required style="background: #0d0d10; border-radius: 10px; padding: 14px 16px; font-size: 15px; color: #f2f2f4; width: 100%;">
+          <input class="form-input" name="firstName" placeholder="First name" required style="background: #0a0a0c; padding: 14px 16px; font-size: 15px; color: #f2f2f4; width: 100%;">
+          <input class="form-input" name="lastName" placeholder="Last name" required style="background: #0a0a0c; padding: 14px 16px; font-size: 15px; color: #f2f2f4; width: 100%;">
         </div>
-        <input class="form-input" name="email" type="email" placeholder="Email" required style="background: #0d0d10; border-radius: 10px; padding: 14px 16px; font-size: 15px; color: #f2f2f4; width: 100%;">
-        <select name="businessType" required style="background: #0d0d10; border: 1px solid #2c2c32; border-radius: 10px; padding: 14px 16px; font-size: 15px; color: #f2f2f4; outline: none; width: 100%; appearance: none;">
+        <input class="form-input" name="email" type="email" placeholder="Email" required style="background: #0a0a0c; padding: 14px 16px; font-size: 15px; color: #f2f2f4; width: 100%;">
+        <select class="form-input" name="businessType" required style="background: #0a0a0c; padding: 14px 16px; font-size: 15px; color: #f2f2f4; width: 100%; appearance: none;">
           <option value="">Business type…</option>
           <option value="aba">ABA clinic</option>
           <option value="senior">Senior care</option>
@@ -343,12 +375,17 @@
   </div>
 </section>
 
-<!-- ============ CLOSING CTA ============ -->
-<section style="padding: 140px 40px; border-top: 1px solid #1c1c20; text-align: center;">
-  <div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 28px;">
-    <h2 style="font-size: clamp(40px, 6vw, 84px); line-height: 1.0; letter-spacing: -0.03em; font-weight: 700; margin: 0; text-wrap: pretty;">Let's make your business easy to say yes to.</h2>
-    <p style="font-size: 18px; line-height: 1.55; color: #9a9aa2; margin: 0; max-width: 560px; text-wrap: pretty;">A short call, no pressure, no pitch you didn't ask for. Just a straight answer on whether we can help.</p>
-    <a href="#contact" class="btn-primary" style="display: inline-flex; align-items: center; gap: 10px; padding: 18px 40px; border-radius: 0; font-weight: 600; font-size: 17px;">book a 15-minute fit call</a>
+<!-- ============ CLOSING CTA ============
+     The closing line, with the 3D interactive logo sitting underneath it as
+     the last thing above the footer. The render lives outside the 900px text
+     column so it can run wider than the headline. -->
+<section style="padding: 140px 40px 0; border-top: 1px solid #1c1c20; text-align: center;">
+  <div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
+    <h2 class="reveal" style="font-size: clamp(40px, 6vw, 84px); line-height: 1.0; letter-spacing: -0.03em; font-weight: 700; margin: 0; text-wrap: pretty;">Let's make your business easy to say yes to.</h2>
+  </div>
+
+  <div style="width: min(1200px, 92vw); height: min(70vh, 640px); margin: 0 auto; overflow: hidden;">
+    <spline-viewer url="https://prod.spline.design/H2OXDXgamim261ZG/scene.splinecode?v=1784076895" style="width: 100%; height: 100%; display: block; transform: translateX(8%);"></spline-viewer>
   </div>
 </section>
 
