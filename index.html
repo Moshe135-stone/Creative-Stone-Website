@@ -174,108 +174,115 @@
      a cursor-tracked blue noise spotlight. See .ttt* in styles.css. -->
 <section id="ttt" class="ttt" aria-label="What we do — a winning lineup of services">
   <div class="ttt__pin">
-    <div class="ttt__grid">
-      <div class="ttt__cell"><span>Websites</span></div>
-      <div class="ttt__cell"><span>SEO</span></div>
-      <div class="ttt__cell"><span>Emails</span></div>
-      <div class="ttt__cell"><span>Social</span></div>
-      <div class="ttt__cell"><span>AI&nbsp;Marketing</span></div>
-      <div class="ttt__cell"><span>AEO</span></div>
-      <div class="ttt__cell"><span>Brands</span></div>
-      <div class="ttt__cell"><span>Strategy</span></div>
-      <div class="ttt__cell"><span>Design</span></div>
+    <div class="ttt__grid" role="group" aria-label="Pick the services you're interested in">
+      <div class="ttt__cell" data-service="Websites"><span>Websites</span></div>
+      <div class="ttt__cell" data-service="SEO"><span>SEO</span></div>
+      <div class="ttt__cell" data-service="Emails"><span>Emails</span></div>
+      <div class="ttt__cell" data-service="Social"><span>Social</span></div>
+      <div class="ttt__cell" data-service="AI Marketing"><span>AI&nbsp;Marketing</span></div>
+      <div class="ttt__cell" data-service="AEO"><span>AEO</span></div>
+      <div class="ttt__cell" data-service="Brands"><span>Brands</span></div>
+      <div class="ttt__cell" data-service="Strategy"><span>Strategy</span></div>
+      <div class="ttt__cell" data-service="Design"><span>Design</span></div>
     </div>
   </div>
 </section>
 
-<!-- ============ SERVICES — quote column ============
-     A plain flex stack (see .svc-stack): 1200px wide, left-aligned, 24px
-     between blocks, scrolling normally — the sticky "business card" pile is
-     gone. Each quote block fades up on its own as it enters view. Flat and
-     sharp-cornered to match the grid/buttons; each carries the blue noise
-     spotlight, dialled down to an ambient wash by .svc-card. -->
-<section id="services" style="padding: 0 16px;">
-  <div class="svc-stack">
-    <div style="width: 100%; margin-bottom: 40px;">
-      <p class="reveal" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 16px;">what we do</p>
-      <h2 class="reveal" style="font-size: clamp(36px, 4.5vw, 60px); line-height: 1.04; letter-spacing: -0.02em; font-weight: 700; margin: 0; max-width: 760px; animation-delay: 0.08s;">Start with what you want. We'll handle how.</h2>
-    </div>
+<!-- ============ SERVICES — slide-over panels ============
+     The boxed card stack is gone. Each "I want…" statement is now a full-bleed
+     panel the eye scrolls THROUGH. Panels alternate blue / dark down the stack:
+       • blue panels — a solid brand-blue sheet WIPES in from the left as the
+         panel rises through the viewport (script.js retracts .svc-slide__cover
+         via --wipe, 0→1, left→right), and the statement sweeps grey→black in
+         sync (.range-text data-range="black"); black type on the blue.
+       • dark panels — same slide-in + divider layout on near-black, the
+         statement running the site's usual grey→white→blue range sweep.
+     The capability lines rule in one after another (hairline between each) once
+     the panel reveals. Goth-bold, tight leading, Framer-edgy. See .svc-slide*
+     in styles.css and the two IIFEs in script.js. -->
+<section id="services">
+  <div class="svc-intro">
+    <h2 class="reveal range-text" style="font-size: clamp(36px, 4.5vw, 60px); line-height: 1.04; letter-spacing: -0.02em; font-weight: 700; text-align: center; margin: 0 auto; max-width: 760px; animation-delay: 0.08s;">Start with what you want. We'll handle how.</h2>
+  </div>
 
-    <!-- 01 -->
-    <div class="svc-card noise-spot reveal" style="background: #0f0f12; padding: 48px 56px;">
-      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-bottom: 1px solid #26262c; padding-bottom: 28px; margin-bottom: 32px;">
-        <h3 style="font-size: clamp(26px, 3vw, 40px); line-height: 1.1; letter-spacing: -0.02em; font-weight: 600; margin: 0; max-width: 640px;">"I want my brand to be as good as my business."</h3>
-        <div style="display: flex; align-items: baseline; gap: 16px; white-space: nowrap;">
-          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent);">{01}</span>
-          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: #8a8a92;">Branding / Design</span>
+  <div class="svc-slides">
+    <!-- 01 — blue -->
+    <article class="svc-slide svc-slide--blue reveal">
+      <div class="svc-slide__cover" aria-hidden="true"></div>
+      <div class="svc-slide__inner">
+        <div class="svc-slide__meta">
+          <span class="svc-slide__num">{01}</span>
+          <span class="svc-slide__cat">Branding / Design</span>
         </div>
+        <h3 class="svc-slide__title range-text" data-range="black">"I want my brand to be as good as my business."</h3>
+        <ul class="svc-slide__lines">
+          <li>Logo &amp; visual identity — logo, color, typography system</li>
+          <li>Brand guidelines / style guide</li>
+          <li>Marketing collateral — flyers, one-pagers, business cards, decks</li>
+          <li>Social media templates &amp; post design</li>
+          <li>Motion &amp; animation — logo animation, explainer clips, animated ads</li>
+          <li>Print &amp; packaging design — listing images, inserts, packaging</li>
+        </ul>
       </div>
-      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-        <span class="svc-tag">Logo & visual identity — logo, color, typography system</span>
-        <span class="svc-tag">Brand guidelines / style guide</span>
-        <span class="svc-tag">Marketing collateral — flyers, one-pagers, business cards, decks</span>
-        <span class="svc-tag">Social media templates & post design</span>
-        <span class="svc-tag">Motion & animation — logo animation, explainer clips, animated ads</span>
-        <span class="svc-tag">Print & packaging design — listing images, inserts, packaging</span>
-      </div>
-    </div>
+    </article>
 
-    <!-- 02 -->
-    <div class="svc-card noise-spot reveal" style="background: #0f0f12; padding: 48px 56px;">
-      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-bottom: 1px solid #26262c; padding-bottom: 28px; margin-bottom: 32px;">
-        <h3 style="font-size: clamp(26px, 3vw, 40px); line-height: 1.1; letter-spacing: -0.02em; font-weight: 600; margin: 0; max-width: 640px;">"I want to attract leads and customers online."</h3>
-        <div style="display: flex; align-items: baseline; gap: 16px; white-space: nowrap;">
-          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent);">{02}</span>
-          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: #8a8a92;">Websites</span>
+    <!-- 02 — dark -->
+    <article class="svc-slide svc-slide--dark reveal">
+      <div class="svc-slide__inner">
+        <div class="svc-slide__meta">
+          <span class="svc-slide__num">{02}</span>
+          <span class="svc-slide__cat">Websites</span>
         </div>
+        <h3 class="svc-slide__title range-text">"I want to attract leads and customers online."</h3>
+        <ul class="svc-slide__lines">
+          <li>Custom website design &amp; build</li>
+          <li>Landing pages / lead-gen pages</li>
+          <li>Website redesign &amp; refresh</li>
+          <li>Conversion optimization (CRO)</li>
+          <li>Maintenance &amp; care plans</li>
+          <li>E-commerce / Amazon storefront design</li>
+        </ul>
       </div>
-      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-        <span class="svc-tag">Custom website design & build</span>
-        <span class="svc-tag">Landing pages / lead-gen pages</span>
-        <span class="svc-tag">Website redesign & refresh</span>
-        <span class="svc-tag">Conversion optimization (CRO)</span>
-        <span class="svc-tag">Maintenance & care plans</span>
-        <span class="svc-tag">E-commerce / Amazon storefront design</span>
-      </div>
-    </div>
+    </article>
 
-    <!-- 03 -->
-    <div class="svc-card noise-spot reveal" style="background: #0f0f12; padding: 48px 56px;">
-      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-bottom: 1px solid #26262c; padding-bottom: 28px; margin-bottom: 32px;">
-        <h3 style="font-size: clamp(26px, 3vw, 40px); line-height: 1.1; letter-spacing: -0.02em; font-weight: 600; margin: 0; max-width: 640px;">"I want to be found easily."</h3>
-        <div style="display: flex; align-items: baseline; gap: 16px; white-space: nowrap;">
-          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent);">{03}</span>
-          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: #8a8a92;">AEO / SEO</span>
+    <!-- 03 — blue -->
+    <article class="svc-slide svc-slide--blue reveal">
+      <div class="svc-slide__cover" aria-hidden="true"></div>
+      <div class="svc-slide__inner">
+        <div class="svc-slide__meta">
+          <span class="svc-slide__num">{03}</span>
+          <span class="svc-slide__cat">AEO / SEO</span>
         </div>
+        <h3 class="svc-slide__title range-text" data-range="black">"I want to be found easily."</h3>
+        <ul class="svc-slide__lines">
+          <li>Local SEO — win the "near me" searches</li>
+          <li>On-page SEO &amp; technical audits</li>
+          <li>AEO / AI-answer optimization — get cited by ChatGPT, Google AI, Perplexity</li>
+          <li>Content &amp; blog strategy</li>
+          <li>Google Business Profile optimization</li>
+          <li>Schema / structured data markup</li>
+        </ul>
       </div>
-      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-        <span class="svc-tag">Local SEO — win the "near me" searches</span>
-        <span class="svc-tag">On-page SEO & technical audits</span>
-        <span class="svc-tag">AEO / AI-answer optimization — get cited by ChatGPT, Google AI, Perplexity</span>
-        <span class="svc-tag">Content & blog strategy</span>
-        <span class="svc-tag">Google Business Profile optimization</span>
-        <span class="svc-tag">Schema / structured data markup</span>
-      </div>
-    </div>
+    </article>
 
-    <!-- 04 — the lead offer, so it wears the accent stroke at rest -->
-    <div class="svc-card svc-card--lead noise-spot reveal" style="background: #0b0e14; padding: 48px 56px;">
-      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-bottom: 1px solid rgba(56, 132, 255, 0.28); padding-bottom: 28px; margin-bottom: 32px;">
-        <h3 style="font-size: clamp(26px, 3vw, 40px); line-height: 1.1; letter-spacing: -0.02em; font-weight: 600; margin: 0; max-width: 640px;">"I want to invest my effort in the important stuff."</h3>
-        <div style="display: flex; align-items: baseline; gap: 16px; white-space: nowrap;">
-          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent);">{04}</span>
-          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent);">AI Marketing Campaigns</span>
+    <!-- 04 — dark -->
+    <article class="svc-slide svc-slide--dark reveal">
+      <div class="svc-slide__inner">
+        <div class="svc-slide__meta">
+          <span class="svc-slide__num">{04}</span>
+          <span class="svc-slide__cat">AI Marketing Campaigns</span>
         </div>
+        <h3 class="svc-slide__title range-text">"I want to invest my effort in the important stuff."</h3>
+        <ul class="svc-slide__lines">
+          <li>AI email automation &amp; flows — welcome, nurture, win-back, birthday</li>
+          <li>AI content generation — posts, emails, ad copy at scale</li>
+          <li>Chatbots &amp; lead-capture assistants</li>
+          <li>Personalization &amp; audience segmentation</li>
+          <li>Marketing workflow automation — auto-follow-ups, CRM syncing</li>
+          <li>AI-powered ad creative &amp; testing</li>
+        </ul>
       </div>
-      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-        <span class="svc-tag" style="border-color: rgba(56, 132, 255, 0.32); color: #dbe6ff;">AI email automation & flows — welcome, nurture, win-back, birthday</span>
-        <span class="svc-tag" style="border-color: rgba(56, 132, 255, 0.32); color: #dbe6ff;">AI content generation — posts, emails, ad copy at scale</span>
-        <span class="svc-tag" style="border-color: rgba(56, 132, 255, 0.32); color: #dbe6ff;">Chatbots & lead-capture assistants</span>
-        <span class="svc-tag" style="border-color: rgba(56, 132, 255, 0.32); color: #dbe6ff;">Personalization & audience segmentation</span>
-        <span class="svc-tag" style="border-color: rgba(56, 132, 255, 0.32); color: #dbe6ff;">Marketing workflow automation — auto-follow-ups, CRM syncing</span>
-        <span class="svc-tag" style="border-color: rgba(56, 132, 255, 0.32); color: #dbe6ff;">AI-powered ad creative & testing</span>
-      </div>
-    </div>
+    </article>
   </div>
 </section>
 
@@ -364,6 +371,17 @@
           <option value="local">Local service business</option>
           <option value="other">Something else</option>
         </select>
+
+        <!-- Carries the services picked on the grid above (persisted in
+             localStorage) into the submission. Hidden field holds the raw
+             value; #svcPicked shows the viewer what's attached. -->
+        <input type="hidden" name="services" id="servicesField">
+        <div id="svcPicked" class="svc-picked" hidden>
+          <span class="svc-picked__label">Services you picked</span>
+          <div class="svc-picked__chips"></div>
+          <a href="#services" class="svc-picked__edit">edit selection</a>
+        </div>
+
         <button type="submit" class="btn-primary" style="border-radius: 0; padding: 16px 32px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 8px;">book a 15-minute fit call</button>
       </form>
 
@@ -400,6 +418,25 @@
   </nav>
   <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #55555c;">© 2026 Creative Stone — All rights reserved.</span>
 </footer>
+
+<!-- ============ SERVICE PICKER TRAY ============
+     Fixed side rail that appears the moment a grid service is selected. Lists
+     the chosen services, lets the viewer clear them (the sweep-arrow button),
+     and jump to the contact form. Selection persists in localStorage and is
+     carried into the form on submit. Wired up in script.js (#svcTray). -->
+<aside id="svcTray" class="svc-tray" aria-label="Selected services" hidden>
+  <div class="svc-tray__head">
+    <span class="svc-tray__title">Selected <span class="svc-tray__count" id="svcCount">0</span></span>
+    <button type="button" class="svc-tray__clear" id="svcClear" aria-label="Clear all selected services" title="Clear selection">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+        <path d="M3 4v4h4"></path>
+      </svg>
+    </button>
+  </div>
+  <ul class="svc-tray__list" id="svcList"></ul>
+  <a href="#contact" class="svc-tray__cta">Get these →</a>
+</aside>
 
 <script src="shader.js" defer></script>
 <script src="script.js"></script>

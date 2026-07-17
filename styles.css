@@ -101,30 +101,75 @@ input::placeholder { color: #6a6a72; }
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  padding: clamp(16px, 2.5vw, 36px);
+  box-sizing: border-box;
 }
+/* The board fills the whole pinned viewport as a full-bleed lattice: script.js
+   sizes the columns/rows to the screen and drops empty cells around a centred
+   3x3 block, so the nine service tokens sit in the middle of a grid that runs
+   edge to edge. The template values below are just a pre-JS fallback. */
 .ttt__grid {
   position: relative;
-  width: min(560px, 80vw);
-  aspect-ratio: 1;
+  width: 100%;
+  height: 100%;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   will-change: transform, opacity;   /* scaled + faded in by script.js on scroll */
+  /* Opacity feather: the lattice is one uniform colour, faded out radially the
+     further a cell sits from the centre. The solid core reaches ~62% so the
+     centred 3x3 token block (spans ~60% of the shorter side) stays fully
+     visible; only the surrounding filler cells fade to the edges. */
+  -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%);
+          mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%);
 }
-/* The hash "#": inner separators only (columns 1–2 get a right edge, rows
-   1–2 a bottom edge), no outer frame. */
-.ttt__cell:nth-child(3n+1),
-.ttt__cell:nth-child(3n+2) { border-right: 1px solid #26262c; }
-.ttt__cell:nth-child(-n+6)  { border-bottom: 1px solid #26262c; }
+/* Filler cells around the content block: grid lines only — never hover-lit,
+   pickable, or animated. */
+.ttt__cell--empty { pointer-events: none; }
+/* Every cell carries its own full stroke, drawn as an inset box-shadow so
+   adjacent edges sit flush (no layout offset, no doubled lines). Every cell —
+   filler or placed — uses the one uniform stroke colour; the radial mask on
+   .ttt__grid is what feathers them out toward the edges. */
 .ttt__cell {
   position: relative;
-  overflow: hidden;              /* clips the hover spotlight to the cell */
+  overflow: hidden;              /* clips the hover + selected fills to the cell */
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 10px;
+  padding: 8px;
+  box-shadow: inset 0 0 0 1px #34343f;
+  transition: box-shadow .4s ease;
 }
+.ttt__cell.is-placed {
+  z-index: 2;                    /* keep placed cells above their neighbours */
+  cursor: pointer;              /* placed cells are pickable */
+}
+
+/* Persistent blue fill on a picked cell — the same blue-noise wash the buttons
+   flash on hover, but centred, full-cell, and latched on. Lives on ::after so
+   it can fade in; the token span sits above it via z-index (below). */
+.ttt__cell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .4s ease;
+  background:
+    radial-gradient(circle at 50% 44%,
+      rgba(var(--accent-rgb), .62),
+      rgba(var(--accent-rgb), .30) 55%,
+      rgba(var(--accent-rgb), .12) 100%),
+    var(--noise);
+  background-blend-mode: overlay;
+}
+.ttt__cell.is-selected::after { opacity: 1; }
+.ttt__cell.is-selected {
+  box-shadow: inset 0 0 0 1.5px rgba(var(--accent-rgb), .95);
+  z-index: 3;                    /* the lit stroke wins over placed neighbours */
+}
+.ttt__cell.is-selected span { color: #ffffff; }
 /* Blue noise spotlight on hover: a cursor-tracked radial glow whose centre
    follows --mx/--my (set by script.js on pointermove) blended with a fine
    noise texture — the same trick as the site's buttons, tinted blue and
@@ -145,18 +190,17 @@ input::placeholder { color: #6a6a72; }
 .ttt__cell:hover::before { opacity: 1; }
 .ttt__cell span {
   position: relative;
+  z-index: 2;                    /* keep the label above the hover/selected fills */
   font-family: 'IBM Plex Mono', monospace;
-  font-size: clamp(13px, 1.7vw, 18px);
-  letter-spacing: 0.08em;
+  font-size: clamp(10px, 1.1vw, 16px);
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #cfcfd4;
   opacity: 0;
-  transform: scale(0.35) rotate(-8deg);
-  transition: opacity .35s ease,
-              transform .5s cubic-bezier(0.34, 1.56, 0.64, 1),
+  transition: opacity .5s ease,
               color .3s ease;
 }
-.ttt__cell.is-placed span { opacity: 1; transform: scale(1) rotate(0deg); }
+.ttt__cell.is-placed span { opacity: 1; }
 .ttt__cell:hover span { color: #ffffff; }
 
 /* No pinning / scrubbing when motion is reduced — show the finished board. */
@@ -165,6 +209,191 @@ input::placeholder { color: #6a6a72; }
   .ttt__pin { position: static; height: auto; padding: 96px 0; }
   .ttt__cell span { opacity: 1; transform: none; }
 }
+
+/* ============ SERVICE PICKER TRAY ============
+   Fixed rail, right-of-centre, that slides in the moment a service is picked
+   on the grid and rides the scroll all the way to the contact form. Flat and
+   sharp-cornered like the rest of the site, blue-accented, mono labels. The
+   selection lives in localStorage; see the #svcTray module in script.js. */
+.svc-tray {
+  position: fixed;
+  top: 50%;
+  right: 20px;
+  transform: translate(calc(100% + 28px), -50%);   /* parked off-screen right */
+  z-index: 40;
+  width: 232px;
+  max-width: calc(100vw - 40px);
+  background: rgba(14, 14, 18, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid #26262c;
+  box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.8);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  opacity: 0;
+  transition: transform .45s cubic-bezier(0.16, 1, 0.3, 1), opacity .3s ease;
+}
+.svc-tray.is-open { transform: translate(0, -50%); opacity: 1; }
+.svc-tray[hidden] { display: none; }        /* fully removed when never opened */
+
+.svc-tray__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #26262c;
+}
+.svc-tray__title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9a9aa2;
+}
+.svc-tray__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: 6px;
+  border-radius: 999px;
+  background: rgba(var(--accent-rgb), .18);
+  border: 1px solid rgba(var(--accent-rgb), .55);
+  color: #fff;
+  font-size: 12px;
+}
+.svc-tray__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid #2c2c32;
+  color: #cfcfd4;
+  cursor: pointer;
+  transition: color .15s ease, border-color .15s ease, background .15s ease;
+}
+.svc-tray__clear:hover,
+.svc-tray__clear:focus-visible {
+  color: #fff;
+  border-color: rgb(var(--accent-rgb));
+  background: rgba(var(--accent-rgb), .14);
+}
+
+.svc-tray__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+.svc-tray__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(var(--accent-rgb), .10);
+  border: 1px solid rgba(var(--accent-rgb), .45);
+  font-size: 13px;
+  color: #eef1f6;
+  animation: reveal-in .4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.svc-tray__item button {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  line-height: 1;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: #9fbcff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: color .15s ease;
+}
+.svc-tray__item button:hover { color: #fff; }
+
+.svc-tray__cta {
+  text-align: center;
+  padding: 11px 14px;
+  border: 1px solid #2c2c32;
+  color: #f2f2f4;
+  font-size: 14px;
+  font-weight: 600;
+  transition: color .15s ease, border-color .15s ease, background .15s ease;
+}
+.svc-tray__cta:hover {
+  color: #fff;
+  border-color: rgb(var(--accent-rgb));
+  background: rgba(var(--accent-rgb), .14);
+}
+
+/* On narrow screens the rail docks to the bottom edge as a full-width bar. */
+@media (max-width: 640px) {
+  .svc-tray {
+    top: auto;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+    transform: translateY(calc(100% + 28px));
+  }
+  .svc-tray.is-open { transform: translateY(0); }
+  .svc-tray__list { max-height: 30vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .svc-tray { transition: opacity .2s ease; }
+  .svc-tray__item { animation: none; }
+}
+
+/* Summary of the picked services shown inside the contact form. */
+.svc-picked {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: #0a0a0c;
+  border: 1px solid rgba(var(--accent-rgb), .4);
+}
+.svc-picked[hidden] { display: none; }
+.svc-picked__label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.svc-picked__chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.svc-picked__chip {
+  padding: 6px 10px;
+  background: rgba(var(--accent-rgb), .10);
+  border: 1px solid rgba(var(--accent-rgb), .45);
+  font-size: 13px;
+  color: #eef1f6;
+}
+.svc-picked__edit {
+  align-self: flex-start;
+  font-size: 13px;
+  color: #8a8a92;
+  border-bottom: 1px solid transparent;
+}
+.svc-picked__edit:hover { color: var(--accent); border-bottom-color: currentColor; }
 
 /* Interactive elements — base + hover/focus states live here since inline
    styles can't be overridden by pseudo-classes in an external stylesheet.
@@ -536,6 +765,108 @@ input::placeholder { color: #6a6a72; }
 }
 .rt-char {
   will-change: color;
+}
+
+/* ============ SERVICE SLIDE PANELS ============
+   The boxed .svc-card stack is gone. Each "I want…" statement is a full-bleed
+   panel, alternating blue / dark down the column. On the blue panels a solid
+   brand-blue sheet wipes in from the left: the panel's own background IS the
+   blue, and .svc-slide__cover (page-dark) sits over it and RETRACTS left→right
+   as script.js drives --wipe 0→1, so the blue appears to slide in. --wipe
+   defaults to 1 (fully retracted → full blue) so with no JS / reduced motion
+   the panel simply renders solid blue. The statement is a .range-text line —
+   grey→black on the blue panels (data-range="black"), grey→white→blue on the
+   dark ones — and the capability lines rule in one after another, hairline
+   between each, once the panel reveals. Goth-bold, tight leading. */
+#services { padding: 0; }
+.svc-intro { max-width: 1200px; margin: 0 auto; padding: 100px 24px 60px; }
+.svc-slides { display: flex; flex-direction: column; width: 100%; }
+
+.svc-slide {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  padding: clamp(72px, 11vh, 132px) clamp(24px, 6vw, 80px);
+}
+.svc-slide--dark { background: #0b0b0e; border-top: 1px solid #17171b; }
+.svc-slide--blue { --wipe: 1; background: var(--accent); }
+
+/* The dark cover that makes the blue wipe in from the left. inset() clips it
+   away from the left edge as --wipe grows, uncovering the blue left→right. */
+.svc-slide__cover {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #0a0a0c;
+  clip-path: inset(0 0 0 calc(var(--wipe) * 100%));
+  pointer-events: none;
+}
+.svc-slide__inner { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; }
+
+.svc-slide__meta {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  font-family: 'IBM Plex Mono', monospace;
+  margin: 0 0 22px;
+}
+.svc-slide__num { font-size: 14px; }
+.svc-slide__cat { font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; }
+.svc-slide--dark .svc-slide__num { color: var(--accent); }
+.svc-slide--dark .svc-slide__cat { color: #8a8a92; }
+.svc-slide--blue .svc-slide__num { color: #0a0a0c; }
+.svc-slide--blue .svc-slide__cat { color: rgba(10, 10, 12, 0.7); }
+
+/* The statement — goth-bold, tight leading. Colors are the resting state only;
+   the range sweep in script.js overrides them on scroll. */
+.svc-slide__title {
+  font-size: clamp(34px, 6vw, 82px);
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+  text-align: left;               /* overrides .range-text's centering */
+  margin: 0 0 clamp(28px, 4vw, 48px);
+  max-width: 18ch;
+  text-wrap: balance;
+  color: #f2f2f4;                 /* dark-panel resting */
+}
+.svc-slide--blue .svc-slide__title { color: #0a0a0c; }   /* blue-panel resting */
+
+/* Capability lines: bold, tight, one paragraph rule between each. */
+.svc-slide__lines { list-style: none; margin: 0; padding: 0; max-width: 940px; }
+.svc-slide__lines li {
+  font-size: clamp(15px, 1.5vw, 21px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  padding: clamp(14px, 1.6vw, 20px) 0;
+}
+.svc-slide--dark .svc-slide__lines li { color: #d4d4da; border-top: 1px solid #26262c; }
+.svc-slide--dark .svc-slide__lines li:last-child { border-bottom: 1px solid #26262c; }
+.svc-slide--blue .svc-slide__lines li { color: #0a0a0c; border-top: 1px solid rgba(10, 10, 12, 0.24); }
+.svc-slide--blue .svc-slide__lines li:last-child { border-bottom: 1px solid rgba(10, 10, 12, 0.24); }
+
+/* The lines rule in one after another once the panel reveals — the "sub text
+   animating in after" beat. The panel itself only fades (no lift) so the big
+   band doesn't jump; the whole-panel .reveal-in would translate it. */
+.svc-slide.reveal.revealed { animation: svc-slide-fade 0.8s ease both; }
+@keyframes svc-slide-fade { from { opacity: 0; } to { opacity: 1; } }
+.svc-slide__lines li { opacity: 0; }
+.svc-slide.revealed .svc-slide__lines li { animation: reveal-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.svc-slide.revealed .svc-slide__lines li:nth-child(1) { animation-delay: 0.30s; }
+.svc-slide.revealed .svc-slide__lines li:nth-child(2) { animation-delay: 0.40s; }
+.svc-slide.revealed .svc-slide__lines li:nth-child(3) { animation-delay: 0.50s; }
+.svc-slide.revealed .svc-slide__lines li:nth-child(4) { animation-delay: 0.60s; }
+.svc-slide.revealed .svc-slide__lines li:nth-child(5) { animation-delay: 0.70s; }
+.svc-slide.revealed .svc-slide__lines li:nth-child(6) { animation-delay: 0.80s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .svc-slide__cover { display: none; }
+  .svc-slide__lines li { opacity: 1; }
+  .svc-slide.revealed .svc-slide__lines li { animation: none; }
+}
+@media (max-width: 720px) {
+  .svc-slide__title { max-width: none; }
 }
 
 /* ============ MAGIC SCROLL (diagonal) ============
