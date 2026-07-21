@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Creative Stone — Marketing that makes you easy to trust</title>
+<title>Creative Stone | Marketing that makes you easy to trust</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=7">
 <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"></script>
 </head>
 <body>
@@ -57,8 +57,51 @@
 <!-- ============ INTRO / LANDING ============ -->
 <section id="top" style="position: relative; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: flex-start; background: #0a0a0c;">
   <canvas id="metaball-canvas" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; mask-image: linear-gradient(to right, transparent 0%, transparent 22%, rgba(0,0,0,0.85) 45%, black 62%); -webkit-mask-image: linear-gradient(to right, transparent 0%, transparent 22%, rgba(0,0,0,0.85) 45%, black 62%);"></canvas>
-  <h1 id="intro-title" style="position: relative; z-index: 2; margin: 0; padding: 0 0 0 clamp(24px, 6vw, 80px); font-size: clamp(56px, 11vw, 200px); line-height: 0.88; letter-spacing: -0.04em; font-weight: 700; text-align: left; color: #f2f2f4; text-transform: uppercase; pointer-events: none; --dissolve: 0; opacity: calc(1 - var(--dissolve)); filter: blur(calc(var(--dissolve) * 26px)); transform: scale(calc(1 + var(--dissolve) * 0.18)); will-change: opacity, filter, transform;">Creative<br>Stone</h1>
+  <h1 id="intro-title" style="position: relative; z-index: 2; margin: 0; padding: 0 0 0 clamp(24px, 6vw, 80px); font-size: clamp(44px, 8.5vw, 156px); line-height: 0.9; letter-spacing: -0.04em; font-weight: 700; text-align: left; color: #f2f2f4; text-transform: uppercase; pointer-events: none; --dissolve: 0; opacity: calc(1 - var(--dissolve)); filter: blur(calc(var(--dissolve) * 26px)); transform: scale(calc(1 + var(--dissolve) * 0.18)); will-change: opacity, filter, transform;">Marketing<br>solutions<br>for the<br>age of AI</h1>
 </section>
+
+<!-- The two CTAs: pinned to the bottom-right of the viewport at all times,
+     visible from page load through the very bottom of the page. Deliberately
+     placed here — a sibling of #top, not nested inside it — because #top has
+     overflow:hidden (to clip the canvas/title dissolve effect), and a
+     position:fixed descendant of an overflow:hidden ancestor gets clipped the
+     moment that ancestor scrolls out of view, even though "fixed" sounds like
+     it should escape that. .hero-cta-slot--intro is fixed outright (see
+     styles.css) so this never depends on being inside any particular section.
+     script.js's is-docked/is-compact toggle on .hero-cta-group still runs
+     un-changed; it just layers a matching fixed position (no jump) and, once
+     .hero-panel scrolls past, the same shrink-to-compact transform as before. -->
+<div class="hero-cta-slot hero-cta-slot--intro">
+<div class="hero-cta-group">
+  <a href="#contact" class="hero-cta">
+    <span class="hero-cta__text">
+      <span class="hero-cta__label">book a 15-minute fit call</span>
+      <span class="hero-cta__hover hero-cta__hover--phone" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      </span>
+    </span>
+    <span class="hero-cta__arrow" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+    </span>
+  </a>
+  <a href="#services" class="hero-cta">
+    <span class="hero-cta__text">
+      <span class="hero-cta__label">see what we do</span>
+      <span class="hero-cta__hover hero-cta__hover--eyes" aria-hidden="true">
+        <svg viewBox="0 0 40 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path class="eye-lid" d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
+          <circle class="eye-ball" cx="12" cy="12" r="3.2" fill="currentColor" stroke="none"/>
+          <path class="eye-lid" d="M18 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
+          <circle class="eye-ball" cx="28" cy="12" r="3.2" fill="currentColor" stroke="none"/>
+        </svg>
+      </span>
+    </span>
+    <span class="hero-cta__arrow" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+    </span>
+  </a>
+</div>
+</div>
 
 <!-- ============ MAGIC SCROLL (diagonal) ============ -->
 <!-- The four-line thought and its four photos are strung along one diagonal
@@ -74,28 +117,28 @@
 <section class="magic-scroll">
   <div class="magic-scroll__stage">
     <div class="magic-scroll__rail">
-      <p class="magic-item magic-item--text" style="--i: 0;">Ever wonder</p>
+      <p class="magic-item magic-item--text range-sweep" style="--i: 0;">Ever wonder</p>
 
       <div class="magic-item magic-item--photo photo-spotlight" style="--i: 1;">
         <img src="assets/sparkle/jellyfish.png" alt="" class="photo-color-layer">
         <img src="assets/photos/jellyfish.png" alt="" class="photo-bw-mask" style="width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1);">
       </div>
 
-      <p class="magic-item magic-item--text" style="--i: 2;">what good marketing</p>
+      <p class="magic-item magic-item--text range-sweep" style="--i: 2;">what good marketing</p>
 
       <div class="magic-item magic-item--photo photo-spotlight" style="--i: 3;">
         <img src="assets/sparkle/crystal-02.png" alt="" class="photo-color-layer">
         <img src="assets/photos/crystal-02.png" alt="" class="photo-bw-mask" style="width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1);">
       </div>
 
-      <p class="magic-item magic-item--text" style="--i: 4;">actually looks like?</p>
+      <p class="magic-item magic-item--text range-sweep" style="--i: 4;">actually looks like?</p>
 
       <div class="magic-item magic-item--photo photo-spotlight" style="--i: 5;">
         <img src="assets/sparkle/glasses.png" alt="" class="photo-color-layer">
         <img src="assets/photos/glasses.png" alt="" class="photo-bw-mask" style="width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1);">
       </div>
 
-      <p class="magic-item magic-item--text" style="--i: 6;">wonder no more</p>
+      <p class="magic-item magic-item--text range-sweep" style="--i: 6;">wonder no more</p>
 
       <div class="magic-item magic-item--photo photo-spotlight" style="--i: 7;">
         <img src="assets/sparkle/crystal-01.png" alt="" class="photo-color-layer">
@@ -112,9 +155,9 @@
      up to cover it. See .hero-panel in styles.css.
 
      Taller than one screen on purpose: the statement fills the first screenful,
-     the CTAs catch on the bottom edge below it, and the extra height is the
-     stretch they stay docked at full size before the panel's end scrolls by and
-     shrinks them (see .hero-cta-group in styles.css). -->
+     and the extra height is how long the CTAs (now living in #top, see below)
+     stay docked at full size before this panel's end scrolls by and script.js
+     shrinks them into .is-compact (see .hero-cta-group in styles.css). -->
 <section class="hero-panel" style="position: relative; min-height: 140vh; display: flex; flex-direction: column; padding: 100px 40px 48px;">
 
   <!-- The 3D logo that used to fill this box now lives in the closing CTA; the
@@ -127,44 +170,6 @@
     <p class="range-text">You're looking at it. Creative Stone builds websites, brands, and emails that makes your business easy to trust</p>
   </div>
 
-  <!-- The two CTAs, side by side and centred a good drop below the statement.
-       At rest: label + up-right arrow. On hover the label morphs into an
-       animated icon (ringing phone / blinking eyes). script.js sticks the pair
-       to the bottom edge of the screen as they rise into view (.is-docked) and
-       then scales them down into a compact dock once you scroll past the hero
-       (.is-compact). The slot around them reserves their height so the panel
-       doesn't jump when they go fixed. -->
-  <div class="hero-cta-slot">
-  <div class="hero-cta-group">
-    <a href="#contact" class="hero-cta">
-      <span class="hero-cta__text">
-        <span class="hero-cta__label">book a 15-minute fit call</span>
-        <span class="hero-cta__hover hero-cta__hover--phone" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-        </span>
-      </span>
-      <span class="hero-cta__arrow" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
-      </span>
-    </a>
-    <a href="#services" class="hero-cta">
-      <span class="hero-cta__text">
-        <span class="hero-cta__label">see what we do</span>
-        <span class="hero-cta__hover hero-cta__hover--eyes" aria-hidden="true">
-          <svg viewBox="0 0 40 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path class="eye-lid" d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
-            <circle class="eye-ball" cx="12" cy="12" r="3.2" fill="currentColor" stroke="none"/>
-            <path class="eye-lid" d="M18 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
-            <circle class="eye-ball" cx="28" cy="12" r="3.2" fill="currentColor" stroke="none"/>
-          </svg>
-        </span>
-      </span>
-      <span class="hero-cta__arrow" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
-      </span>
-    </a>
-  </div>
-  </div>
 </section>
 
 <!-- ============ TIC-TAC-TOE — scroll-driven service board ============
@@ -172,7 +177,7 @@
      pinned board has scroll room; script.js uses scroll progress to place
      the nine services into the grid one at a time. Hovering a cell lights
      a cursor-tracked blue noise spotlight. See .ttt* in styles.css. -->
-<section id="ttt" class="ttt" aria-label="What we do — a winning lineup of services">
+<section id="ttt" class="ttt" aria-label="What we do: a winning lineup of services">
   <div class="ttt__pin">
     <div class="ttt__grid" role="group" aria-label="Pick the services you're interested in">
       <div class="ttt__cell" data-service="Websites"><span>Websites</span></div>
@@ -190,13 +195,14 @@
 
 <!-- ============ SERVICES — slide-over panels ============
      The boxed card stack is gone. Each "I want…" statement is now a full-bleed
-     panel the eye scrolls THROUGH. Panels alternate blue / dark down the stack:
-       • blue panels — a solid brand-blue sheet WIPES in from the left as the
-         panel rises through the viewport (script.js retracts .svc-slide__cover
-         via --wipe, 0→1, left→right), and the statement sweeps grey→black in
-         sync (.range-text data-range="black"); black type on the blue.
-       • dark panels — same slide-in + divider layout on near-black, the
-         statement running the site's usual grey→white→blue range sweep.
+     panel that OVERLAYS the one before it. Every panel is sticky at top:0, so
+     it pins while the next slides in from the side (script.js drives --slide
+     0→1; --dir alternates the direction right/left) and covers it. Panels
+     alternate blue / dark down the stack:
+       • blue panels — black type on brand blue, the statement sweeping
+         grey→black in sync (.range-text data-range="black").
+       • dark panels — same layout on near-black, the statement running the
+         site's usual grey→white→blue range sweep.
      The capability lines rule in one after another (hairline between each) once
      the panel reveals. Goth-bold, tight leading, Framer-edgy. See .svc-slide*
      in styles.css and the two IIFEs in script.js. -->
@@ -208,20 +214,15 @@
   <div class="svc-slides">
     <!-- 01 — blue -->
     <article class="svc-slide svc-slide--blue reveal">
-      <div class="svc-slide__cover" aria-hidden="true"></div>
       <div class="svc-slide__inner">
-        <div class="svc-slide__meta">
-          <span class="svc-slide__num">{01}</span>
-          <span class="svc-slide__cat">Branding / Design</span>
-        </div>
         <h3 class="svc-slide__title range-text" data-range="black">"I want my brand to be as good as my business."</h3>
         <ul class="svc-slide__lines">
-          <li>Logo &amp; visual identity — logo, color, typography system</li>
+          <li>Logo &amp; visual identity: logo, color, typography system</li>
           <li>Brand guidelines / style guide</li>
-          <li>Marketing collateral — flyers, one-pagers, business cards, decks</li>
+          <li>Marketing collateral: flyers, one-pagers, business cards, decks</li>
           <li>Social media templates &amp; post design</li>
-          <li>Motion &amp; animation — logo animation, explainer clips, animated ads</li>
-          <li>Print &amp; packaging design — listing images, inserts, packaging</li>
+          <li>Motion &amp; animation: logo animation, explainer clips, animated ads</li>
+          <li>Print &amp; packaging design: listing images, inserts, packaging</li>
         </ul>
       </div>
     </article>
@@ -229,10 +230,6 @@
     <!-- 02 — dark -->
     <article class="svc-slide svc-slide--dark reveal">
       <div class="svc-slide__inner">
-        <div class="svc-slide__meta">
-          <span class="svc-slide__num">{02}</span>
-          <span class="svc-slide__cat">Websites</span>
-        </div>
         <h3 class="svc-slide__title range-text">"I want to attract leads and customers online."</h3>
         <ul class="svc-slide__lines">
           <li>Custom website design &amp; build</li>
@@ -247,17 +244,12 @@
 
     <!-- 03 — blue -->
     <article class="svc-slide svc-slide--blue reveal">
-      <div class="svc-slide__cover" aria-hidden="true"></div>
       <div class="svc-slide__inner">
-        <div class="svc-slide__meta">
-          <span class="svc-slide__num">{03}</span>
-          <span class="svc-slide__cat">AEO / SEO</span>
-        </div>
         <h3 class="svc-slide__title range-text" data-range="black">"I want to be found easily."</h3>
         <ul class="svc-slide__lines">
-          <li>Local SEO — win the "near me" searches</li>
+          <li>Local SEO: win the "near me" searches</li>
           <li>On-page SEO &amp; technical audits</li>
-          <li>AEO / AI-answer optimization — get cited by ChatGPT, Google AI, Perplexity</li>
+          <li>AEO / AI-answer optimization: get cited by ChatGPT, Google AI, Perplexity</li>
           <li>Content &amp; blog strategy</li>
           <li>Google Business Profile optimization</li>
           <li>Schema / structured data markup</li>
@@ -268,17 +260,13 @@
     <!-- 04 — dark -->
     <article class="svc-slide svc-slide--dark reveal">
       <div class="svc-slide__inner">
-        <div class="svc-slide__meta">
-          <span class="svc-slide__num">{04}</span>
-          <span class="svc-slide__cat">AI Marketing Campaigns</span>
-        </div>
         <h3 class="svc-slide__title range-text">"I want to invest my effort in the important stuff."</h3>
         <ul class="svc-slide__lines">
-          <li>AI email automation &amp; flows — welcome, nurture, win-back, birthday</li>
-          <li>AI content generation — posts, emails, ad copy at scale</li>
+          <li>AI email automation &amp; flows: welcome, nurture, win-back, birthday</li>
+          <li>AI content generation: posts, emails, ad copy at scale</li>
           <li>Chatbots &amp; lead-capture assistants</li>
           <li>Personalization &amp; audience segmentation</li>
-          <li>Marketing workflow automation — auto-follow-ups, CRM syncing</li>
+          <li>Marketing workflow automation: auto-follow-ups, CRM syncing</li>
           <li>AI-powered ad creative &amp; testing</li>
         </ul>
       </div>
@@ -287,43 +275,94 @@
 </section>
 
 <!-- ============ PRICING BANNER ============
-     Was a solid purple block; now a dark panel carrying a static blue wash +
-     grain, with the cursor-tracked spotlight on hover. See .price-panel. -->
-<section style="padding: 40px 40px 120px;">
-  <div class="price-panel noise-spot reveal" style="max-width: 1240px; margin: 0 auto; padding: 72px 64px; display: flex; align-items: center; justify-content: space-between; gap: 40px; flex-wrap: wrap;">
-    <h2 style="font-size: clamp(32px, 4vw, 56px); line-height: 1.05; letter-spacing: -0.02em; font-weight: 700; margin: 0; color: #ffffff; max-width: 640px;">Clear prices. Fair prices.<br>No surprises.</h2>
-    <a href="plans.html" class="btn-dark" style="display: inline-flex; align-items: center; gap: 10px; padding: 18px 36px; border-radius: 0; font-weight: 600; font-size: 17px; white-space: nowrap;">see our plans →</a>
+     Full-bleed, no bordered card — reuses the exact blue/black pairing from
+     the service slides directly above (var(--accent) / #0b0b0e) so it reads
+     as a continuation of that palette.
+
+     The banner assembles itself out of blue squares: the surface starts dark
+     and a grid of blue tiles pops in checkerboard-style — every other square
+     first, then the ones between them — until they've tiled the whole band
+     blue. The tile grid is built by script.js (its size depends on the
+     viewport, so it can't be static markup); see the shared .tiles rules in
+     styles.css. One-shot: it plays once, on scroll into view, and stays. -->
+<section class="price-band" id="priceBand">
+  <div class="price-band__inner">
+    <h2 class="price-band__title">Clear prices. Fair prices.<br>No surprises.</h2>
+    <a href="plans.html" class="btn-dark price-band__cta">see our plans →</a>
   </div>
 </section>
 
 <!-- ============ INDUSTRIES ============ -->
-<section id="industries" style="padding: 0 40px 120px;">
+<section id="industries" style="padding: clamp(72px, 8vw, 120px) clamp(28px, 5vw, 72px);">
   <div style="max-width: 1240px; margin: 0 auto;">
-    <p class="reveal" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 16px;">who we serve</p>
-    <h2 class="reveal" style="font-size: clamp(36px, 4.5vw, 60px); line-height: 1.04; letter-spacing: -0.02em; font-weight: 700; margin: 0 0 56px; max-width: 760px; animation-delay: 0.08s;">Businesses we work especially well with</h2>
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-      <div class="industry-card noise-spot reveal" style="background: #0f0f12; padding: 40px; display: flex; flex-direction: column; gap: 16px;">
-        <h3 style="font-size: 26px; font-weight: 600; letter-spacing: -0.01em; margin: 0;">ABA clinics</h3>
-        <p style="font-size: 15px; line-height: 1.55; color: #9a9aa2; margin: 0; flex: 1; text-wrap: pretty;">Families search local. We make sure they find you — and trust what they see.</p>
-        <a href="#contact" style="display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-weight: 600; font-size: 15px;">how we help clinics →</a>
-      </div>
-      <div class="industry-card noise-spot reveal" style="background: #0f0f12; padding: 40px; display: flex; flex-direction: column; gap: 16px; animation-delay: 0.1s;">
-        <h3 style="font-size: 26px; font-weight: 600; letter-spacing: -0.01em; margin: 0;">Senior care</h3>
-        <p style="font-size: 15px; line-height: 1.55; color: #9a9aa2; margin: 0; flex: 1; text-wrap: pretty;">Adult children choose for their parents. Trust is the whole sale — we build it.</p>
-        <a href="#contact" style="display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-weight: 600; font-size: 15px;">how we help senior care →</a>
-      </div>
-      <div class="industry-card noise-spot reveal" style="background: #0f0f12; padding: 40px; display: flex; flex-direction: column; gap: 16px; animation-delay: 0.2s;">
-        <h3 style="font-size: 26px; font-weight: 600; letter-spacing: -0.01em; margin: 0;">Amazon sellers</h3>
-        <p style="font-size: 15px; line-height: 1.55; color: #9a9aa2; margin: 0; flex: 1; text-wrap: pretty;">Listing images, inserts, storefronts, packaging — creative that converts browsers.</p>
-        <a href="#contact" style="display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-weight: 600; font-size: 15px;">how we help sellers →</a>
-      </div>
+    <!-- The heading runs the same After Effects style range selector sweep as
+         the hero statement: script.js splits it per character and sweeps a
+         grey → white → blue band along it on scroll. Left-aligned here rather
+         than .range-text's centred default. -->
+    <h2 class="range-text" style="text-align: left; max-width: 760px; margin: 0 0 clamp(40px, 5vw, 64px);">Businesses we work especially well with</h2>
+    <!-- Scroll toggle: the four industries as hairline-ruled rows. Exactly one
+         is active at a time — its name lights up and its copy expands beneath
+         it while the rest stay collapsed to just their name. script.js picks
+         the active row from scroll position (the last row whose heading has
+         passed the trigger line), so scrolling the page toggles through them
+         in order. Rows are also click/focus targets, so it works without
+         scrolling too. See .ind-* in styles.css. -->
+    <div class="ind-list" id="indList">
+      <article class="ind-row is-active" data-copy="Families search local. We make sure they find you, and trust what they see.">
+        <button class="ind-row__head" type="button" aria-expanded="true">
+          <span class="ind-row__tally" aria-hidden="true"><i></i></span>
+          <span class="ind-row__name">ABA clinics</span>
+          <span class="ind-row__arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></span>
+        </button>
+        <div class="ind-row__body">
+          <div class="ind-row__inner">
+            <a href="#contact" class="ind-row__link">how we help clinics →</a>
+          </div>
+        </div>
+      </article>
+      <article class="ind-row" data-copy="Adult children choose for their parents. Trust is the whole sale. We build it.">
+        <button class="ind-row__head" type="button" aria-expanded="false">
+          <span class="ind-row__tally" aria-hidden="true"><i></i><i></i></span>
+          <span class="ind-row__name">Senior care</span>
+          <span class="ind-row__arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></span>
+        </button>
+        <div class="ind-row__body">
+          <div class="ind-row__inner">
+            <a href="#contact" class="ind-row__link">how we help senior care →</a>
+          </div>
+        </div>
+      </article>
+      <article class="ind-row" data-copy="Listing images, inserts, storefronts, packaging. Creative that converts browsers.">
+        <button class="ind-row__head" type="button" aria-expanded="false">
+          <span class="ind-row__tally" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="ind-row__name">Amazon sellers</span>
+          <span class="ind-row__arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></span>
+        </button>
+        <div class="ind-row__body">
+          <div class="ind-row__inner">
+            <a href="#contact" class="ind-row__link">how we help sellers →</a>
+          </div>
+        </div>
+      </article>
+      <article class="ind-row" data-copy="Plumbers, electricians, HVAC. When it breaks at 7am, you need to be the first call, and the easy yes.">
+        <button class="ind-row__head" type="button" aria-expanded="false">
+          <span class="ind-row__tally" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="ind-row__name">Trade services</span>
+          <span class="ind-row__arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></span>
+        </button>
+        <div class="ind-row__body">
+          <div class="ind-row__inner">
+            <a href="#contact" class="ind-row__link">how we help trades →</a>
+          </div>
+        </div>
+      </article>
     </div>
   </div>
 </section>
 
 <!-- ============ HOW IT WORKS + FORM ============ -->
 <section id="process" style="padding: 0 40px 120px;">
-  <div style="max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start;">
+  <div style="max-width: 1240px; margin: 0 auto;">
     <div>
       <p class="reveal" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 16px;">how it works</p>
       <h2 class="reveal" style="font-size: clamp(36px, 4.5vw, 56px); line-height: 1.04; letter-spacing: -0.02em; font-weight: 700; margin: 0 0 48px; animation-delay: 0.08s;">Three steps.<br>No mystery.</h2>
@@ -351,44 +390,67 @@
         </div>
       </div>
     </div>
+  </div>
+</section>
 
-    <!-- form -->
-    <div id="contact" class="panel reveal" style="padding: 48px; scroll-margin-top: 120px;">
-      <h3 style="font-size: 30px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 8px;">Let's get acquainted</h3>
-      <p style="font-size: 15px; line-height: 1.5; color: #9a9aa2; margin: 0 0 32px;">Book a 15-minute fit call. Straight answers, no pitch.</p>
-
-      <form id="contactForm" style="display: flex; flex-direction: column; gap: 16px;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-          <input class="form-input" name="firstName" placeholder="First name" required style="background: #0a0a0c; padding: 14px 16px; font-size: 15px; color: #f2f2f4; width: 100%;">
-          <input class="form-input" name="lastName" placeholder="Last name" required style="background: #0a0a0c; padding: 14px 16px; font-size: 15px; color: #f2f2f4; width: 100%;">
-        </div>
-        <input class="form-input" name="email" type="email" placeholder="Email" required style="background: #0a0a0c; padding: 14px 16px; font-size: 15px; color: #f2f2f4; width: 100%;">
-        <select class="form-input" name="businessType" required style="background: #0a0a0c; padding: 14px 16px; font-size: 15px; color: #f2f2f4; width: 100%; appearance: none;">
-          <option value="">Business type…</option>
-          <option value="aba">ABA clinic</option>
-          <option value="senior">Senior care</option>
-          <option value="amazon">Amazon seller</option>
-          <option value="local">Local service business</option>
-          <option value="other">Something else</option>
-        </select>
-
-        <!-- Carries the services picked on the grid above (persisted in
-             localStorage) into the submission. Hidden field holds the raw
-             value; #svcPicked shows the viewer what's attached. -->
-        <input type="hidden" name="services" id="servicesField">
-        <div id="svcPicked" class="svc-picked" hidden>
-          <span class="svc-picked__label">Services you picked</span>
-          <div class="svc-picked__chips"></div>
-          <a href="#services" class="svc-picked__edit">edit selection</a>
-        </div>
-
-        <button type="submit" class="btn-primary" style="border-radius: 0; padding: 16px 32px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 8px;">book a 15-minute fit call</button>
-      </form>
-
-      <div id="formSuccess" style="display: none; padding: 32px 0 16px; flex-direction: column; gap: 12px;">
-        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent);">request received</span>
-        <p style="font-size: 18px; line-height: 1.5; color: #f2f2f4; margin: 0;">Thanks — we'll reach out shortly to find a time that works.</p>
+<!-- ============ CONTACT ============
+     Full-bleed blue slab: the form is the loudest thing on the page by the
+     time you reach it. Black input boxes with blue type sit on the blue
+     ground, and the oversized "Let's get acquainted" line holds its
+     supporting blurb hidden until you hover it, then drops it down into
+     place. See .contact* in styles.css. -->
+<section id="contact" class="contact">
+  <div class="contact__inner">
+    <div class="contact__intro">
+      <h2 class="contact__title">Let's get acquainted</h2>
+      <div class="contact__blurb-wrap">
+        <p class="contact__blurb">Book a 15-minute fit call. Straight answers, no pitch. We'll tell you honestly whether we're a match.</p>
       </div>
+    </div>
+
+    <form id="contactForm" class="contact__form">
+      <div class="contact__row">
+        <input class="form-input contact__input" name="firstName" placeholder="First name" required>
+        <input class="form-input contact__input" name="lastName" placeholder="Last name" required>
+      </div>
+      <input class="form-input contact__input" name="email" type="email" placeholder="Email" required>
+      <select class="form-input contact__input contact__select" name="businessType" required>
+        <option value="">Business type…</option>
+        <option value="aba">ABA clinic</option>
+        <option value="senior">Senior care</option>
+        <option value="amazon">Amazon seller</option>
+        <option value="local">Local service business</option>
+        <option value="other">Something else</option>
+      </select>
+
+      <!-- Carries the services picked on the grid above (persisted in
+           localStorage) into the submission. Hidden field holds the raw
+           value; #svcPicked shows the viewer what's attached. -->
+      <input type="hidden" name="services" id="servicesField">
+      <div id="svcPicked" class="svc-picked" hidden>
+        <span class="svc-picked__label">I'm interested in</span>
+        <div class="svc-picked__chips"></div>
+      </div>
+
+      <!-- Swipe to submit. The handle is type="button", not a submit: pointer
+           users have to drag it the length of the track, which is the whole
+           point of the control. Keyboard users press Enter/Space on it (or
+           use the arrow keys) and script.js submits the form for them, so the
+           gesture is never the only way through. -->
+      <div class="swipe" id="swipeSubmit">
+        <div class="swipe__track">
+          <span class="swipe__fill" aria-hidden="true"></span>
+          <span class="swipe__label" aria-hidden="true">swipe to book a 15-minute fit call</span>
+          <button type="button" class="swipe__handle" aria-label="Swipe to submit, or press Enter">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <div id="formSuccess" class="contact__success">
+      <span class="contact__success-tag">request received</span>
+      <p class="contact__success-copy">Thanks. We'll reach out shortly to find a time that works.</p>
     </div>
   </div>
 </section>
@@ -399,7 +461,7 @@
      column so it can run wider than the headline. -->
 <section style="padding: 140px 40px 0; border-top: 1px solid #1c1c20; text-align: center;">
   <div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
-    <h2 class="reveal" style="font-size: clamp(40px, 6vw, 84px); line-height: 1.0; letter-spacing: -0.03em; font-weight: 700; margin: 0; text-wrap: pretty;">Let's make your business easy to say yes to.</h2>
+    <h2 class="reveal range-sweep" style="font-size: clamp(40px, 6vw, 84px); line-height: 1.0; letter-spacing: -0.03em; font-weight: 700; margin: 0; text-wrap: pretty;">Let's make your business easy to say yes to.</h2>
   </div>
 
   <div style="width: min(1200px, 92vw); height: min(70vh, 640px); margin: 0 auto; overflow: hidden;">
@@ -416,7 +478,7 @@
     <a href="plans.html" style="color: #8a8a92;">pricing</a>
     <a href="#contact" style="color: #8a8a92;">contact</a>
   </nav>
-  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #55555c;">© 2026 Creative Stone — All rights reserved.</span>
+  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #55555c;">© 2026 Creative Stone. All rights reserved.</span>
 </footer>
 
 <!-- ============ SERVICE PICKER TRAY ============
@@ -439,6 +501,6 @@
 </aside>
 
 <script src="shader.js" defer></script>
-<script src="script.js"></script>
+<script src="script.js?v=7"></script>
 </body>
 </html>

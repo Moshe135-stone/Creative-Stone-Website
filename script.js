@@ -14,6 +14,113 @@ document.getElementById('contactForm')?.addEventListener('submit', function (e) 
   document.getElementById('formSuccess').style.display = 'flex';
 });
 
+// Swipe to submit on the contact form. Dragging the handle the length of the
+// track submits; letting go short of the threshold springs it back. The
+// handle is a real <button>, so Enter/Space (and the arrow keys) submit too —
+// the gesture is never the only way through, and it stays reachable for
+// anyone who can't drag. See .swipe* in styles.css.
+(function () {
+  var root = document.getElementById('swipeSubmit');
+  var form = document.getElementById('contactForm');
+  if (!root || !form) return;
+
+  var track = root.querySelector('.swipe__track');
+  var handle = root.querySelector('.swipe__handle');
+  if (!track || !handle) return;
+
+  var THRESHOLD = 0.9;   // fraction of the track that counts as a completed swipe
+  var maxX = 0;
+  var dragging = false;
+  var startX = 0;
+  var x = 0;
+  var done = false;
+
+  function limit() {
+    // offsetLeft is the handle's 8px inset (unaffected by its transform);
+    // doubling it accounts for the matching gap at the far end, so the handle
+    // stops flush inside the track's frame instead of overshooting it.
+    maxX = Math.max(0, track.clientWidth - handle.offsetWidth - handle.offsetLeft * 2);
+  }
+
+  function paint() {
+    root.style.setProperty('--swipe-x', x + 'px');
+    root.style.setProperty('--swipe-p', maxX ? (x / maxX).toFixed(4) : '0');
+  }
+
+  function reset() {
+    x = 0;
+    paint();
+  }
+
+  function submit() {
+    if (done) return;
+    // Bail on an incomplete form: let the browser point at the offending
+    // field and spring the handle back rather than locking it at the end.
+    if (typeof form.checkValidity === 'function' && !form.checkValidity()) {
+      if (typeof form.reportValidity === 'function') form.reportValidity();
+      reset();
+      return;
+    }
+    done = true;
+    limit();
+    x = maxX;
+    paint();
+    root.classList.add('is-complete');
+    if (typeof form.requestSubmit === 'function') form.requestSubmit();
+    else form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+  }
+
+  handle.addEventListener('pointerdown', function (e) {
+    if (done) return;
+    limit();
+    dragging = true;
+    startX = e.clientX - x;
+    root.classList.add('is-dragging');
+    if (handle.setPointerCapture) handle.setPointerCapture(e.pointerId);
+  });
+
+  handle.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    x = Math.min(maxX, Math.max(0, e.clientX - startX));
+    paint();
+  });
+
+  function end() {
+    if (!dragging) return;
+    dragging = false;
+    root.classList.remove('is-dragging');
+    if (maxX && x / maxX >= THRESHOLD) submit();
+    else reset();
+  }
+  handle.addEventListener('pointerup', end);
+  handle.addEventListener('pointercancel', end);
+
+  // Keyboard path: Enter/Space submits outright, arrows nudge it along so the
+  // control still behaves like something you move.
+  handle.addEventListener('keydown', function (e) {
+    if (done) return;
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+      e.preventDefault();
+      submit();
+    } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      limit();
+      x = Math.min(maxX, Math.max(0, x + (e.key === 'ArrowRight' ? maxX / 5 : -maxX / 5)));
+      paint();
+      if (maxX && x / maxX >= THRESHOLD) submit();
+    }
+  });
+
+  window.addEventListener('resize', function () {
+    limit();
+    if (!done) reset();
+    else { x = maxX; paint(); }
+  }, { passive: true });
+
+  limit();
+  paint();
+})();
+
 // Burger menu: toggles #siteHeader.nav-open, which drives the horizontal
 // right-to-left fan-out of .nav-item links and the burger-to-X morph (see
 // styles.css). Clicking a link closes the menu again.
@@ -42,7 +149,7 @@ document.getElementById('contactForm')?.addEventListener('submit', function (e) 
 // spotlit surface on the site — buttons, the hero CTAs, the tic-tac-toe
 // service cells, and anything carrying the shared .noise-spot utility.
 document.querySelectorAll(
-  '.btn-nav-cta, .btn-primary, .btn-outline, .btn-dark, .hero-cta, .ttt__cell, .noise-spot'
+  '.btn-nav-cta, .btn-primary, .btn-outline, .btn-dark, .hero-cta, .swipe__track, .ttt__cell, .noise-spot'
 ).forEach(function (el) {
   el.addEventListener('pointermove', function (e) {
     var rect = el.getBoundingClientRect();
@@ -335,9 +442,20 @@ document.querySelectorAll(
     if (picked && pickedChips) {
       pickedChips.textContent = '';
       names.forEach(function (name) {
+        // Each tag carries its own × so a service can be dropped straight
+        // from the form, without scrolling back up to the board.
         var chip = document.createElement('span');
         chip.className = 'svc-picked__chip';
-        chip.textContent = name;
+        var label = document.createElement('span');
+        label.textContent = name;
+        var rm = document.createElement('button');
+        rm.type = 'button';
+        rm.className = 'svc-picked__remove';
+        rm.setAttribute('aria-label', 'Remove ' + name);
+        rm.textContent = '×';
+        rm.addEventListener('click', function () { deselect(name); });
+        chip.appendChild(label);
+        chip.appendChild(rm);
         pickedChips.appendChild(chip);
       });
       picked.hidden = names.length === 0;
@@ -387,10 +505,14 @@ document.querySelectorAll(
 //      to a small dock and follow you down the rest of the page.
 // The slot keeps their height in the panel's flow, so going fixed can't make
 // the layout jump.
+//   3. .is-hidden — the contact form has come into view, so they drop away.
+//      Their whole job is to get you to that form; once you are looking at it
+//      they are just covering it up.
 (function () {
   var slot = document.querySelector('.hero-cta-slot');
   var panel = document.querySelector('.hero-panel');
   var group = slot && slot.querySelector('.hero-cta-group');
+  var contact = document.getElementById('contact');
   if (!slot || !panel || !group) return;
 
   var ticking = false;
@@ -408,6 +530,11 @@ document.querySelectorAll(
     var vh = window.innerHeight;
     group.classList.toggle('is-docked', slot.getBoundingClientRect().bottom <= vh);
     group.classList.toggle('is-compact', panel.getBoundingClientRect().bottom <= vh);
+    // Drop out of the way as soon as the contact form's top edge clears the
+    // bottom of the screen, and come back if you scroll away from it.
+    if (contact) {
+      group.classList.toggle('is-hidden', contact.getBoundingClientRect().top <= vh * 0.92);
+    }
   }
 
   function onScroll() {
@@ -441,7 +568,10 @@ document.querySelectorAll(
 // The colors are only ever set here, so reduced motion (and no JS at all)
 // simply leaves the plain white .range-text from styles.css alone.
 (function () {
-  var els = document.querySelectorAll('.range-text');
+  // .range-text brings the sweep AND the shared statement typography;
+  // .range-sweep is the behaviour on its own, for lines that already have
+  // their own type styling and only want the animation.
+  var els = document.querySelectorAll('.range-text, .range-sweep');
   if (!els.length) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
@@ -541,25 +671,24 @@ document.querySelectorAll(
   run();
 })();
 
-// Service slide panels: the solid-blue sheet wipes in from the left as each
-// blue panel rises through the viewport. --wipe (0→1) retracts the dark
-// .svc-slide__cover left→right, uncovering the panel's blue background, and the
-// window here (START→END, keyed off the statement's position) matches the
-// range-selector text sweep so the blue fills in right behind the darkening
-// letters. --wipe defaults to 1 in CSS, so reduced motion / no JS just leaves
-// the panels solid blue with no animation.
+// Service slide panels: every panel — blue AND dark — slides in laterally over
+// the one before it. The panels are sticky at top:0 (see .svc-slides), so each
+// stays pinned while the next is painted over it; --slide (0→1) drives the
+// incoming panel's translateX from fully off-screen to home, the direction
+// alternating right/left via --dir in CSS. The window is keyed off the panel's
+// own top edge: off-screen while it is still near the bottom of the viewport,
+// fully home just before it pins. --slide defaults to 1 in CSS, so reduced
+// motion / no JS just leaves the panels in place, unoffset.
 (function () {
-  var panels = [].slice.call(document.querySelectorAll('.svc-slide--blue'));
+  var panels = [].slice.call(document.querySelectorAll('.svc-slide'));
   if (!panels.length) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  var START = 0.9;   // wipe begins when the statement is 90% down the viewport
-  var END = 0.38;    // and completes by 38%
+  var START = 0.98;  // panel is fully off to the side at 98% down the viewport
+  var END = 0.12;    // and fully home by 12%, just before it pins at the top
 
-  var items = panels.map(function (p) {
-    return { el: p, title: p.querySelector('.svc-slide__title') || p };
-  });
-  items.forEach(function (it) { it.el.style.setProperty('--wipe', '0'); });
+  var items = panels.map(function (p) { return { el: p }; });
+  items.forEach(function (it) { it.el.style.setProperty('--slide', '0'); });
 
   var ticking = false;
   function run() {
@@ -568,9 +697,9 @@ document.querySelectorAll(
     var from = vh * START;
     var to = vh * END;
     items.forEach(function (it) {
-      var top = it.title.getBoundingClientRect().top;
+      var top = it.el.getBoundingClientRect().top;
       var p = Math.min(1, Math.max(0, (from - top) / (from - to)));
-      it.el.style.setProperty('--wipe', p.toFixed(4));
+      it.el.style.setProperty('--slide', p.toFixed(4));
     });
   }
 
@@ -660,6 +789,239 @@ document.querySelectorAll(
   }, { threshold: 0.15, rootMargin: '0px 0px -12% 0px' });
 
   items.forEach(function (el) { observer.observe(el); });
+})();
+
+// Checkerboard reveal: a blue surface assembles itself out of squares. A grid
+// of blue tiles is laid over the (dark) host and each pops in — checkerboard
+// order, every other square first and the ones between them right behind — so
+// the surface builds up as a filling-in board. One-shot, on scroll into view.
+// Driven from here rather than written as static markup because the tile
+// count depends on the host's size. Used by the pricing band and the contact
+// section; see the shared .tiles rules in styles.css.
+(function () {
+  var hosts = [
+    { el: document.getElementById('priceBand'), threshold: 0.35 },
+    // The contact section is taller than the viewport, so a 0.35 threshold
+    // would never be met and it would never fire — trigger it on a sliver.
+    { el: document.getElementById('contact'), threshold: 0.12 }
+  ].filter(function (h) { return h.el; });
+  if (!hosts.length) return;
+
+  // Reduced motion / no IntersectionObserver: bail without arming, which
+  // leaves each host its default plain blue with no tiles — the finished
+  // look, just without the animation.
+  if (
+    (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ||
+    !('IntersectionObserver' in window)
+  ) return;
+
+  var TILE = 84;         // target square size in px; actual size flexes to fit
+  var PARITY_GAP = 0.30; // how far the second checker pass trails the first, in s
+  var SWEEP = 0.28;      // extra stagger across the diagonal within a pass, in s
+
+  hosts.forEach(function (host) {
+    var el = host.el;
+
+    var layer = document.createElement('div');
+    layer.className = 'tiles';
+    layer.setAttribute('aria-hidden', 'true');
+    el.insertBefore(layer, el.firstChild);
+
+    var cols = 0, rows = 0, opened = false;
+
+    function build() {
+      var c = Math.max(4, Math.round(el.offsetWidth / TILE));
+      var r = Math.max(2, Math.round(el.offsetHeight / TILE));
+      if (c === cols && r === rows) return;   // nothing to redo on minor resizes
+      cols = c;
+      rows = r;
+
+      layer.style.gridTemplateColumns = 'repeat(' + c + ', 1fr)';
+      layer.style.gridTemplateRows = 'repeat(' + r + ', 1fr)';
+      layer.textContent = '';
+
+      var frag = document.createDocumentFragment();
+      for (var y = 0; y < r; y++) {
+        for (var x = 0; x < c; x++) {
+          var tile = document.createElement('div');
+          tile.className = 'tiles__tile';
+          // (x + y) parity splits the grid into the two checker colours; the
+          // diagonal term sweeps each pass across the surface rather than
+          // popping every square of a colour at once.
+          var delay = ((x + y) % 2) * PARITY_GAP + ((x + y) / (c + r)) * SWEEP;
+          // Rebuilt after the reveal already ran (a resize): land them instantly.
+          tile.style.transitionDelay = opened ? '0s' : delay.toFixed(3) + 's';
+          frag.appendChild(tile);
+        }
+      }
+      layer.appendChild(frag);
+    }
+
+    build();
+    window.addEventListener('resize', build, { passive: true });
+
+    // Arm it: hand the blue over to the tiles and take the host itself dark.
+    el.classList.add('is-armed');
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          opened = true;
+          el.classList.add('is-open');
+          observer.unobserve(el);
+        }
+      });
+    }, { threshold: host.threshold });
+
+    observer.observe(el);
+  });
+})();
+
+// Industries scroll toggle: four rows, exactly one open. Scrolling the page
+// toggles through them in order; clicking a row jumps straight to it.
+//
+// The active row is "the last row whose heading has passed the trigger line",
+// NOT "the row nearest the line". That distinction matters: opening a row
+// pushes every row below it down, so a nearest-wins rule can shove the next
+// heading back across the line and oscillate between two rows. Because a row's
+// own heading never moves when it opens (the body expands underneath it), the
+// last-past rule can only ever delay the next activation — never undo the
+// current one. See .ind-* in styles.css.
+(function () {
+  var list = document.getElementById('indList');
+  if (!list) return;
+
+  var rows = Array.prototype.slice.call(list.querySelectorAll('.ind-row'));
+  if (!rows.length) return;
+
+  // Reduced motion: open everything and skip the scroll wiring entirely.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    list.classList.add('is-static');
+    rows.forEach(function (row) {
+      row.classList.add('is-active');
+      var head = row.querySelector('.ind-row__head');
+      if (head) head.setAttribute('aria-expanded', 'true');
+    });
+    return;
+  }
+
+  var active = -1;
+  var ticking = false;
+
+  function setActive(i) {
+    if (i === active) return;
+    active = i;
+    rows.forEach(function (row, j) {
+      var on = j === i;
+      var body = row.querySelector('.ind-row__body');
+      var head = row.querySelector('.ind-row__head');
+      row.classList.toggle('is-active', on);
+      if (head) head.setAttribute('aria-expanded', on ? 'true' : 'false');
+      // Measured rather than a CSS constant so the ease runs the exact
+      // distance; scrollHeight is the natural height of the collapsed body.
+      if (body) body.style.maxHeight = on ? body.scrollHeight + 'px' : '0px';
+    });
+  }
+
+  function update() {
+    ticking = false;
+    var line = window.innerHeight * 0.45;
+    var next = 0;                       // never leave the list fully closed
+    rows.forEach(function (row, i) {
+      var head = row.querySelector('.ind-row__head');
+      if (head && head.getBoundingClientRect().top <= line) next = i;
+    });
+    setActive(next);
+  }
+
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  }
+
+  // Clicking a row takes over from the scroll position until the next scroll.
+  rows.forEach(function (row, i) {
+    var head = row.querySelector('.ind-row__head');
+    if (head) head.addEventListener('click', function () { setActive(i); });
+  });
+
+  // Re-measure the open row: its wrapped height changes with the viewport.
+  function onResize() {
+    var row = rows[active];
+    var body = row && row.querySelector('.ind-row__body');
+    if (body) {
+      body.style.maxHeight = 'none';
+      var h = body.scrollHeight;
+      body.style.maxHeight = h + 'px';
+    }
+    update();
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onResize, { passive: true });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(onResize);
+  update();
+
+  // Hover cursor: over a row the native pointer is swapped for a blue box
+  // carrying that row's copy (see .ind-cursor in styles.css). One element is
+  // reused for all four rows. Skipped entirely on touch/coarse pointers, where
+  // there is no cursor to replace.
+  if (!window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+  var cursor = document.createElement('div');
+  cursor.className = 'ind-cursor';
+  cursor.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(cursor);
+
+  var OFFSET = 18;             // gap between the pointer and the box's corner
+  var cx = 0, cy = 0, cursorTick = false;
+
+  function place() {
+    cursorTick = false;
+    // Flip the box to the other side of the pointer near the viewport edges so
+    // it can never run off-screen.
+    var w = cursor.offsetWidth, h = cursor.offsetHeight;
+    var x = cx + OFFSET, y = cy + OFFSET;
+    if (x + w > window.innerWidth - 8) x = cx - w - OFFSET;
+    if (y + h > window.innerHeight - 8) y = cy - h - OFFSET;
+    cursor.style.setProperty('--cx', x + 'px');
+    cursor.style.setProperty('--cy', y + 'px');
+  }
+
+  function onMove(e) {
+    cx = e.clientX;
+    cy = e.clientY;
+    if (cursorTick) return;
+    cursorTick = true;
+    requestAnimationFrame(place);
+  }
+
+  rows.forEach(function (row) {
+    var head = row.querySelector('.ind-row__head');
+    // The copy lives on the row as data-copy rather than in the markup: it is
+    // shown only here, in the hover cursor, not in the expanded row.
+    var copy = row.dataset.copy;
+    if (!head || !copy) return;
+
+    head.addEventListener('pointerenter', function (e) {
+      if (e.pointerType !== 'mouse') return;
+      cursor.textContent = copy;
+      cx = e.clientX;
+      cy = e.clientY;
+      place();
+      cursor.classList.add('is-visible');
+    });
+    head.addEventListener('pointermove', onMove);
+    head.addEventListener('pointerleave', function () {
+      cursor.classList.remove('is-visible');
+    });
+  });
+
+  // A row can slide out from under a stationary pointer while scrolling.
+  window.addEventListener('scroll', function () {
+    cursor.classList.remove('is-visible');
+  }, { passive: true });
 })();
 
 // Sparkle color-reveal spotlight on the B&W photo grid: same --mx/--my

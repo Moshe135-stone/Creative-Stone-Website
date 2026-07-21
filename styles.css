@@ -41,7 +41,7 @@
    animation-delay.
 
    This deliberately uses an animation, NOT a transition: .reveal is applied to
-   elements that declare their own transition for hover (.industry-card, .step,
+   elements that declare their own transition for hover (.step,
    .btn-primary), and those rules come later in the cascade — a transition-based
    reveal would be overridden by them and snap instead of fading. An animation
    runs on a separate channel, so both work. Don't "simplify" this back into a
@@ -164,12 +164,19 @@ input::placeholder { color: #6a6a72; }
     var(--noise);
   background-blend-mode: overlay;
 }
-.ttt__cell.is-selected::after { opacity: 1; }
+/* Picked: the cell goes the same flat brand blue the pricing band and contact
+   section use as their ground, so a selection reads as a solid blue tile
+   rather than a glow. Black type on it, matching how every other blue
+   surface on the site is set. */
+.ttt__cell.is-selected::after {
+  opacity: 1;
+  background: var(--accent);
+}
 .ttt__cell.is-selected {
-  box-shadow: inset 0 0 0 1.5px rgba(var(--accent-rgb), .95);
+  box-shadow: inset 0 0 0 1.5px var(--accent);
   z-index: 3;                    /* the lit stroke wins over placed neighbours */
 }
-.ttt__cell.is-selected span { color: #ffffff; }
+.ttt__cell.is-selected span { color: #0a0a0c; }
 /* Blue noise spotlight on hover: a cursor-tracked radial glow whose centre
    follows --mx/--my (set by script.js on pointermove) blended with a fine
    noise texture — the same trick as the site's buttons, tinted blue and
@@ -363,37 +370,61 @@ input::placeholder { color: #6a6a72; }
 }
 
 /* Summary of the picked services shown inside the contact form. */
+/* Picked services, carried down from the board into the contact form. The
+   wrapper is deliberately unstyled — the tags themselves are the black
+   boxes, so they read directly against the blue of the contact section
+   rather than sitting in a black box inside a black box. */
 .svc-picked {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 16px;
-  background: #0a0a0c;
-  border: 1px solid rgba(var(--accent-rgb), .4);
+  gap: 14px;
+  padding: 0;
+  background: none;
+  border: 0;
 }
 .svc-picked[hidden] { display: none; }
 .svc-picked__label {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  color: rgba(10, 10, 12, 0.72);
+}
+.svc-picked__chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.svc-picked__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px 12px 20px;
+  border-radius: 10px;         /* the one rounded thing on an otherwise sharp page */
+  background: #0a0a0c;
+  border: 0;
+  font-size: 15px;
+  font-weight: 500;
   color: var(--accent);
 }
-.svc-picked__chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.svc-picked__chip {
-  padding: 6px 10px;
-  background: rgba(var(--accent-rgb), .10);
-  border: 1px solid rgba(var(--accent-rgb), .45);
-  font-size: 13px;
-  color: #eef1f6;
+/* Per-tag remove, so a service can be dropped without going back to the board. */
+.svc-picked__remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: rgba(var(--accent-rgb), 0.16);
+  color: var(--accent);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color .2s ease, color .2s ease;
 }
-.svc-picked__edit {
-  align-self: flex-start;
-  font-size: 13px;
-  color: #8a8a92;
-  border-bottom: 1px solid transparent;
+.svc-picked__remove:hover,
+.svc-picked__remove:focus-visible {
+  background: var(--accent);
+  color: #0a0a0c;
 }
-.svc-picked__edit:hover { color: var(--accent); border-bottom-color: currentColor; }
 
 /* Interactive elements — base + hover/focus states live here since inline
    styles can't be overridden by pseudo-classes in an external stylesheet.
@@ -480,6 +511,20 @@ input::placeholder { color: #6a6a72; }
 .hero-cta-slot {
   margin-top: clamp(80px, 16vh, 190px);
 }
+/* Pinned to the bottom-right of the viewport at all times — visible from the
+   moment the page loads through the very bottom of the page, and matches
+   .hero-cta-group.is-docked's position exactly so nothing jumps once
+   script.js applies that class. Fixed outright (not tucked inside a section)
+   so no ancestor's overflow:hidden can ever clip it as you scroll. */
+.hero-cta-slot--intro {
+  position: fixed;
+  right: 40px;
+  bottom: 0;
+  margin-top: 0;
+  width: max-content;          /* shrink to the buttons' own natural size — never crops their text */
+  max-width: calc(100vw - 80px);
+  z-index: 40;                 /* under the fixed header (50) */
+}
 .hero-cta-group {
   --dock-scale: 0.62;
   position: relative;
@@ -487,36 +532,51 @@ input::placeholder { color: #6a6a72; }
   display: flex;
   gap: clamp(16px, 1.6vw, 24px);
   align-items: stretch;
-  justify-content: center;
-  width: min(1060px, 100%);
-  margin: 0 auto;
-  transform-origin: bottom center;
-  transition: transform .55s cubic-bezier(0.16, 1, 0.3, 1);
+  justify-content: flex-end;
+  margin: 0 0 0 auto;          /* pushed to the right edge of the panel */
+  transform-origin: bottom right;
+  /* Composed from two variables rather than each state redeclaring transform:
+     the shrink (.is-compact) and the drop-away (.is-hidden) can be in effect
+     at the same time, and a second transform declaration would just replace
+     the first instead of combining with it. */
+  transform: translateY(var(--cta-drop, 0)) scale(var(--cta-scale, 1));
+  transition: transform .55s cubic-bezier(0.16, 1, 0.3, 1), opacity .4s ease;
 }
 .hero-cta-group.is-docked {
   position: fixed;
-  left: 0;
-  right: 0;
+  left: auto;
+  right: 40px;                 /* matches the panel's 40px side padding */
   bottom: 0;
-  width: auto;
   z-index: 40;                 /* under the fixed header (50) */
-  pointer-events: none;        /* the full-width strip must not eat clicks */
+  pointer-events: none;        /* the strip must not eat clicks */
 }
 .hero-cta-group.is-compact {
-  transform: scale(var(--dock-scale));
+  --cta-scale: var(--dock-scale);
 }
+/* Contact form in view: the buttons have done their job, so they drop out
+   rather than sit on top of the form they were pointing at. */
+.hero-cta-group.is-hidden {
+  --cta-drop: 160%;
+  opacity: 0;
+  pointer-events: none;
+}
+/* .hero-cta re-enables pointer events for the docked strip, so it has to be
+   switched off here too — otherwise the faded-out buttons still swallow
+   clicks meant for the form underneath. */
+.hero-cta-group.is-hidden .hero-cta { pointer-events: none; }
 @media (prefers-reduced-motion: reduce) {
-  .hero-cta-group { transition: none; }
+  .hero-cta-group { transition: opacity .4s ease; }
 }
 
-/* flex: 1 1 0 keeps the two exactly equal despite their different label
-   lengths; the clamps let the row survive narrow screens now that the buttons
-   sit beside each other rather than stacked. */
+/* flex: 0 0 auto — each button sizes to its own label, so "book a 15-minute
+   fit call" is naturally wider than "see what we do" rather than both being
+   forced into an equal share of a fixed row width (that only made sense when
+   this sat centered in a wide, shared-width row; parked in a corner now, each
+   button should just hug its own text). */
 .hero-cta {
   position: relative;
   isolation: isolate;
-  flex: 1 1 0;
-  min-width: 0;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -699,28 +759,258 @@ input::placeholder { color: #6a6a72; }
 }
 .svc-tag:hover { border-color: rgba(var(--accent-rgb), .6); color: #ffffff; }
 
-/* Pricing banner: was a solid purple block. Now a dark panel carrying a static
-   blue wash + grain, with the cursor-tracked spotlight layered on hover. */
-.price-panel {
-  --spot-size: 620px;
-  --spot-a1: .26;
-  --spot-a2: .09;
-  border: 1px solid rgba(var(--accent-rgb), .5);
-  background:
-    var(--noise),
-    radial-gradient(circle 760px at 12% -20%, rgba(var(--accent-rgb), .34), transparent 70%),
-    #0b0e14;
-  background-blend-mode: overlay, normal, normal;
+/* Pricing banner: full-bleed, reusing the service slides' blue/black pair
+   directly rather than a separate card treatment. It assembles out of blue
+   squares on scroll — see the dedicated IIFE in script.js for the one-shot
+   .is-armed / .is-open trigger. */
+.price-band {
+  position: relative;
+  overflow: hidden;
+  background: var(--accent);
+  /* Explicit height rather than letting the copy size it: the tile grid is
+     laid out from this box, so a stable band proportion keeps the squares
+     close to square across viewports. */
+  height: clamp(260px, 22vw, 340px);
+  /* Breathing room from the sections above and below. Vertical only — the
+     band stays full-bleed edge to edge horizontally. */
+  margin: clamp(56px, 6.5vw, 104px) 0;
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
+}
+.price-band__inner {
+  position: relative;
+  z-index: 2;                  /* above the tile layer */
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+.price-band__title {
+  font-size: clamp(32px, 4vw, 56px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  margin: 0;
+  color: #0a0a0c;              /* black type on brand blue, matches .svc-slide--blue */
+  max-width: 640px;
+}
+.price-band__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 36px;
+  border-radius: 0;
+  font-weight: 600;
+  font-size: 17px;
+  white-space: nowrap;
+  color: #0a0a0c;
+  border-color: rgba(10, 10, 12, 0.4);
 }
 
-.industry-card {
-  --spot-size: 380px;
-  --spot-a1: .18;
-  --spot-a2: .06;
-  border: 1px solid #26262c;
-  transition: border-color .3s ease;
+/* ============ Checkerboard reveal (shared) ============
+   A grid of blue squares that pop in to tile a blue surface into existence.
+   Used by the pricing band and the contact section. script.js builds the
+   tiles (the count depends on the host's size) and stamps each one's
+   transition-delay, so the two checker passes sweep across in turn.
+
+   The host's background is blue by DEFAULT and only goes dark once script.js
+   adds .is-armed — deliberately that way round, so a stale, broken or blocked
+   script.js leaves a plain blue surface rather than a dark empty box that
+   never fills in. */
+.tiles {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  pointer-events: none;
 }
-.industry-card:hover { border-color: rgba(var(--accent-rgb), .6); }
+.tiles__tile {
+  background: var(--accent);
+  transform: scale(0);
+  transition: transform .55s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+/* Slightly over 1 so neighbouring tiles overlap by a hair — at exactly
+   scale(1) sub-pixel rounding can leave dark hairlines between them. */
+.is-open > .tiles .tiles__tile { transform: scale(1.04); }
+@media (prefers-reduced-motion: reduce) {
+  .tiles__tile { transition: none; }
+}
+
+/* Per-host: the dark ground the tiles assemble over, and the content that
+   fades up once the squares have landed. */
+.price-band.is-armed,
+.contact.is-armed { background: #0b0b0e; }   /* matches .svc-slide--dark */
+
+.price-band.is-armed .price-band__inner,
+.contact.is-armed .contact__inner {
+  opacity: 0;
+  transition: opacity .45s ease;
+}
+.price-band.is-armed.is-open .price-band__inner,
+.contact.is-armed.is-open .contact__inner {
+  opacity: 1;
+  transition: opacity .5s ease .5s;
+}
+
+/* ============ INDUSTRIES scroll toggle ============
+   Four hairline-ruled rows; exactly one is active. The active row's name goes
+   from grey to white and its copy expands beneath it, the rest stay collapsed
+   to just the name. script.js sets .is-active from scroll position and sets
+   the open row's max-height in px (measured, so the ease is exact — a fixed
+   max-height guess makes the transition stall or snap). */
+.ind-list { border-top: 1px solid #232328; }
+.ind-row { border-bottom: 1px solid #232328; }
+
+/* A button so the rows are keyboard-reachable and clickable, reset to look
+   like plain layout rather than a control. */
+.ind-row__head {
+  width: 100%;
+  background: none;
+  border: 0;
+  padding: clamp(22px, 2.4vw, 34px) 0;
+  display: flex;
+  align-items: baseline;
+  gap: clamp(16px, 2vw, 32px);
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+}
+/* Tally-mark counter instead of a printed number: row one gets one stroke,
+   row four gets four. (A fifth would need the diagonal cross-stroke; there
+   are only four industries, so plain strokes cover it.) */
+.ind-row__tally {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+  width: 46px;                 /* fixed, so every name starts on one line */
+  height: 30px;
+}
+.ind-row__tally i {
+  display: block;
+  width: 3px;
+  height: 100%;
+  background: #4a4a54;
+  transform-origin: bottom;
+  transition: background-color .35s ease, transform .35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ind-row.is-active .ind-row__tally i { background: var(--accent); }
+/* the strokes stand up one after another as the row becomes active */
+.ind-row .ind-row__tally i { transform: scaleY(.68); }
+.ind-row.is-active .ind-row__tally i { transform: scaleY(1); }
+.ind-row.is-active .ind-row__tally i:nth-child(2) { transition-delay: .05s; }
+.ind-row.is-active .ind-row__tally i:nth-child(3) { transition-delay: .1s; }
+.ind-row.is-active .ind-row__tally i:nth-child(4) { transition-delay: .15s; }
+.ind-row__name {
+  font-size: clamp(26px, 3.4vw, 46px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: #6a6a72;
+  transition: color .35s ease;
+}
+.ind-row.is-active .ind-row__name,
+.ind-row__head:hover .ind-row__name { color: #f2f2f4; }
+
+/* visibility (not just opacity) so links inside a collapsed row drop out of
+   the tab order; it flips instantly on open and only after the close. */
+.ind-row__body {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transition: max-height .5s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity .3s ease,
+              visibility 0s linear .5s;
+}
+.ind-row.is-active .ind-row__body {
+  opacity: 1;
+  visibility: visible;
+  transition: max-height .5s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity .4s ease .1s,
+              visibility 0s;
+}
+.ind-row__inner { padding: 0 0 clamp(24px, 2.6vw, 36px); }
+
+/* Blue arrow closing out each row. margin-left:auto parks it hard against the
+   right edge of the rule, so the four line up in a column. */
+.ind-row__arrow {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  color: var(--accent);
+  transition: transform .35s cubic-bezier(0.16, 1, 0.3, 1), opacity .35s ease;
+  opacity: .55;
+}
+.ind-row__arrow svg {
+  width: clamp(22px, 2.2vw, 32px);
+  height: clamp(22px, 2.2vw, 32px);
+  display: block;
+}
+.ind-row.is-active .ind-row__arrow,
+.ind-row__head:hover .ind-row__arrow { opacity: 1; }
+.ind-row.is-active .ind-row__arrow { transform: translate(4px, -4px); }
+.ind-row__head:hover .ind-row__arrow { transform: translate(6px, -6px); }
+.ind-row__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* Hover cursor: over a row the native pointer is hidden and replaced by a
+   blue box carrying that row's copy, tracking the mouse. One element reused
+   for all four rows; script.js fills its text and drives --cx/--cy.
+   Pointer-fine only, so it never appears on touch (where there is no cursor
+   to replace and the box would just obscure the row). */
+@media (hover: hover) and (pointer: fine) {
+  .ind-row__head { cursor: none; }
+}
+.ind-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 60;                 /* over the fixed header (50) */
+  pointer-events: none;
+  max-width: 300px;
+  padding: 14px 18px;
+  background: var(--accent);
+  color: #0a0a0c;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-wrap: pretty;
+  opacity: 0;
+  transform: translate3d(var(--cx, 0), var(--cy, 0), 0) scale(.85);
+  transform-origin: 0 0;
+  transition: opacity .2s ease, scale .25s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+.ind-cursor.is-visible {
+  opacity: 1;
+  transform: translate3d(var(--cx, 0), var(--cy, 0), 0) scale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ind-cursor { transition: opacity .2s ease; }
+}
+
+/* No scroll toggling under reduced motion — every row is simply open. */
+.ind-list.is-static .ind-row__body {
+  max-height: none;
+  opacity: 1;
+  visibility: visible;
+  transition: none;
+}
+.ind-list.is-static .ind-row__name { color: #f2f2f4; }
 
 /* Flat panels (the form, and any plain bordered surface down here). */
 .panel { background: #0d0d10; border: 1px solid #26262c; }
@@ -742,6 +1032,225 @@ input::placeholder { color: #6a6a72; }
   box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .16);
 }
 
+/* ============ CONTACT ============
+   Full-bleed blue slab carrying the form at full scale: black input boxes,
+   blue type inside them, black copy on the blue ground. */
+.contact {
+  position: relative;          /* containing block for the .tiles layer */
+  overflow: hidden;            /* clips the tiles' slight overscale */
+  background: var(--accent);
+  padding: clamp(80px, 10vw, 160px) clamp(24px, 5vw, 80px);
+  scroll-margin-top: 120px;    /* clears the fixed header on #contact jumps */
+}
+.contact__inner {
+  position: relative;
+  z-index: 2;                  /* above the tile layer */
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* The oversized line keeps its blurb hidden until hovered, then drops it
+   down. Hovering the whole intro (not just the heading) is deliberate: once
+   the blurb is down it is part of the hover target, so moving the pointer
+   onto it to read doesn't snap it shut. */
+.contact__intro { margin: 0 0 clamp(40px, 5vw, 72px); }
+.contact__title {
+  font-size: clamp(44px, 8vw, 128px);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+  color: #0a0a0c;
+  margin: 0;
+  text-wrap: balance;
+  cursor: default;
+}
+.contact__blurb-wrap {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.contact__blurb {
+  font-size: clamp(17px, 1.7vw, 24px);
+  line-height: 1.5;
+  font-weight: 500;
+  color: rgba(10, 10, 12, 0.72);
+  max-width: 620px;
+  margin: clamp(18px, 2vw, 28px) 0 0;
+  transform: translateY(-14px);
+  opacity: 0;
+  transition: transform .55s cubic-bezier(0.16, 1, 0.3, 1), opacity .4s ease;
+  text-wrap: pretty;
+}
+.contact__intro:hover .contact__blurb-wrap,
+.contact__intro:focus-within .contact__blurb-wrap { max-height: 260px; }
+.contact__intro:hover .contact__blurb,
+.contact__intro:focus-within .contact__blurb {
+  transform: none;
+  opacity: 1;
+}
+/* No hover on touch, so the blurb would never be reachable — show it. */
+@media (hover: none) {
+  .contact__blurb-wrap { max-height: 260px; }
+  .contact__blurb { transform: none; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .contact__blurb-wrap, .contact__blurb { transition: none; }
+}
+
+.contact__form { display: flex; flex-direction: column; gap: clamp(14px, 1.5vw, 20px); }
+.contact__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(14px, 1.5vw, 20px);
+}
+@media (max-width: 640px) {
+  .contact__row { grid-template-columns: 1fr; }
+}
+
+/* Black boxes, blue type. */
+.contact__input {
+  width: 100%;
+  background: #0a0a0c;
+  border-color: #0a0a0c;
+  color: var(--accent);
+  font-size: clamp(16px, 1.5vw, 21px);
+  font-weight: 500;
+  padding: clamp(18px, 1.9vw, 28px) clamp(18px, 1.8vw, 26px);
+}
+.contact__input::placeholder { color: rgba(var(--accent-rgb), .68); }
+.contact__input:focus {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
+}
+.contact__select {
+  appearance: none;
+  /* the native arrow disappears with appearance:none, so draw one */
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--accent) 50%),
+    linear-gradient(135deg, var(--accent) 50%, transparent 50%);
+  background-position:
+    calc(100% - 26px) calc(50% + 2px),
+    calc(100% - 19px) calc(50% + 2px);
+  background-size: 7px 7px, 7px 7px;
+  background-repeat: no-repeat;
+  padding-right: 56px;
+}
+.contact__select option { background: #0a0a0c; color: var(--accent); }
+
+/* ============ Swipe to submit ============
+   Black track, blue handle. script.js drives two custom properties as you
+   drag: --swipe-x (the handle's offset in px) and --swipe-p (0 to 1), which
+   the fill width and the label's fade read off. Release past the threshold
+   and it locks to the end and submits; release short and it springs back.
+   The track carries the same cursor-tracked spotlight as the site's buttons,
+   but borderless — the black block on blue already reads as a control. */
+.swipe {
+  --swipe-x: 0px;
+  --swipe-p: 0;
+  margin-top: clamp(8px, 1vw, 16px);
+}
+.swipe__track {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  height: clamp(64px, 6vw, 88px);
+  background: #0a0a0c;
+  user-select: none;
+}
+.swipe__track::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .25s ease;
+  background:
+    radial-gradient(circle 200px at var(--mx, 50%) var(--my, 50%),
+      rgba(var(--accent-rgb), .9),
+      rgba(var(--accent-rgb), .35) 45%,
+      transparent 72%),
+    var(--noise);
+  background-blend-mode: overlay;
+}
+.swipe__track:hover::before { opacity: 1; }
+
+/* The trail the handle leaves behind it. Inset to match the handle, so it
+   fills exactly the space the handle has vacated. */
+.swipe__fill {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  bottom: 8px;
+  width: var(--swipe-x);
+  background: rgba(var(--accent-rgb), 0.38);
+  pointer-events: none;
+}
+.swipe__label {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: clamp(14px, 1.3vw, 18px);
+  font-weight: 600;
+  color: var(--accent);
+  opacity: calc(1 - var(--swipe-p) * 1.6);   /* gone well before the end */
+  pointer-events: none;
+}
+/* Inset by 8px so the black track frames the handle on every side. Without
+   that frame the blue handle would sit flush to the track's edge and blend
+   straight into the blue section behind it. */
+.swipe__handle {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  width: clamp(64px, 6vw, 88px);
+  height: calc(100% - 16px);
+  margin: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--accent);
+  color: #0a0a0c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;          /* the drag is ours, not the page's */
+  transform: translateX(var(--swipe-x));
+  transition: transform .4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.swipe__handle svg { width: 26px; height: 26px; display: block; }
+.swipe.is-dragging .swipe__handle {
+  cursor: grabbing;
+  transition: none;            /* follow the finger exactly while dragging */
+}
+/* Completed: the trail goes solid blue so the handle and the space it came
+   from read as one filled bar. The track's black frame deliberately stays,
+   or the whole control would disappear into the blue section behind it. */
+.swipe.is-complete .swipe__fill { background: var(--accent); }
+@media (prefers-reduced-motion: reduce) {
+  .swipe__handle { transition: none; }
+}
+
+.contact__success { display: none; flex-direction: column; gap: 12px; padding: 32px 0 0; }
+.contact__success-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #0a0a0c;
+}
+.contact__success-copy {
+  font-size: clamp(18px, 1.8vw, 26px);
+  line-height: 1.4;
+  font-weight: 600;
+  color: #0a0a0c;
+  margin: 0;
+}
+
 /* ============ RANGE SELECTOR text ============
    The hero statement. script.js rebuilds the line as one span per character
    and drives each character's color on scroll, so the colors below are only
@@ -759,6 +1268,11 @@ input::placeholder { color: #6a6a72; }
   margin: 0;
   max-width: min(1000px, 90vw);
 }
+/* .range-sweep is the sweep WITHOUT the typography above: for lines that
+   already carry their own type styling (the captions over the photo rail,
+   the closing headline) and only want the scroll-driven colour animation.
+   It deliberately declares nothing — script.js picks it up alongside
+   .range-text and the element keeps whatever styling it already had. */
 .rt-word {
   display: inline-block;
   white-space: pre;
@@ -779,58 +1293,59 @@ input::placeholder { color: #6a6a72; }
    dark ones — and the capability lines rule in one after another, hairline
    between each, once the panel reveals. Goth-bold, tight leading. */
 #services { padding: 0; }
-.svc-intro { max-width: 1200px; margin: 0 auto; padding: 100px 24px 60px; }
-.svc-slides { display: flex; flex-direction: column; width: 100%; }
+.svc-intro { max-width: 1200px; margin: 0 auto; padding: 100px 24px clamp(90px, 14vh, 190px); }
+
+/* The panels STACK: every slide is sticky at top:0, so each one pins and the
+   next one is painted over it (later in the DOM = on top). script.js drives
+   --slide 0→1 as a panel comes up, translating it in from the side — odd
+   panels from the right, even from the left (--dir) — so consecutive panels
+   overlay each other laterally instead of just scrolling past. overflow-x:
+   clip (NOT hidden — hidden would make this a scroll container and kill the
+   sticky) hides the off-screen half of an incoming panel. --slide defaults to
+   1, so no-JS / reduced-motion renders the plain stack with nothing offset. */
+.svc-slides { position: relative; width: 100%; overflow-x: clip; }
 
 .svc-slide {
-  position: relative;
+  position: sticky;
+  top: 0;
   overflow: hidden;
   width: 100%;
-  padding: clamp(72px, 11vh, 132px) clamp(24px, 6vw, 80px);
-}
-.svc-slide--dark { background: #0b0b0e; border-top: 1px solid #17171b; }
-.svc-slide--blue { --wipe: 1; background: var(--accent); }
-
-/* The dark cover that makes the blue wipe in from the left. inset() clips it
-   away from the left edge as --wipe grows, uncovering the blue left→right. */
-.svc-slide__cover {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background: #0a0a0c;
-  clip-path: inset(0 0 0 calc(var(--wipe) * 100%));
-  pointer-events: none;
-}
-.svc-slide__inner { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; }
-
-.svc-slide__meta {
+  min-height: 100vh;
   display: flex;
-  align-items: baseline;
-  gap: 16px;
-  font-family: 'IBM Plex Mono', monospace;
-  margin: 0 0 22px;
+  align-items: center;
+  padding: clamp(72px, 11vh, 132px) clamp(24px, 6vw, 80px);
+  --slide: 1;
+  --dir: 1;
+  transform: translate3d(calc((1 - var(--slide)) * var(--dir) * 100%), 0, 0);
 }
-.svc-slide__num { font-size: 14px; }
-.svc-slide__cat { font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; }
-.svc-slide--dark .svc-slide__num { color: var(--accent); }
-.svc-slide--dark .svc-slide__cat { color: #8a8a92; }
-.svc-slide--blue .svc-slide__num { color: #0a0a0c; }
-.svc-slide--blue .svc-slide__cat { color: rgba(10, 10, 12, 0.7); }
+.svc-slide:nth-of-type(even) { --dir: -1; }
+.svc-slide--dark { background: #0b0b0e; }
+.svc-slide--blue { background: var(--accent); }
+
+.svc-slide__cover { display: none; }   /* superseded by the slide-over stack */
+.svc-slide__inner { position: relative; z-index: 1; width: 100%; max-width: 1200px; margin: 0 auto; }
 
 /* The statement — goth-bold, tight leading. Colors are the resting state only;
    the range sweep in script.js overrides them on scroll. */
 .svc-slide__title {
-  font-size: clamp(34px, 6vw, 82px);
+  font-size: clamp(26px, 4.4vw, 62px);
   line-height: 0.92;
   letter-spacing: -0.035em;
   font-weight: 700;
   text-align: left;               /* overrides .range-text's centering */
   margin: 0 0 clamp(28px, 4vw, 48px);
-  max-width: 18ch;
+  max-width: 28ch;                /* longest statement breaks at 2 lines */
   text-wrap: balance;
   color: #f2f2f4;                 /* dark-panel resting */
 }
 .svc-slide--blue .svc-slide__title { color: #0a0a0c; }   /* blue-panel resting */
+
+/* The statement flips side with the panel color: blue panels read left,
+   dark panels read right. margin-left:auto pushes the 18ch block over. */
+.svc-slide:nth-of-type(even) .svc-slide__title {
+  text-align: right;
+  margin-left: auto;
+}
 
 /* Capability lines: bold, tight, one paragraph rule between each. */
 .svc-slide__lines { list-style: none; margin: 0; padding: 0; max-width: 940px; }
@@ -861,11 +1376,16 @@ input::placeholder { color: #6a6a72; }
 .svc-slide.revealed .svc-slide__lines li:nth-child(6) { animation-delay: 0.80s; }
 
 @media (prefers-reduced-motion: reduce) {
-  .svc-slide__cover { display: none; }
+  .svc-slide { position: relative; min-height: 0; }   /* no sticky stacking */
   .svc-slide__lines li { opacity: 1; }
   .svc-slide.revealed .svc-slide__lines li { animation: none; }
 }
+/* Narrow screens: a panel can be taller than the viewport, and a sticky element
+   taller than its pin window strands its own bottom off-screen — so drop the
+   stacking here and let the panels flow. The lateral slide-in still runs. */
 @media (max-width: 720px) {
+  .svc-slide { position: relative; min-height: 0; }
+  .svc-slide--dark { border-top: 1px solid #17171b; }
   .svc-slide__title { max-width: none; }
 }
 
