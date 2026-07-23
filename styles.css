@@ -41,7 +41,7 @@
    animation-delay.
 
    This deliberately uses an animation, NOT a transition: .reveal is applied to
-   elements that declare their own transition for hover (.step,
+   elements that declare their own transition for hover (
    .btn-primary), and those rules come later in the cascade — a transition-based
    reveal would be overridden by them and snap instead of fading. An animation
    runs on a separate channel, so both work. Don't "simplify" this back into a
@@ -1016,9 +1016,62 @@ input::placeholder { color: #6a6a72; }
 .panel { background: #0d0d10; border: 1px solid #26262c; }
 
 /* Process steps: hairline-ruled rows, the rule lights up as you pass over. */
-.step { border-top: 1px solid #232328; transition: border-color .3s ease; }
-.step:last-child { border-bottom: 1px solid #232328; }
-.step:hover { border-color: rgba(var(--accent-rgb), .5); }
+/* ============ HOW IT WORKS — footprint walk ============
+   A trail of shoe prints marching down into the contact form. Prints step in
+   top-to-bottom on their own --d delays once .trail gets .revealed. */
+.process { padding: clamp(64px, 8vw, 110px) 40px clamp(24px, 4vw, 56px); }
+.process__inner { max-width: 760px; margin: 0 auto; text-align: center; }
+.process__heading {
+  font-size: clamp(36px, 4.5vw, 56px);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  margin: 0 0 clamp(32px, 5vw, 64px);
+}
+
+/* Horizontal walk: the three steps sit left to right, feet rotated to point
+   in the walking direction, stamping in one after another across the row. */
+.trail {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(28px, 6vw, 88px);
+}
+/* A step: its foot above its swept label. */
+.trail__step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(14px, 1.8vw, 24px);
+}
+.trail__label {
+  font-size: clamp(26px, 3.4vw, 46px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  white-space: nowrap;
+  color: #5a5a63;              /* grey resting state; the sweep recolours it */
+}
+
+/* The wrapper holds the walking placement (splay + vertical bob) so it
+   survives the img's own animation transform — separate elements, so the
+   rotate and the stamp don't fight. */
+.foot { display: block; transform: translateY(var(--ty, 0)) rotate(var(--r, 0)); }
+.foot img {
+  display: block;
+  width: clamp(40px, 5vw, 64px);
+  height: auto;
+  opacity: 0;                    /* hidden until the walk starts */
+}
+
+/* Opacity is scrubbed by scroll position in script.js: as the trail moves
+   through the viewport each print fades in then out in turn, so the walk
+   plays out as you scroll. Reduced motion / no JS: just show all three. */
+@media (prefers-reduced-motion: reduce) {
+  .foot img { opacity: 1; }
+}
 
 .form-input {
   border-width: 1px;

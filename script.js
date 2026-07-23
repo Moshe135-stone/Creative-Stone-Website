@@ -1,3 +1,12 @@
+// The hero "book a 15-minute fit call" button opens the Cal.com popup (via its
+// data-cal-* attributes). Its href="#contact" is only a no-JS fallback, so
+// with JS we stop that fragment jump — otherwise clicking would scroll to the
+// contact form behind the popup. Scoped to the Cal button, so "see what we do"
+// still scrolls to services normally.
+document.querySelectorAll('.hero-cta[data-cal-link]').forEach(function (el) {
+  el.addEventListener('click', function (e) { e.preventDefault(); });
+});
+
 document.getElementById('contactForm')?.addEventListener('submit', function (e) {
   e.preventDefault();
 
@@ -752,6 +761,55 @@ document.querySelectorAll(
       var d = Math.min(1, Math.abs(i - focus) / 1.4);
       el.style.setProperty('--s', (1 - d * 0.25).toFixed(4));
       el.style.setProperty('--o', (1 - d * d).toFixed(4));
+    });
+  }
+
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  update();
+})();
+
+// Footprint walk: the three feet fade in and out one after another, scrubbed
+// by scroll position — as the trail travels through the viewport, each print
+// peaks in turn, so the walk plays out under the reader's own scrolling rather
+// than on a timer. Each foot has a centre point in the 0..1 progress and a
+// soft bump around it; consecutive centres (with a little overlap) read as a
+// walk. See .foot / .trail in styles.css.
+(function () {
+  var trail = document.querySelector('.trail');
+  if (!trail) return;
+  var feet = Array.prototype.slice.call(trail.querySelectorAll('.foot img'));
+  if (!feet.length) return;
+
+  // Reduced motion: the CSS already shows all three; don't scrub.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var HALF = 0.24;   // half-width of each foot's visible band, in progress units
+  var ticking = false;
+
+  function smooth(t) { return t * t * (3 - 2 * t); }
+
+  function update() {
+    ticking = false;
+    var vh = window.innerHeight;
+    var rect = trail.getBoundingClientRect();
+    var centre = rect.top + rect.height / 2;
+    // 0 as the trail enters low in the viewport, 1 as it leaves near the top,
+    // so the whole in-and-out cycle happens across a comfortable reading window.
+    var p = (0.85 * vh - centre) / (0.70 * vh);
+    p = Math.max(0, Math.min(1, p));
+
+    var n = feet.length;
+    feet.forEach(function (img, i) {
+      var c = (i + 0.5) / n;                 // this foot's peak in the progress
+      var d = Math.abs(p - c) / HALF;        // distance from its peak, normalised
+      img.style.opacity = d >= 1 ? '0' : smooth(1 - d).toFixed(3);
     });
   }
 

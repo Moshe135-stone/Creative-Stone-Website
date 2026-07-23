@@ -73,7 +73,14 @@
      .hero-panel scrolls past, the same shrink-to-compact transform as before. -->
 <div class="hero-cta-slot hero-cta-slot--intro">
 <div class="hero-cta-group">
-  <a href="#contact" class="hero-cta">
+  <!-- Opens the Cal.com "15-minute-phone-call" popup on click (element-click
+       embed; the init script sits before </body>). href="#contact" stays as a
+       no-JS fallback so the button still reaches the form if the embed can't
+       load. -->
+  <a href="#contact" class="hero-cta"
+     data-cal-namespace="15-minute-phone-call"
+     data-cal-link="creative-stone/15-minute-phone-call"
+     data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'>
     <span class="hero-cta__text">
       <span class="hero-cta__label">book a 15-minute fit call</span>
       <span class="hero-cta__hover hero-cta__hover--phone" aria-hidden="true">
@@ -167,7 +174,7 @@
        Effects style range selector through them on scroll: grey → white → blue.
        The plain text here is the no-JS/reduced-motion fallback. -->
   <div style="min-height: 62vh; width: min(1200px, 92vw); margin: 0 auto; display: flex; align-items: center; justify-content: center;">
-    <p class="range-text">You're looking at it. Creative Stone builds websites, brands, and emails that makes your business easy to trust</p>
+    <p class="range-text">Creative Stone builds websites, brands, and emails that makes your business easy to trust</p>
   </div>
 
 </section>
@@ -360,34 +367,31 @@
   </div>
 </section>
 
-<!-- ============ HOW IT WORKS + FORM ============ -->
-<section id="process" style="padding: 0 40px 120px;">
-  <div style="max-width: 1240px; margin: 0 auto;">
-    <div>
-      <p class="reveal" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 16px;">how it works</p>
-      <h2 class="reveal" style="font-size: clamp(36px, 4.5vw, 56px); line-height: 1.04; letter-spacing: -0.02em; font-weight: 700; margin: 0 0 48px; animation-delay: 0.08s;">Three steps.<br>No mystery.</h2>
-      <div style="display: flex; flex-direction: column;">
-        <div class="step reveal" style="display: flex; gap: 24px; padding: 28px 0;">
-          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent); padding-top: 4px;">{01}</span>
-          <div>
-            <h3 style="font-size: 22px; font-weight: 600; margin: 0 0 8px;">Quick fit call</h3>
-            <p style="font-size: 15px; line-height: 1.55; color: #9a9aa2; margin: 0; text-wrap: pretty;">Fifteen minutes. We learn your business and tell you honestly if we're a match.</p>
-          </div>
-        </div>
-        <div class="step reveal" style="display: flex; gap: 24px; padding: 28px 0; animation-delay: 0.1s;">
-          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent); padding-top: 4px;">{02}</span>
-          <div>
-            <h3 style="font-size: 22px; font-weight: 600; margin: 0 0 8px;">A clear plan</h3>
-            <p style="font-size: 15px; line-height: 1.55; color: #9a9aa2; margin: 0; text-wrap: pretty;">No mystery. You'll know exactly what we'll do, what it costs, and what to expect.</p>
-          </div>
-        </div>
-        <div class="step reveal" style="display: flex; gap: 24px; padding: 28px 0; animation-delay: 0.2s;">
-          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--accent); padding-top: 4px;">{03}</span>
-          <div>
-            <h3 style="font-size: 22px; font-weight: 600; margin: 0 0 8px;">We build, you grow</h3>
-            <p style="font-size: 15px; line-height: 1.55; color: #9a9aa2; margin: 0; text-wrap: pretty;">We handle the work. You get back to running your business.</p>
-          </div>
-        </div>
+<!-- ============ HOW IT WORKS — footprint walk ============
+     Three steps as a trail of feet (the brand foot artwork in Feet/) that
+     ghost-walk down the page toward the contact form, Marauder's-Map style:
+     each print stamps in, lingers, then fades out behind the walker, and the
+     loop runs forever so an unseen person keeps pacing down Call → Plan → Grow.
+     .trail carries .reveal so the loop only starts once it scrolls into view;
+     each foot's --fd offsets its turn in the cycle. The labels stay put and
+     carry .range-sweep for the grey→white→blue colour sweep. See .trail* in
+     styles.css. -->
+<section id="process" class="process">
+  <div class="process__inner">
+    <h2 class="reveal process__heading">Three steps.<br>No mystery.</h2>
+
+    <div class="trail reveal">
+      <div class="trail__step">
+        <span class="foot" style="--r: 82deg; --ty: -6px; --fd: 0s;"><img src="Feet/Left%20Foot.svg" alt="" aria-hidden="true"></span>
+        <span class="trail__label range-sweep">1. Call</span>
+      </div>
+      <div class="trail__step">
+        <span class="foot" style="--r: 98deg; --ty: 6px; --fd: 0.32s;"><img src="Feet/Right%20Foot.svg" alt="" aria-hidden="true"></span>
+        <span class="trail__label range-sweep">2. Plan</span>
+      </div>
+      <div class="trail__step">
+        <span class="foot" style="--r: 82deg; --ty: -6px; --fd: 0.64s;"><img src="Feet/Left%20Foot.svg" alt="" aria-hidden="true"></span>
+        <span class="trail__label range-sweep">3. Grow</span>
       </div>
     </div>
   </div>
@@ -502,5 +506,16 @@
 
 <script src="shader.js" defer></script>
 <script src="script.js?v=7"></script>
+
+<!-- Cal.com element-click embed: initialises the "15-minute-phone-call" popup.
+     Any element with the matching data-cal-* attributes (the hero CTA) opens
+     it on click. -->
+<script type="text/javascript">
+  (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if(typeof namespace === "string"){cal.ns[namespace] = cal.ns[namespace] || api;p(cal.ns[namespace], ar);p(cal, ["initNamespace", namespace]);} else p(cal, ar); return;} p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
+Cal("init", "15-minute-phone-call", {origin:"https://app.cal.com"});
+Cal.config = Cal.config || {};
+Cal.config.forwardQueryParams = true;
+Cal.ns["15-minute-phone-call"]("ui", {"hideEventTypeDetails":false,"layout":"month_view"});
+</script>
 </body>
 </html>
