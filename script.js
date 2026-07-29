@@ -3,8 +3,26 @@
 // with JS we stop that fragment jump — otherwise clicking would scroll to the
 // contact form behind the popup. Scoped to the Cal button, so "see what we do"
 // still scrolls to services normally.
+//
+// The popup is otherwise slow to appear because Cal only fetches the booking
+// iframe on click. To fix that we prerender it the first time the user shows
+// intent — hover or keyboard focus — so it's warm by the time they click, but
+// visitors who never touch the button don't pay for it. The <link preconnect>
+// in the head already warms DNS + TLS.
 document.querySelectorAll('.hero-cta[data-cal-link]').forEach(function (el) {
   el.addEventListener('click', function (e) { e.preventDefault(); });
+
+  var preloaded = false;
+  function preload() {
+    if (preloaded || typeof window.Cal !== 'function') return;
+    preloaded = true;
+    var ns = el.getAttribute('data-cal-namespace');
+    var link = el.getAttribute('data-cal-link');
+    var api = (ns && window.Cal.ns && window.Cal.ns[ns]) || window.Cal;
+    try { api('preload', { calLink: link }); } catch (err) { preloaded = false; }
+  }
+  el.addEventListener('pointerenter', preload);
+  el.addEventListener('focus', preload);
 });
 
 document.getElementById('contactForm')?.addEventListener('submit', function (e) {
@@ -133,14 +151,24 @@ document.getElementById('contactForm')?.addEventListener('submit', function (e) 
 // Burger menu: toggles #siteHeader.nav-open, which drives the horizontal
 // right-to-left fan-out of .nav-item links and the burger-to-X morph (see
 // styles.css). Clicking a link closes the menu again.
+//
+// Under 1024px the same class drives a full-height side drawer instead of the
+// horizontal fan-out, so the extra dismissals a drawer is expected to have —
+// Escape, a tap on the scrim outside it — and the body scroll lock are wired up
+// here too. The scroll lock is gated on the drawer breakpoint: the desktop
+// fan-out sits inside the header bar and must never freeze the page behind it.
 (function () {
   var header = document.getElementById('siteHeader');
   var toggle = document.getElementById('navToggle');
   if (!header || !toggle) return;
 
+  var nav = header.querySelector('nav');
+  var drawerQuery = window.matchMedia('(max-width: 1024px)');
+
   function setOpen(open) {
     header.classList.toggle('nav-open', open);
     toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    document.body.style.overflow = (open && drawerQuery.matches) ? 'hidden' : '';
   }
 
   toggle.addEventListener('click', function () {
@@ -150,6 +178,24 @@ document.getElementById('contactForm')?.addEventListener('submit', function (e) 
   header.querySelectorAll('.nav-item').forEach(function (link) {
     link.addEventListener('click', function () { setOpen(false); });
   });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && header.classList.contains('nav-open')) setOpen(false);
+  });
+
+  // Tap anywhere outside the drawer (including its scrim) to dismiss it. The
+  // burger is excluded so its own click isn't closed-then-reopened.
+  document.addEventListener('click', function (e) {
+    if (!header.classList.contains('nav-open')) return;
+    if (!drawerQuery.matches) return;
+    if (toggle.contains(e.target)) return;
+    if (nav && nav.contains(e.target)) return;
+    setOpen(false);
+  });
+
+  // Rotating past the breakpoint with the menu open would otherwise leave the
+  // body scroll-locked with no drawer on screen to explain it.
+  drawerQuery.addEventListener('change', function () { setOpen(false); });
 })();
 
 // Cursor-tracking blue spotlight: sets --mx/--my (consumed by the ::before /
@@ -286,9 +332,10 @@ document.querySelectorAll(
 })();
 
 // Full-bleed lattice: size the grid to the pinned viewport and surround the
-// nine content cells with empty filler cells, so the board fills the whole
-// screen while the services stay grouped in a centred 3x3 block. Columns/rows
-// are chosen to be odd (so the block centres exactly) and recomputed on resize.
+// content cells with empty filler cells, so the board fills the whole screen
+// while the services stay grouped in a centred block. The block is BLOCK_COLS
+// x BLOCK_ROWS; the surrounding lattice's column/row counts are chosen to
+// share the block's parity (so it centres exactly) and recomputed on resize.
 (function () {
   var section = document.getElementById('ttt');
   if (!section) return;
@@ -296,8 +343,11 @@ document.querySelectorAll(
   var grid = section.querySelector('.ttt__grid');
   if (!pin || !grid) return;
 
+  var BLOCK_COLS = 3;   // the service block is 3 wide...
+  var BLOCK_ROWS = 4;   // ...by 4 tall (12 tokens)
+
   var content = Array.prototype.slice.call(grid.querySelectorAll('.ttt__cell[data-service]'));
-  if (content.length !== 9) return;
+  if (content.length !== BLOCK_COLS * BLOCK_ROWS) return;
 
   function layout() {
     var cs = getComputedStyle(pin);
@@ -309,36 +359,49 @@ document.querySelectorAll(
     // a viewport-based estimate and pin the grid to it explicitly.
     if (availH < 320) availH = Math.max(320, window.innerHeight - padY);
 
-    // Keep the lattice landscape — always wider than it is tall — by capping
-    // its height to half its width, then centring it in the pinned viewport.
-    var gridH = Math.min(availH, availW * 0.5);
+    // Orientation: landscape lattice on desktop (wider than tall), portrait on
+    // mobile (taller than wide) where the screen itself is portrait and a
+    // squat landscape board would squash the 3x4 block.
+    var portrait = window.innerWidth <= 720;
+
+    var gridH, cell, CELL_ASPECT;
+    if (portrait) {
+      // Taller than the board is wide → portrait. Size cells so the 3-wide
+      // block fills the phone's width (little to no side filler), and let the
+      // extra height stack filler rows above and below.
+      gridH = Math.min(availH, availW * 1.55);
+      cell = availW / BLOCK_COLS;
+      cell = Math.max(92, Math.min(184, cell));
+      CELL_ASPECT = 1;                   // square-ish cells on mobile
+    } else {
+      // Cap height to half the width → landscape; centre it in the pin.
+      gridH = Math.min(availH, availW * 0.5);
+      // Target cell size: the block spans a good share of the shorter side.
+      cell = Math.min(availW, gridH) / (BLOCK_COLS + 2);
+      cell = Math.max(80, Math.min(190, cell));
+      CELL_ASPECT = 1.6;                 // cells read landscape — wider than tall
+    }
     grid.style.height = gridH + 'px';
 
-    // Target cell size: the 3x3 content block spans ~60% of the shorter side.
-    var cell = Math.min(availW, gridH) / 5;
-    cell = Math.max(88, Math.min(200, cell));
-
-    // Cells read landscape — wider than tall. Widen the column target off the
-    // same base while the row target keeps the base height, so each 1fr cell
-    // lands with greater width than height.
-    var CELL_ASPECT = 1.6;               // cell width : height
     var cellW = cell * CELL_ASPECT;
     var cellH = cell;
 
-    var cols = Math.max(3, Math.round(availW / cellW));
-    var rows = Math.max(3, Math.round(gridH / cellH));
-    if (cols % 2 === 0) cols += 1;   // odd → perfectly centred block
-    if (rows % 2 === 0) rows += 1;
+    var cols = Math.max(BLOCK_COLS, Math.round(availW / cellW));
+    var rows = Math.max(BLOCK_ROWS, Math.round(gridH / cellH));
+    // Match each axis's parity to the block's, so (cols - BLOCK_COLS) / 2 and
+    // its row counterpart are whole numbers and the block centres exactly.
+    if ((cols - BLOCK_COLS) % 2 !== 0) cols += 1;
+    if ((rows - BLOCK_ROWS) % 2 !== 0) rows += 1;
 
     grid.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
     grid.style.gridTemplateRows = 'repeat(' + rows + ', 1fr)';
 
     // Place the content block in the centre via explicit grid coordinates.
-    var startCol = (cols - 3) / 2 + 1;
-    var startRow = (rows - 3) / 2 + 1;
+    var startCol = (cols - BLOCK_COLS) / 2 + 1;
+    var startRow = (rows - BLOCK_ROWS) / 2 + 1;
     content.forEach(function (cellEl, i) {
-      cellEl.style.gridColumn = String(startCol + (i % 3));
-      cellEl.style.gridRow = String(startRow + Math.floor(i / 3));
+      cellEl.style.gridColumn = String(startCol + (i % BLOCK_COLS));
+      cellEl.style.gridRow = String(startRow + Math.floor(i / BLOCK_COLS));
     });
 
     // Auto-flow empty filler cells fill every remaining slot.

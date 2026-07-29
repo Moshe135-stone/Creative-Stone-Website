@@ -6,8 +6,12 @@
 <title>Creative Stone | Marketing that makes you easy to trust</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Warm the connection to Cal.com up front so the booking popup isn't paying
+     for DNS + TLS on the click. The iframe itself is prerendered on hover/focus
+     of the button (see the Cal preload in script.js). -->
+<link rel="preconnect" href="https://app.cal.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=7">
+<link rel="stylesheet" href="styles.css?v=8">
 <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"></script>
 </head>
 <body>
@@ -188,14 +192,17 @@
   <div class="ttt__pin">
     <div class="ttt__grid" role="group" aria-label="Pick the services you're interested in">
       <div class="ttt__cell" data-service="Websites"><span>Websites</span></div>
-      <div class="ttt__cell" data-service="SEO"><span>SEO</span></div>
-      <div class="ttt__cell" data-service="Emails"><span>Emails</span></div>
-      <div class="ttt__cell" data-service="Social"><span>Social</span></div>
-      <div class="ttt__cell" data-service="AI Marketing"><span>AI&nbsp;Marketing</span></div>
-      <div class="ttt__cell" data-service="AEO"><span>AEO</span></div>
-      <div class="ttt__cell" data-service="Brands"><span>Brands</span></div>
+      <div class="ttt__cell" data-service="AEO / SEO"><span>AEO&nbsp;/&nbsp;SEO</span></div>
+      <div class="ttt__cell" data-service="Email Campaigns"><span>Email Campaigns</span></div>
+      <div class="ttt__cell" data-service="Social Media"><span>Social Media</span></div>
+      <div class="ttt__cell" data-service="AI Marketing"><span>AI Marketing</span></div>
+      <div class="ttt__cell" data-service="Branding"><span>Branding</span></div>
       <div class="ttt__cell" data-service="Strategy"><span>Strategy</span></div>
       <div class="ttt__cell" data-service="Design"><span>Design</span></div>
+      <div class="ttt__cell" data-service="Automations"><span>Automations</span></div>
+      <div class="ttt__cell" data-service="PPC"><span>PPC</span></div>
+      <div class="ttt__cell" data-service="Slide decks / pitches"><span>Slide&nbsp;decks<br>/&nbsp;pitches</span></div>
+      <div class="ttt__cell" data-service="AI Agents"><span>AI Agents</span></div>
     </div>
   </div>
 </section>
@@ -383,15 +390,15 @@
     <div class="trail reveal">
       <div class="trail__step">
         <span class="foot" style="--r: 82deg; --ty: -6px; --fd: 0s;"><img src="Feet/Left%20Foot.svg" alt="" aria-hidden="true"></span>
-        <span class="trail__label range-sweep">1. Call</span>
+        <span class="trail__label" style="--ld: 0s;">1. Call</span>
       </div>
       <div class="trail__step">
         <span class="foot" style="--r: 98deg; --ty: 6px; --fd: 0.32s;"><img src="Feet/Right%20Foot.svg" alt="" aria-hidden="true"></span>
-        <span class="trail__label range-sweep">2. Plan</span>
+        <span class="trail__label" style="--ld: 0.5s;">2. Plan</span>
       </div>
       <div class="trail__step">
         <span class="foot" style="--r: 82deg; --ty: -6px; --fd: 0.64s;"><img src="Feet/Left%20Foot.svg" alt="" aria-hidden="true"></span>
-        <span class="trail__label range-sweep">3. Grow</span>
+        <span class="trail__label" style="--ld: 1s;">3. Grow</span>
       </div>
     </div>
   </div>
@@ -505,7 +512,7 @@
 </aside>
 
 <script src="shader.js" defer></script>
-<script src="script.js?v=7"></script>
+<script src="script.js?v=8"></script>
 
 <!-- Cal.com element-click embed: initialises the "15-minute-phone-call" popup.
      Any element with the matching data-cal-* attributes (the hero CTA) opens

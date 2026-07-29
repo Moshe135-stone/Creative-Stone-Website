@@ -201,6 +201,7 @@ input::placeholder { color: #6a6a72; }
   font-family: 'IBM Plex Mono', monospace;
   font-size: clamp(10px, 1.1vw, 16px);
   letter-spacing: 0.06em;
+  line-height: 1.25;             /* readable when a long label wraps to 2 lines */
   text-transform: uppercase;
   color: #cfcfd4;
   opacity: 0;
@@ -708,6 +709,65 @@ input::placeholder { color: #6a6a72; }
   animation: eyes-blink 2.8s ease-in-out infinite;
 }
 
+/* ---- Hero CTAs on mobile ----
+   On a wide screen the two buttons hug their own labels on one nowrap line and
+   sit in the bottom-right corner. On a phone "book a 15-minute fit call" alone
+   is wider than the viewport, so side by side they overflow the screen edge.
+   Below 720px the pair becomes a full-width bottom bar instead: two equal
+   halves (flex: 1 1 0 — equal share is right here, where they share the width
+   rather than a corner), labels allowed to wrap onto two lines, and the arrows
+   dropped so the width goes to the text. Everything script.js drives —
+   .is-docked, .is-hidden — keeps working untouched; only the shrink step is
+   switched off, because a bar that already spans the screen has nothing left to
+   shrink into and scaling from bottom-right would just pull it off-centre. */
+@media (max-width: 720px) {
+  .hero-cta-slot--intro {
+    left: 0;
+    right: 0;
+    width: auto;
+    max-width: none;
+  }
+  .hero-cta-group {
+    --dock-scale: 1;             /* no compact step — see note above */
+    gap: 0;
+    justify-content: stretch;
+    align-items: stretch;
+    margin: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    transform-origin: bottom center;
+  }
+  .hero-cta-group.is-docked {
+    left: 0;
+    right: 0;
+  }
+  .hero-cta {
+    flex: 1 1 0;
+    min-width: 0;                /* let a flex item actually shrink below its text width */
+    gap: 0;
+    padding: 18px 16px;
+    justify-content: center;
+    text-align: center;
+    font-size: clamp(14px, 4vw, 18px);
+    line-height: 1.2;
+    white-space: normal;         /* two lines beats a clipped one */
+    background: rgba(13, 13, 16, 0.82);
+  }
+  /* The morph slot is a fixed 40px on desktop so the label/icon swap can't
+     reflow the button, and it clips the label sliding out. Wrapped text needs
+     room instead, so here it grows to fit and the clip comes off — a third
+     line on a very narrow phone should push the button taller, not vanish.
+     The swap it was clipping is hover-only and never fires on touch. */
+  .hero-cta__text {
+    flex: 0 1 auto;
+    height: auto;
+    min-height: 2.4em;
+    overflow: visible;
+    justify-content: center;
+    text-align: center;
+  }
+  .hero-cta__arrow { display: none; }
+}
+
 /* ============ "What we do" and everything below ============
    This half of the page speaks the same language as the grid and buttons
    above: flat and sharp-cornered (no radii), hairline #26262c rules instead of
@@ -1052,7 +1112,30 @@ input::placeholder { color: #6a6a72; }
   letter-spacing: -0.02em;
   line-height: 1;
   white-space: nowrap;
-  color: #5a5a63;              /* grey resting state; the sweep recolours it */
+  opacity: 0;
+  color: #5a5a63;
+}
+
+/* The trail's .reveal is only a scroll trigger here — the block must NOT fade
+   in as one unit (that brought Call/Plan/Grow in together). Neutralise the
+   shared block fade, then play each label in on its own --ld delay so they
+   arrive strictly one after another. The gap between --ld values (0.5s) is
+   larger than the animation (0.55s), so each label is essentially done before
+   the next begins. The keyframe carries the grey→white→blue flash itself, so
+   there's no separate scroll-sweep firing on all three at once. */
+.trail.reveal { opacity: 1; }
+.trail.reveal.revealed { animation: none; }
+.trail.revealed .trail__label {
+  animation: step-label-in .55s cubic-bezier(0.16, 1, 0.3, 1) var(--ld, 0s) both;
+}
+@keyframes step-label-in {
+  0%   { opacity: 0; transform: translateY(14px); color: #5a5a63; }
+  55%  { opacity: 1; transform: translateY(0);    color: #f2f2f4; }  /* white flash */
+  100% { opacity: 1; transform: none;             color: var(--accent); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trail__label { opacity: 1; color: var(--accent); }
+  .trail.revealed .trail__label { animation: none; }
 }
 
 /* The wrapper holds the walking placement (splay + vertical bob) so it
@@ -1399,6 +1482,11 @@ input::placeholder { color: #6a6a72; }
   text-align: right;
   margin-left: auto;
 }
+/* The capability lines follow the header: on the right-reading (even) panels
+   the list is pushed to the right edge and its text right-aligns, so bullets
+   and quote share the same side. */
+.svc-slide:nth-of-type(even) .svc-slide__lines { margin-left: auto; }
+.svc-slide:nth-of-type(even) .svc-slide__lines li { text-align: right; }
 
 /* Capability lines: bold, tight, one paragraph rule between each. */
 .svc-slide__lines { list-style: none; margin: 0; padding: 0; max-width: 940px; }
@@ -1440,6 +1528,16 @@ input::placeholder { color: #6a6a72; }
   .svc-slide { position: relative; min-height: 0; }
   .svc-slide--dark { border-top: 1px solid #17171b; }
   .svc-slide__title { max-width: none; }
+
+  /* The hero statement is a headline on mobile, not body text: the desktop
+     clamp bottoms out at 26px on a phone, which reads small. Scale it up and
+     let it use the full column. Scoped to the hero so the industries heading
+     (also .range-text) is unaffected. */
+  .hero-panel .range-text {
+    font-size: clamp(34px, 8.5vw, 58px);
+    line-height: 1.14;
+    max-width: none;
+  }
 }
 
 /* ============ MAGIC SCROLL (diagonal) ============
@@ -1630,3 +1728,118 @@ input::placeholder { color: #6a6a72; }
 #siteHeader.nav-open .burger-line:nth-child(1) { transform: translateY(8px) rotate(45deg); }
 #siteHeader.nav-open .burger-line:nth-child(2) { opacity: 0; }
 #siteHeader.nav-open .burger-line:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+/* ============ MOBILE NAV: SIDE DRAWER ============
+   The five .nav-item links are 135–205px of fixed width each (840px in total,
+   set inline in index.html), so the desktop right-to-left fan-out physically
+   cannot fit under ~1024px — it just gets clipped by <nav>'s overflow: hidden.
+   Below that width the very same .nav-open state instead slides the very same
+   <nav> in from the right edge as a side drawer: same burger, same class, same
+   staggered reveal, no duplicate markup for mobile.
+
+   Two structural notes that shape everything here:
+   - #siteHeader carries backdrop-filter, which makes it the containing block
+     for fixed-position descendants. So the drawer is position: absolute against
+     the header (which is itself fixed at the top of the viewport) — same result,
+     without the trap of position: fixed silently resolving against the 74px bar.
+   - <nav>'s inline style sets display/align-items/overflow, and each link's
+     inline style sets width/font-size/transition-delay. Inline styles outrank a
+     stylesheet, so every one of those properties is overridden with !important
+     below. Nothing is stripped from the HTML — desktop still needs it. */
+@media (max-width: 1024px) {
+  #siteHeader nav {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: min(86vw, 400px);
+    height: 100dvh;               /* full height, so the scrim has no seam at the header */
+    z-index: 1;                   /* under the burger, which stays tappable */
+    flex-direction: column;
+    align-items: stretch !important;
+    justify-content: center;
+    gap: 4px !important;
+    padding: 74px 28px calc(28px + env(safe-area-inset-bottom, 0px));
+    background: rgba(10, 10, 12, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-left: 1px solid #1c1c20;
+    transform: translateX(100%);
+    pointer-events: none;
+    /* The 100vmax spread is the scrim over the rest of the page — no extra
+       element, and a shadow never eats pointer events, so the closed (fully
+       transparent) state can't block anything underneath. */
+    box-shadow: 0 0 0 100vmax rgba(10, 10, 12, 0);
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.45s ease;
+  }
+  #siteHeader.nav-open nav {
+    transform: translateX(0);
+    pointer-events: auto;
+    box-shadow: 0 0 0 100vmax rgba(10, 10, 12, 0.72);
+  }
+
+  /* The drawer runs the full height of the viewport, so it and its scrim pass
+     behind the header bar. The burger alone is lifted above both — it has to be
+     able to close what it opened. Nothing else in the header is raised: the logo
+     sits under the scrim and dims with the rest of the page, exactly as it did
+     before the drawer existed. */
+  #navToggle {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Big, blue, stacked. The desktop collapse is scaleX(0) from the right edge;
+     here the links are full-width rows that slide in horizontally instead. */
+  #siteHeader nav .nav-item {
+    width: 100% !important;
+    height: auto;
+    font-size: clamp(30px, 8.2vw, 46px) !important;
+    line-height: 1.15;
+    padding: 12px 0;
+    justify-content: flex-start;
+    color: var(--accent) !important;
+    transform: translateX(24px);
+    opacity: 0;
+    pointer-events: none;
+    transition-delay: 0s !important;   /* closing runs all at once */
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  }
+  #siteHeader.nav-open .nav-item {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  /* The inline delays fan out right-to-left for the horizontal desktop row,
+     which reads backwards once the links are stacked — restate them top-down. */
+  #siteHeader.nav-open .nav-item:nth-child(1) { transition-delay: 0.06s !important; }
+  #siteHeader.nav-open .nav-item:nth-child(2) { transition-delay: 0.12s !important; }
+  #siteHeader.nav-open .nav-item:nth-child(3) { transition-delay: 0.18s !important; }
+  #siteHeader.nav-open .nav-item:nth-child(4) { transition-delay: 0.24s !important; }
+  #siteHeader.nav-open .nav-item:nth-child(5) { transition-delay: 0.30s !important; }
+  #siteHeader nav .nav-item:hover,
+  #siteHeader nav .nav-item:focus-visible {
+    color: #ffffff !important;
+  }
+
+  /* The slide-replace hover is a desktop affordance and there is no hover on a
+     phone. More importantly, both labels are position: absolute inset: 0, which
+     would collapse a height: auto row to nothing — so the original goes back in
+     flow to give the row its height, and the duplicate is dropped. */
+  #siteHeader nav .nav-slide-label {
+    position: static;
+    display: block;
+    justify-content: flex-start;
+    transition: none;
+  }
+  #siteHeader nav .nav-slide-duplicate { display: none; }
+}
+
+@media (max-width: 1024px) and (prefers-reduced-motion: reduce) {
+  #siteHeader nav,
+  #siteHeader nav .nav-item {
+    transition: opacity 0.25s ease;
+    transform: none;
+  }
+  #siteHeader nav { visibility: hidden; opacity: 0; }
+  #siteHeader.nav-open nav { visibility: visible; opacity: 1; }
+}
