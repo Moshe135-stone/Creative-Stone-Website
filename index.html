@@ -11,7 +11,7 @@
      of the button (see the Cal preload in script.js). -->
 <link rel="preconnect" href="https://app.cal.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=8">
+<link rel="stylesheet" href="styles.css?v=12">
 <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"></script>
 </head>
 <body>
@@ -113,6 +113,29 @@
   </a>
 </div>
 </div>
+
+<!-- ============ BRANDS — logos we've worked with ============
+     Sits right after the intro hero and before the black-and-white photo
+     rail, on the same dark ground so it reads as a continuation of the hero
+     rather than a new block. Each logo starts at 50% opacity and scroll-fades
+     to full as it rises through the lower half of the viewport — script.js
+     drives --reveal (0 to 1) per logo, consumed by the opacity calc() on
+     .brands__logo-box in styles.css. All logos sit in a same-size box
+     (.brands__logo-box) so mismatched source aspect ratios don't read as
+     mismatched sizes. -->
+<section class="brands" aria-label="Brands we've worked with">
+  <div class="brands__inner">
+    <p class="brands__label">Brands we've worked with</p>
+    <div class="brands__row">
+      <span class="brands__logo-box"><img class="brands__logo" src="assets/companies/asset-1.svg" alt="Client logo" loading="lazy"></span>
+      <span class="brands__logo-box"><img class="brands__logo" src="assets/companies/asset-3.svg" alt="Client logo" loading="lazy"></span>
+      <span class="brands__logo-box"><img class="brands__logo" src="assets/companies/asset-5.svg" alt="Client logo" loading="lazy"></span>
+      <span class="brands__logo-box"><img class="brands__logo" src="assets/companies/asset-7.png" alt="GlobalTech Solutions" loading="lazy"></span>
+      <span class="brands__logo-box"><img class="brands__logo" src="assets/companies/asset-8.png" alt="Aharon Berk" loading="lazy"></span>
+      <span class="brands__logo-box"><img class="brands__logo" src="assets/companies/asset-c.svg" alt="Client logo" loading="lazy"></span>
+    </div>
+  </div>
+</section>
 
 <!-- ============ MAGIC SCROLL (diagonal) ============ -->
 <!-- The four-line thought and its four photos are strung along one diagonal
@@ -512,7 +535,7 @@
 </aside>
 
 <script src="shader.js" defer></script>
-<script src="script.js?v=8"></script>
+<script src="script.js?v=14"></script>
 
 <!-- Cal.com element-click embed: initialises the "15-minute-phone-call" popup.
      Any element with the matching data-cal-* attributes (the hero CTA) opens

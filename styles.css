@@ -80,6 +80,81 @@ input::placeholder { color: #6a6a72; }
   box-shadow: 0 -34px 70px -24px rgba(0, 0, 0, 0.75);
 }
 
+/* ============ BRANDS strip ============
+   Sits directly under the intro hero (#top) on the same dark ground, before
+   the black-and-white photo rail, so it reads as a continuation of the hero
+   rather than a new section. Logos are plain white art of wildly different
+   native aspect ratios (see assets/companies), so each sits inside a
+   same-size .brands__logo-box (object-fit-style contain via max-width/
+   max-height) rather than being sized directly — that's what keeps them
+   reading as "about the same size" despite the source art not matching. */
+.brands {
+  position: relative;
+  z-index: 2;
+  background: #0a0a0c;
+  padding: clamp(56px, 7vw, 100px) clamp(24px, 5vw, 72px);
+}
+.brands__inner { max-width: 1240px; margin: 0 auto; }
+.brands__label {
+  margin: 0 0 clamp(28px, 3.5vw, 44px);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #6b6b72;
+}
+.brands__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(28px, 4vw, 56px);
+}
+.brands__logo-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(96px, 10vw, 140px);
+  height: clamp(40px, 4.4vw, 56px);
+}
+
+/* The 50% → 100% reveal, cascading left to right.
+
+   This is time-based (a keyframe animation fired when the strip scrolls into
+   view), NOT scrubbed off scroll position. A scroll-scrubbed fade finishes
+   while you are still moving, so by the time you stop and actually look at the
+   logos they are already at full opacity and nothing appears to happen — the
+   animation is invisible at any normal scrolling speed. Firing it on entry
+   means it plays out in front of you however fast you got there.
+
+   script.js adds .brands-armed (so no-JS visitors never get stuck at 50%) and
+   toggles .is-revealed as the row enters/leaves the viewport. */
+.brands__row.brands-armed .brands__logo-box { opacity: 0.5; }
+.brands__row.brands-armed.is-revealed .brands__logo-box {
+  animation: brands-fade-in 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.brands__row.brands-armed.is-revealed .brands__logo-box:nth-child(1) { animation-delay: 0s; }
+.brands__row.brands-armed.is-revealed .brands__logo-box:nth-child(2) { animation-delay: 0.11s; }
+.brands__row.brands-armed.is-revealed .brands__logo-box:nth-child(3) { animation-delay: 0.22s; }
+.brands__row.brands-armed.is-revealed .brands__logo-box:nth-child(4) { animation-delay: 0.33s; }
+.brands__row.brands-armed.is-revealed .brands__logo-box:nth-child(5) { animation-delay: 0.44s; }
+.brands__row.brands-armed.is-revealed .brands__logo-box:nth-child(6) { animation-delay: 0.55s; }
+@keyframes brands-fade-in {
+  from { opacity: 0.5; }
+  to   { opacity: 1; }
+}
+.brands__logo {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .brands__row.brands-armed .brands__logo-box { opacity: 1; animation: none; }
+}
+
 /* ============ TIC-TAC-TOE service board ============
    Replaces the old auto-scrolling ticker. A 3x3 hash grid is pinned in a
    tall section; script.js computes scroll progress through that section and

@@ -272,6 +272,44 @@ document.querySelectorAll(
   update();
 })();
 
+// Brands strip: the logos light up 50% → 100% opacity, cascading left to
+// right, when the row scrolls into view. The fade itself is a CSS keyframe
+// animation with per-logo delays (see .brands__row in styles.css); this only
+// decides WHEN to run it.
+//
+// Deliberately not scrubbed off scroll position. A scroll-linked fade is over
+// by the time you stop moving, so whenever you actually settle on the strip
+// the logos are already at full opacity and the effect reads as nothing
+// happening at all. Firing a timed animation on entry means it plays in front
+// of the viewer no matter how fast they scrolled in.
+//
+// Unlike the one-shot .reveal observer below, this re-arms when the row leaves
+// the viewport, so scrolling back up to the strip plays the cascade again
+// rather than showing an already-finished row.
+(function () {
+  var row = document.querySelector('.brands__row');
+  if (!row) return;
+
+  // Arm only once JS is confirmed running: the 50% start state lives behind
+  // .brands-armed, so without JS (or without an observer) the logos simply
+  // stay at full opacity instead of being stranded dim.
+  row.classList.add('brands-armed');
+
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) {
+    row.classList.add('is-revealed');
+    return;
+  }
+
+  new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      // Toggling the class off and back on restarts the keyframes; the row is
+      // off-screen at that point, so the reset is never visible.
+      row.classList.toggle('is-revealed', entry.isIntersecting);
+    });
+  }, { threshold: 0.25 }).observe(row);
+})();
+
 // Tic-tac-toe service board: scrubbed by scroll position through the tall
 // #ttt section (see .ttt* in styles.css). While the board is pinned, progress
 // runs 0→1: the grid frame first scales + fades in, then the nine service
