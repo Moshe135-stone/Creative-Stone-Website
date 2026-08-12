@@ -64,6 +64,158 @@ a:hover { color: var(--accent); }
 input, select, button { font-family: 'Archivo', sans-serif; }
 input::placeholder { color: #6a6a72; }
 
+/* ============ HERO SLIDESHOW ============
+   The intro section's background: eight portfolio pieces cross-fading on a
+   shared 28s loop. Replaced the WebGL metaball canvas that used to sit here
+   (shader.js is gone with it), so this is now pure CSS with no JS behind it.
+
+   Each slide runs the same two animations and is offset by a negative
+   animation-delay, one 3.5s slot apart (8 x 3.5 = the 28s loop). Negative
+   delays mean every slide starts mid-cycle rather than all waiting their turn
+   on first paint, so the loop is already running when the page opens.
+   hero-fade holds a slide at full opacity for ~2.6s of its slot and cross-
+   fades at the edges; hero-drift pushes it slowly larger the whole time so the
+   image is never completely still. */
+.hero-slides {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.hero-slides__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  will-change: opacity, transform;
+  animation: hero-fade 28s linear infinite, hero-drift 28s linear infinite;
+}
+.hero-slides__img:nth-child(1) { animation-delay: -28s, -28s; }
+.hero-slides__img:nth-child(2) { animation-delay: -24.5s, -24.5s; }
+.hero-slides__img:nth-child(3) { animation-delay: -21s, -21s; }
+.hero-slides__img:nth-child(4) { animation-delay: -17.5s, -17.5s; }
+.hero-slides__img:nth-child(5) { animation-delay: -14s, -14s; }
+.hero-slides__img:nth-child(6) { animation-delay: -10.5s, -10.5s; }
+.hero-slides__img:nth-child(7) { animation-delay: -7s, -7s; }
+.hero-slides__img:nth-child(8) { animation-delay: -3.5s, -3.5s; }
+@keyframes hero-fade {
+  0%    { opacity: 0; }
+  3.1%  { opacity: 1; }
+  12.5% { opacity: 1; }
+  15.6% { opacity: 0; }
+  100%  { opacity: 0; }
+}
+@keyframes hero-drift {
+  0%    { transform: scale(1.02); }
+  15.6% { transform: scale(1.08); }
+  100%  { transform: scale(1.08); }
+}
+
+/* Weighted to the left, where the headline sits — the metaball canvas used to
+   mask itself out over the left 22% for the same reason. Without this the
+   type lands on whatever the current photo happens to be. */
+.hero-slides__scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg,
+      rgba(10, 10, 12, 0.97) 0%,
+      rgba(10, 10, 12, 0.92) 24%,
+      rgba(10, 10, 12, 0.62) 50%,
+      rgba(10, 10, 12, 0.28) 76%,
+      rgba(10, 10, 12, 0.10) 100%),
+    linear-gradient(180deg,
+      rgba(10, 10, 12, 0.55) 0%,
+      rgba(10, 10, 12, 0) 22%,
+      rgba(10, 10, 12, 0) 72%,
+      rgba(10, 10, 12, 0.55) 100%);
+}
+
+/* Accent bar ricocheting down the right edge, carried over from the slideshow
+   design: a hard-edged marker on a hairline rail, plus a wide blurred glow
+   running the same timing so the light appears to travel with it. */
+.hero-beam { position: absolute; inset: 0; pointer-events: none; }
+.hero-beam__rail {
+  position: absolute;
+  right: 34px;
+  top: 10%;
+  bottom: 10%;
+  width: 6px;
+  background: rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+}
+.hero-beam__bar {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 24%;
+  background: var(--accent);
+  box-shadow: 0 0 24px 4px var(--accent);
+  animation: hero-ricochet 7s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+/* Tracks the rail's box exactly, but the glow itself is allowed to bleed well
+   outside it (no overflow clipping) — that spill is what reads as light
+   thrown onto the photo rather than a lit strip. */
+.hero-beam__glow {
+  position: absolute;
+  right: 34px;
+  top: 10%;
+  bottom: 10%;
+  width: 6px;
+}
+.hero-beam__glow::before {
+  content: "";
+  position: absolute;
+  left: -220px;
+  right: -60px;
+  height: 24%;
+  background: radial-gradient(ellipse at 78% 50%,
+    var(--accent) 0%,
+    rgba(56, 132, 255, 0.5) 35%,
+    rgba(56, 132, 255, 0) 72%);
+  filter: blur(46px);
+  opacity: 0.95;
+  animation: hero-ricochet 7s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes hero-ricochet {
+  0%   { top: 0%; }
+  50%  { top: calc(100% - 22%); }
+  100% { top: 0%; }
+}
+
+/* Narrow screens: the headline stops being a left-hand column and spans the
+   full width, so a left-weighted scrim no longer protects it — it just lands
+   on whatever is in the middle of the photo. Swap to a mostly-vertical scrim
+   that darkens the whole frame behind the type, and pull the beam in tight to
+   the edge so it stops cutting through the composition. */
+@media (max-width: 720px) {
+  .hero-slides__scrim {
+    background:
+      linear-gradient(180deg,
+        rgba(10, 10, 12, 0.72) 0%,
+        rgba(10, 10, 12, 0.55) 30%,
+        rgba(10, 10, 12, 0.62) 62%,
+        rgba(10, 10, 12, 0.92) 100%),
+      linear-gradient(90deg,
+        rgba(10, 10, 12, 0.55) 0%,
+        rgba(10, 10, 12, 0.28) 60%,
+        rgba(10, 10, 12, 0.20) 100%);
+  }
+  .hero-beam__rail { right: 14px; width: 4px; }
+  .hero-beam__glow { right: 14px; width: 4px; }
+  .hero-beam__glow::before { left: -120px; right: -30px; filter: blur(34px); opacity: 0.75; }
+}
+
+/* Reduced motion: hold the first piece of work, drop the loop and the beam. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-slides__img { animation: none; opacity: 0; transform: scale(1.02); }
+  .hero-slides__img:nth-child(1) { opacity: 1; }
+  .hero-beam__bar,
+  .hero-beam__glow::before { animation: none; top: 38%; }
+}
+
 /* ============ HERO panel slide-over ============
    The hero (Spline render + CTAs) rises over the photo section above it like
    a panel: the negative margin-top pulls it up into the previous section, and

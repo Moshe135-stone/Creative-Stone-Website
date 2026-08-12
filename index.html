@@ -11,7 +11,7 @@
      of the button (see the Cal preload in script.js). -->
 <link rel="preconnect" href="https://app.cal.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=12">
+<link rel="stylesheet" href="styles.css?v=14">
 <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"></script>
 </head>
 <body>
@@ -60,7 +60,32 @@
 
 <!-- ============ INTRO / LANDING ============ -->
 <section id="top" style="position: relative; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: flex-start; background: #0a0a0c;">
-  <canvas id="metaball-canvas" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; mask-image: linear-gradient(to right, transparent 0%, transparent 22%, rgba(0,0,0,0.85) 45%, black 62%); -webkit-mask-image: linear-gradient(to right, transparent 0%, transparent 22%, rgba(0,0,0,0.85) 45%, black 62%);"></canvas>
+  <!-- Portfolio slideshow (replaces the old WebGL metaball canvas): eight
+       pieces of work cross-fading on a 28s loop, 3.5s each, every frame also
+       drifting slowly larger. Pure CSS — the stagger is animation-delay per
+       slide, so there is no JS driving it. See .hero-slides in styles.css.
+
+       The scrim over it is weighted to the LEFT, opposite the design's own
+       right-hand scrim, because the headline sits on the left here and needs
+       the dark ground the metaball's mask used to give it. -->
+  <div class="hero-slides">
+    <img class="hero-slides__img" src="assets/portfolio/01-aharon-berk-laptop.jpg" alt="Aharon Berk site on a laptop" fetchpriority="high" decoding="async">
+    <img class="hero-slides__img" src="assets/portfolio/02-purim-raffle-tickets.jpg" alt="Purim raffle ticket series" decoding="async">
+    <img class="hero-slides__img" src="assets/portfolio/03-rowsone-digital.jpg" alt="RowsOne digital experience" decoding="async">
+    <img class="hero-slides__img" src="assets/portfolio/04-chani-merke-card.jpg" alt="Chani Merke business card" decoding="async">
+    <img class="hero-slides__img" src="assets/portfolio/05-espana-hoodie.jpg" alt="España hoodie" decoding="async">
+    <img class="hero-slides__img" src="assets/portfolio/06-bedrock-care-social.jpg" alt="Bedrock Care social media" decoding="async">
+    <img class="hero-slides__img" src="assets/portfolio/07-globaltech-banner.jpg" alt="GlobalTech trade show banner" decoding="async">
+    <img class="hero-slides__img" src="assets/portfolio/08-ayin-to-ayin-podcast.jpg" alt="The Ayin to Ayin Show podcast app" decoding="async">
+  </div>
+  <div class="hero-slides__scrim" aria-hidden="true"></div>
+
+  <!-- The accent bar from the slideshow design: a blue marker ricocheting down
+       and back up the right edge, with a soft glow tracking it. -->
+  <div class="hero-beam" aria-hidden="true">
+    <div class="hero-beam__glow"></div>
+    <div class="hero-beam__rail"><div class="hero-beam__bar"></div></div>
+  </div>
   <h1 id="intro-title" style="position: relative; z-index: 2; margin: 0; padding: 0 0 0 clamp(24px, 6vw, 80px); font-size: clamp(44px, 8.5vw, 156px); line-height: 0.9; letter-spacing: -0.04em; font-weight: 700; text-align: left; color: #f2f2f4; text-transform: uppercase; pointer-events: none; --dissolve: 0; opacity: calc(1 - var(--dissolve)); filter: blur(calc(var(--dissolve) * 26px)); transform: scale(calc(1 + var(--dissolve) * 0.18)); will-change: opacity, filter, transform;">Marketing<br>solutions<br>for the<br>age of AI</h1>
 </section>
 
@@ -534,8 +559,7 @@
   <a href="#contact" class="svc-tray__cta">Get these →</a>
 </aside>
 
-<script src="shader.js" defer></script>
-<script src="script.js?v=14"></script>
+<script src="script.js?v=15"></script>
 
 <!-- Cal.com element-click embed: initialises the "15-minute-phone-call" popup.
      Any element with the matching data-cal-* attributes (the hero CTA) opens
