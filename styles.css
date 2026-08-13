@@ -217,7 +217,7 @@ input::placeholder { color: #6a6a72; }
 }
 
 /* ============ HERO panel slide-over ============
-   The hero (Spline render + CTAs) rises over the photo section above it like
+   The hero (portfolio slideshow + CTAs) rises over the photo section above it like
    a panel: the negative margin-top pulls it up into the previous section, and
    the opaque background + upward shadow make it read as a sheet floating over.
    script.js scrubs --slide-radius on scroll — rounded corners while the panel
@@ -1365,6 +1365,26 @@ input::placeholder { color: #6a6a72; }
   .trail.revealed .trail__label { animation: none; }
 }
 
+/* Phones: the walk turns and heads DOWN the page. Three big labels side by
+   side wrap into a ragged mess on a narrow screen, and a downward walk is the
+   more natural read there anyway — it points at the contact form below.
+   The feet turn with it: the artwork points toes-up at 0°, so 172°/188° aims
+   them down the page with the same 8° splay the horizontal walk gets from its
+   82°/98°. Overriding `transform` outright (rather than --r / --ty) is
+   deliberate: those two live in inline styles on the markup, which a
+   stylesheet rule can't outrank. The left/right shift replaces the horizontal
+   walk's bob, so the prints straddle the centre line the way footfalls do. */
+@media (max-width: 720px) {
+  .trail {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: clamp(18px, 5vw, 32px);
+  }
+  .trail__step { gap: clamp(8px, 2.4vw, 14px); }
+  .trail__step:nth-child(odd) .foot  { transform: translateX(-22px) rotate(172deg); }
+  .trail__step:nth-child(even) .foot { transform: translateX(22px) rotate(188deg); }
+}
+
 /* The wrapper holds the walking placement (splay + vertical bob) so it
    survives the img's own animation transform — separate elements, so the
    rotate and the stamp don't fight. */
@@ -1620,6 +1640,21 @@ input::placeholder { color: #6a6a72; }
    the resting state: plain white if the script never runs or motion is
    reduced. Words are inline-block so a word never breaks across lines once it
    has been split into characters. */
+/* The box the statement is centred in. It used to be width: min(1200px, 92vw),
+   which on a phone came out WIDER than .hero-panel's padded content box — the
+   overflow all went to the right, so the centred line sat visibly off-centre.
+   100% (capped at 1200px) can't outgrow its parent, so the line's centre is
+   the section's centre at every width. */
+.hero-statement {
+  min-height: 62vh;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .range-text {
   font-size: clamp(26px, 3.6vw, 60px);
   line-height: 1.2;
@@ -1764,6 +1799,11 @@ input::placeholder { color: #6a6a72; }
     font-size: clamp(34px, 8.5vw, 58px);
     line-height: 1.14;
     max-width: none;
+    /* Even up the line lengths. Centred text with one long line and one short
+       stub reads as lopsided however well it's actually centred — balance
+       gives the block a symmetrical silhouette to sit inside. */
+    text-wrap: balance;
+    margin-inline: auto;
   }
 }
 
@@ -2069,4 +2109,121 @@ input::placeholder { color: #6a6a72; }
   }
   #siteHeader nav { visibility: hidden; opacity: 0; }
   #siteHeader.nav-open nav { visibility: visible; opacity: 1; }
+}
+
+/* ============ SAY YES — closing CTA button ============
+   Headline-scale type doing a button's job. Two things carry the affordance:
+   the brand-blue rule under "yes" and the pair of arrows after it. The rule is
+   drawn from the left on hover/focus and the arrows chase each other to the
+   right, so the whole thing reads as "go" rather than as a heading. Opens the
+   Cal.com popup — see the markup in index.html. */
+.yes-cta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: clamp(12px, 1.8vw, 26px);
+  margin-top: clamp(44px, 6vw, 80px);
+  font-size: clamp(56px, 9.5vw, 132px);
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  color: #f2f2f4;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color .3s ease;
+}
+.yes-cta:hover { color: #ffffff; }
+
+/* "yes" and its rule. The rule sits at a fixed 0.1em thickness so it scales
+   with the type instead of thinning out at the big end of the clamp. */
+.yes-cta__yes {
+  position: relative;
+  color: inherit;
+  transition: color .3s ease;
+}
+.yes-cta__yes::after {
+  content: "";
+  position: absolute;
+  left: -0.02em;
+  right: -0.02em;
+  bottom: -0.16em;
+  height: 0.1em;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 28px rgba(var(--accent-rgb), .5);
+  transform-origin: left center;
+  transition: transform .4s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow .4s ease;
+}
+.yes-cta:hover .yes-cta__yes,
+.yes-cta:focus-visible .yes-cta__yes { color: var(--accent); }
+.yes-cta:hover .yes-cta__yes::after,
+.yes-cta:focus-visible .yes-cta__yes::after {
+  transform: scaleY(1.35);
+  box-shadow: 0 0 44px rgba(var(--accent-rgb), .75);
+}
+
+/* The arrows. Sized off the font so they stay in proportion at any clamp
+   value, and offset up from the baseline to sit optically centred on the
+   lowercase letters. The trailing one lags the leading one on hover. */
+.yes-cta__arrows {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.02em;
+  color: var(--accent);
+  transform: translateY(-0.06em);
+}
+.yes-cta__arrows svg {
+  width: 0.62em;
+  height: 0.62em;
+  display: block;
+  transition: transform .4s cubic-bezier(0.16, 1, 0.3, 1), opacity .3s ease;
+}
+/* The second arrow is the "echo" — dim and tucked behind until you hover. */
+.yes-cta__arrows svg:nth-child(2) {
+  opacity: .38;
+  margin-left: -0.34em;
+}
+.yes-cta:hover .yes-cta__arrows svg:nth-child(1),
+.yes-cta:focus-visible .yes-cta__arrows svg:nth-child(1) {
+  transform: translateX(0.16em);
+}
+.yes-cta:hover .yes-cta__arrows svg:nth-child(2),
+.yes-cta:focus-visible .yes-cta__arrows svg:nth-child(2) {
+  transform: translateX(0.28em);
+  opacity: .85;
+}
+
+.yes-cta:focus-visible {
+  outline: none;
+  border-radius: 12px;
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yes-cta,
+  .yes-cta__yes,
+  .yes-cta__yes::after,
+  .yes-cta__arrows svg { transition: none; }
+}
+
+/* ============ FOOTER 3D CRYSTAL LOCKUP ============
+   The footer used to carry the flat logo.svg at 28px tall. It now carries the
+   real-3D crystal mark (assets/crystal/), sized 5x that: a 140px crystal with
+   the wordmark scaled to match the proportions the mark ships with. The canvas
+   itself is absolutely positioned and overhangs its slot by 35% on every side
+   (see crystal-logo.css) so sparkles and rim glow never get sliced; that
+   overhang is transparent and pointer-events: none, so it costs no layout. */
+.footer-lockup .crystal-logo {
+  height: 140px;   /* 5 x the old 28px logo */
+}
+.footer-lockup .crystal-lockup__wordmark {
+  height: 79px;    /* keeps the shipped crystal-to-wordmark ratio */
+}
+
+/* Below the tablet breakpoint the footer stacks; drop the mark to a size that
+   still reads big without eating the whole strip. */
+@media (max-width: 640px) {
+  .footer-lockup .crystal-logo { height: 96px; }
+  .footer-lockup .crystal-lockup__wordmark { height: 54px; }
 }

@@ -11,8 +11,18 @@
      of the button (see the Cal preload in script.js). -->
 <link rel="preconnect" href="https://app.cal.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=14">
-<script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"></script>
+<link rel="stylesheet" href="styles.css?v=15">
+<link rel="stylesheet" href="assets/crystal/crystal-logo.css?v=1">
+<!-- Tells the browser where to find three.js for the footer's real-3D crystal
+     mark (assets/crystal/crystal-logo.js). -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
 </head>
 <body>
 
@@ -217,7 +227,7 @@
      and the extra height is how long the CTAs (now living in #top, see below)
      stay docked at full size before this panel's end scrolls by and script.js
      shrinks them into .is-compact (see .hero-cta-group in styles.css). -->
-<section class="hero-panel" style="position: relative; min-height: 140vh; display: flex; flex-direction: column; padding: 100px 40px 48px;">
+<section class="hero-panel" style="position: relative; min-height: 140vh; display: flex; flex-direction: column; padding: 100px clamp(20px, 6vw, 40px) 48px;">
 
   <!-- The 3D logo that used to fill this box now lives in the closing CTA; the
        statement below took its place, centred in the first screenful.
@@ -225,7 +235,7 @@
        script.js splits the line into per-character spans and sweeps an After
        Effects style range selector through them on scroll: grey → white → blue.
        The plain text here is the no-JS/reduced-motion fallback. -->
-  <div style="min-height: 62vh; width: min(1200px, 92vw); margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+  <div class="hero-statement">
     <p class="range-text">Creative Stone builds websites, brands, and emails that makes your business easy to trust</p>
   </div>
 
@@ -515,22 +525,43 @@
 </section>
 
 <!-- ============ CLOSING CTA ============
-     The closing line, with the 3D interactive logo sitting underneath it as
-     the last thing above the footer. The render lives outside the 900px text
-     column so it can run wider than the headline. -->
-<section style="padding: 140px 40px 0; border-top: 1px solid #1c1c20; text-align: center;">
+     The closing line, answered by the "say yes" button — the last thing above
+     the footer. The button opens the same Cal.com "15-minute-phone-call"
+     popup as the hero CTA (element-click embed, init script before </body>);
+     href="#contact" is the no-JS fallback to the form. -->
+<section style="padding: 140px clamp(20px, 6vw, 40px) 120px; border-top: 1px solid #1c1c20; text-align: center;">
   <div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
     <h2 class="reveal range-sweep" style="font-size: clamp(40px, 6vw, 84px); line-height: 1.0; letter-spacing: -0.03em; font-weight: 700; margin: 0; text-wrap: pretty;">Let's make your business easy to say yes to.</h2>
-  </div>
 
-  <div style="width: min(1200px, 92vw); height: min(70vh, 640px); margin: 0 auto; overflow: hidden;">
-    <spline-viewer url="https://prod.spline.design/H2OXDXgamim261ZG/scene.splinecode?v=1784076895" style="width: 100%; height: 100%; display: block; transform: translateX(8%);"></spline-viewer>
+    <a href="#contact" class="yes-cta reveal"
+       aria-label="Say yes — book a 15-minute call"
+       data-cal-namespace="15-minute-phone-call"
+       data-cal-link="creative-stone/15-minute-phone-call"
+       data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'>
+      <span class="yes-cta__say">say</span>
+      <span class="yes-cta__yes">yes</span>
+      <span class="yes-cta__arrows" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 5 7 7-7 7"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 5 7 7-7 7"/></svg>
+      </span>
+    </a>
   </div>
 </section>
 
-<!-- ============ FOOTER ============ -->
+<!-- ============ FOOTER ============
+     The flat logo.svg that used to sit here is now the real-3D crystal mark:
+     it turns on its own, and sweeps light + sparkles on hover. Sized 5x the
+     old 28px lockup (see .footer-lockup in styles.css). -->
 <footer style="border-top: 1px solid #1c1c20; padding: 48px 40px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
-  <img src="assets/logo.svg" alt="Creative Stone" style="height: 28px; width: auto;">
+  <div class="crystal-lockup footer-lockup">
+    <div class="crystal-logo"
+         data-crystal-logo
+         data-model="assets/crystal/crystal.glb"
+         tabindex="0"
+         role="img"
+         aria-label="Creative Stone crystal mark"></div>
+    <img class="crystal-lockup__wordmark" src="assets/crystal/wordmark.svg" alt="Creative Stone">
+  </div>
   <nav style="display: flex; gap: 28px; font-size: 14px;">
     <a href="#services" style="color: #8a8a92;">services</a>
     <a href="#industries" style="color: #8a8a92;">industries</a>
@@ -560,6 +591,9 @@
 </aside>
 
 <script src="script.js?v=15"></script>
+
+<!-- Footer crystal mark. type="module" matters — it reads the importmap above. -->
+<script type="module" src="assets/crystal/crystal-logo.js?v=1"></script>
 
 <!-- Cal.com element-click embed: initialises the "15-minute-phone-call" popup.
      Any element with the matching data-cal-* attributes (the hero CTA) opens

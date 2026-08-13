@@ -1,0 +1,65 @@
+/* ============================================================================
+   Creative Stone — interactive crystal logo
+   Drop this in your stylesheet, or link it as its own file.
+   ========================================================================== */
+
+.crystal-lockup {
+  display: inline-flex;
+  align-items: center;
+  /* tighten or loosen the crystal-to-wordmark spacing here */
+  gap: clamp(4px, 0.9vw, 12px);
+  line-height: 0;
+  user-select: none;
+}
+
+/* --- the 3D crystal ------------------------------------------------------ */
+
+.crystal-logo {
+  position: relative;
+  flex: 0 0 auto;
+  /* the frame is portrait, matching the crystal's own proportions, so there
+     is almost no empty canvas padding pushing the wordmark away */
+  height: clamp(46px, 6.4vw, 96px);
+  aspect-ratio: 3 / 4;
+  cursor: pointer;
+  touch-action: manipulation;
+  outline: none;
+}
+
+/* The canvas is deliberately 70% BIGGER than the layout slot, hanging over
+   the edges on all sides. The crystal is drawn at the same visible size, but
+   the canvas edge — where sparkles and glow would get sliced off — now sits
+   far away from the crystal. Layout spacing is unaffected. */
+.crystal-logo__canvas {
+  position: absolute;
+  left: -35%;
+  top: -35%;
+  width: 170% !important;
+  height: 170% !important;
+  display: block;
+  pointer-events: none; /* hover is judged by the layout box, not the overhang */
+}
+
+/* fade in once the model has actually loaded */
+.crystal-logo .crystal-logo__canvas {
+  opacity: 0;
+  transition: opacity 500ms ease;
+}
+.crystal-logo.is-ready .crystal-logo__canvas { opacity: 1; }
+
+/* keyboard focus ring — the only box we draw, and only when tabbing */
+.crystal-logo:focus-visible {
+  border-radius: 10px;
+  box-shadow: 0 0 0 2px rgba(26, 229, 255, 0.9);
+}
+
+/* --- the wordmark -------------------------------------------------------- */
+
+.crystal-lockup__wordmark {
+  flex: 0 0 auto;
+  height: clamp(26px, 3.6vw, 54px);
+  width: auto;
+  display: block;
+}
+
+.crystal-lockup__wordmark path { fill: #fff; }
