@@ -11,7 +11,7 @@
      of the button (see the Cal preload in script.js). -->
 <link rel="preconnect" href="https://app.cal.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=15">
+<link rel="stylesheet" href="styles.css?v=16">
 <link rel="stylesheet" href="assets/crystal/crystal-logo.css?v=1">
 <!-- Tells the browser where to find three.js for the footer's real-3D crystal
      mark (assets/crystal/crystal-logo.js). -->
@@ -31,7 +31,7 @@
      collapsed to zero width (scaleX(0), transform-origin: right) until
      #siteHeader gets .nav-open (toggled by script.js on burger click).
      Each staggers in with its own transition-delay — shortest on the item
-     closest to the burger ("book a call"), longest on the farthest
+     closest to the burger ("pricing"), longest on the farthest
      ("services") — so they fan out right-to-left, one after another. -->
 <header id="siteHeader" style="position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; height: 74px; padding: 0 40px; background: transparent; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid #1c1c20;">
   <a href="#top" style="display: flex; align-items: center;">
@@ -39,25 +39,21 @@
   </a>
   <div style="display: flex; align-items: center; gap: 10px;">
     <nav style="display: flex; align-items: center; gap: 0; overflow: hidden;">
-      <a href="#services" class="btn-outline nav-item" style="width: 150px; font-size: 20px; font-weight: 600; transition-delay: 0.24s;">
+      <a href="#services" class="btn-outline nav-item" style="width: 150px; font-size: 20px; font-weight: 600; transition-delay: 0.18s;">
         <span class="nav-slide-label nav-slide-original">services</span>
         <span class="nav-slide-label nav-slide-duplicate">services</span>
       </a>
-      <a href="#industries" class="btn-outline nav-item" style="width: 170px; font-size: 20px; font-weight: 600; transition-delay: 0.18s;">
+      <a href="#industries" class="btn-outline nav-item" style="width: 170px; font-size: 20px; font-weight: 600; transition-delay: 0.12s;">
         <span class="nav-slide-label nav-slide-original">industries</span>
         <span class="nav-slide-label nav-slide-duplicate">industries</span>
       </a>
-      <a href="#process" class="btn-outline nav-item" style="width: 205px; font-size: 20px; font-weight: 600; transition-delay: 0.12s;">
-        <span class="nav-slide-label nav-slide-original">how it works</span>
-        <span class="nav-slide-label nav-slide-duplicate">how it works</span>
+      <a href="clients.html" class="btn-outline nav-item" style="width: 135px; font-size: 20px; font-weight: 600; transition-delay: 0.06s;">
+        <span class="nav-slide-label nav-slide-original">clients</span>
+        <span class="nav-slide-label nav-slide-duplicate">clients</span>
       </a>
-      <a href="plans.html" class="btn-outline nav-item" style="width: 135px; font-size: 20px; font-weight: 600; transition-delay: 0.06s;">
+      <a href="plans.html" class="btn-outline nav-item" style="width: 135px; font-size: 20px; font-weight: 600; transition-delay: 0s;">
         <span class="nav-slide-label nav-slide-original">pricing</span>
         <span class="nav-slide-label nav-slide-duplicate">pricing</span>
-      </a>
-      <a href="#contact" class="btn-nav-cta nav-item" style="width: 180px; font-size: 20px; font-weight: 600; transition-delay: 0s;">
-        <span class="nav-slide-label nav-slide-original">book a call</span>
-        <span class="nav-slide-label nav-slide-duplicate">book a call</span>
       </a>
     </nav>
     <button id="navToggle" aria-expanded="false" aria-label="Toggle menu" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; width: 44px; height: 44px; padding: 0; flex-shrink: 0;">
@@ -96,8 +92,30 @@
     <div class="hero-beam__glow"></div>
     <div class="hero-beam__rail"><div class="hero-beam__bar"></div></div>
   </div>
-  <h1 id="intro-title" style="position: relative; z-index: 2; margin: 0; padding: 0 0 0 clamp(24px, 6vw, 80px); font-size: clamp(44px, 8.5vw, 156px); line-height: 0.9; letter-spacing: -0.04em; font-weight: 700; text-align: left; color: #f2f2f4; text-transform: uppercase; pointer-events: none; --dissolve: 0; opacity: calc(1 - var(--dissolve)); filter: blur(calc(var(--dissolve) * 26px)); transform: scale(calc(1 + var(--dissolve) * 0.18)); will-change: opacity, filter, transform;">Marketing<br>solutions<br>for the<br>age of AI</h1>
+  <h1 id="intro-title" style="position: relative; z-index: 2; margin: 0; padding: 0 0 0 clamp(24px, 6vw, 80px); font-size: clamp(48px, 12.75vw, 156px); line-height: 0.9; letter-spacing: -0.04em; font-weight: 700; text-align: left; color: #f2f2f4; text-transform: uppercase; pointer-events: none; --dissolve: 0; opacity: calc(1 - var(--dissolve)); filter: blur(calc(var(--dissolve) * 26px)); transform: scale(calc(1 + var(--dissolve) * 0.18)); will-change: opacity, filter, transform;">Marketing<br>solutions<br>for the<br>age of AI</h1>
 </section>
+
+<!-- ============ HERO CURSOR — the crystal mark as the pointer ============
+     Over the intro hero the native arrow is hidden (#top { cursor: none }) and
+     this rides the pointer in its place: the same real-3D crystal the footer
+     lockup uses, turning on its own.
+
+     A sibling of #top rather than a child, for exactly the reason spelled out
+     on the CTAs below — #top is overflow:hidden, and a position:fixed
+     descendant of an overflow:hidden ancestor gets clipped the moment that
+     ancestor scrolls away.
+
+     data-crystal-logo is all the wiring it needs: assets/crystal/crystal-logo.js
+     starts every element carrying it. That module skips its render loop while
+     the element is off-screen (IntersectionObserver), which is what keeps this
+     free when idle — script.js parks it far outside the viewport instead of
+     merely hiding it, so the WebGL loop actually stops until the pointer is
+     over the hero. -->
+<div class="hero-cursor" aria-hidden="true">
+  <div class="crystal-logo hero-cursor__crystal"
+       data-crystal-logo
+       data-model="assets/crystal/crystal.glb"></div>
+</div>
 
 <!-- The two CTAs: pinned to the bottom-right of the viewport at all times,
      visible from page load through the very bottom of the page. Deliberately
@@ -223,11 +241,13 @@
      corner radius from rounded → flat (--slide-radius) as the panel scrolls
      up to cover it. See .hero-panel in styles.css.
 
-     Taller than one screen on purpose: the statement fills the first screenful,
-     and the extra height is how long the CTAs (now living in #top, see below)
-     stay docked at full size before this panel's end scrolls by and script.js
-     shrinks them into .is-compact (see .hero-cta-group in styles.css). -->
-<section class="hero-panel" style="position: relative; min-height: 140vh; display: flex; flex-direction: column; padding: 100px clamp(20px, 6vw, 40px) 48px;">
+     Exactly one screenful: the statement centres in it (.hero-statement is
+     flex: 1), and the panel's end is also what times the CTAs (now living in
+     #top, see below) — they stay docked at full size until this panel's bottom
+     scrolls past, then script.js shrinks them into .is-compact (see
+     .hero-cta-group in styles.css). It used to run 140vh, which left most of a
+     screen of dead space under the statement before the service grid. -->
+<section class="hero-panel" style="position: relative; min-height: 100vh; display: flex; flex-direction: column; padding: 72px clamp(20px, 6vw, 40px) 32px;">
 
   <!-- The 3D logo that used to fill this box now lives in the closing CTA; the
        statement below took its place, centred in the first screenful.
@@ -534,7 +554,7 @@
     <h2 class="reveal range-sweep" style="font-size: clamp(40px, 6vw, 84px); line-height: 1.0; letter-spacing: -0.03em; font-weight: 700; margin: 0; text-wrap: pretty;">Let's make your business easy to say yes to.</h2>
 
     <a href="#contact" class="yes-cta reveal"
-       aria-label="Say yes — book a 15-minute call"
+       aria-label="Say yes, book a 15-minute call"
        data-cal-namespace="15-minute-phone-call"
        data-cal-link="creative-stone/15-minute-phone-call"
        data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'>
@@ -590,7 +610,7 @@
   <a href="#contact" class="svc-tray__cta">Get these →</a>
 </aside>
 
-<script src="script.js?v=15"></script>
+<script src="script.js?v=16"></script>
 
 <!-- Footer crystal mark. type="module" matters — it reads the importmap above. -->
 <script type="module" src="assets/crystal/crystal-logo.js?v=1"></script>

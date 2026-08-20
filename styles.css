@@ -244,7 +244,11 @@ input::placeholder { color: #6a6a72; }
   position: relative;
   z-index: 2;
   background: #0a0a0c;
-  padding: clamp(56px, 7vw, 100px) clamp(24px, 5vw, 72px);
+  /* Asymmetric on purpose: the top padding separates the strip from the hero,
+     but the bottom one stacks with the photo rail's own lead-in below, so it
+     stays small — together they used to read as a screenful of nothing between
+     the logos and the first photo. */
+  padding: clamp(56px, 7vw, 100px) clamp(24px, 5vw, 72px) clamp(28px, 3vw, 44px);
 }
 .brands__inner { max-width: 1240px; margin: 0 auto; }
 .brands__label {
@@ -1365,24 +1369,31 @@ input::placeholder { color: #6a6a72; }
   .trail.revealed .trail__label { animation: none; }
 }
 
-/* Phones: the walk turns and heads DOWN the page. Three big labels side by
-   side wrap into a ragged mess on a narrow screen, and a downward walk is the
-   more natural read there anyway — it points at the contact form below.
-   The feet turn with it: the artwork points toes-up at 0°, so 172°/188° aims
-   them down the page with the same 8° splay the horizontal walk gets from its
-   82°/98°. Overriding `transform` outright (rather than --r / --ty) is
-   deliberate: those two live in inline styles on the markup, which a
-   stylesheet rule can't outrank. The left/right shift replaces the horizontal
-   walk's bob, so the prints straddle the centre line the way footfalls do. */
+/* Phones: the walk stays HORIZONTAL — Call → Plan → Grow reads as three steps
+   across, which is the point of the row, and stacking them down the page made
+   the section long enough to lose that. The feet keep their inline --r / --ty
+   (the sideways splay and bob), so nothing here overrides transform.
+
+   What has to give instead is the type and the spacing: at the desktop floor
+   (26px labels, 28px gaps, 40px section padding) the three labels are wider
+   than a 390px screen and wrap into a ragged mess. Scaling the labels down and
+   tightening the gaps keeps all three on one line, and flex-wrap: nowrap makes
+   that a guarantee rather than a hope. */
 @media (max-width: 720px) {
+  .process { padding-inline: 16px; }
   .trail {
-    flex-direction: column;
+    flex-direction: row;
     flex-wrap: nowrap;
-    gap: clamp(18px, 5vw, 32px);
+    justify-content: center;
+    /* Sized off the prints, not the labels: a rotated foot is ~3x its own
+       `width` across, so the gap has to clear that or the three run together. */
+    gap: clamp(24px, 9vw, 48px);
   }
   .trail__step { gap: clamp(8px, 2.4vw, 14px); }
-  .trail__step:nth-child(odd) .foot  { transform: translateX(-22px) rotate(172deg); }
-  .trail__step:nth-child(even) .foot { transform: translateX(22px) rotate(188deg); }
+  .trail__label { font-size: clamp(17px, 5vw, 26px); }
+  /* NOTE: the matching .foot img size override can't live in this block — the
+     base .foot img rule is further down the file and would win on source
+     order at equal specificity. It's in its own media block below that rule. */
 }
 
 /* The wrapper holds the walking placement (splay + vertical bob) so it
@@ -1394,6 +1405,16 @@ input::placeholder { color: #6a6a72; }
   width: clamp(40px, 5vw, 64px);
   height: auto;
   opacity: 0;                    /* hidden until the walk starts */
+}
+/* Phones, continued from the .trail block above — this has to come AFTER the
+   rule it overrides, not with the rest of the mobile trail styles.
+   The print is rotated ~90°, so what lands across the row is its LONG axis:
+   roughly 3x this `width`. At the desktop floor (40px → ~118px across) three
+   prints are wider than the row can space them, so consecutive feet overlap;
+   ~25px here puts the clearance between prints back in the same range the
+   desktop row has. */
+@media (max-width: 720px) {
+  .foot img { width: clamp(22px, 6.5vw, 40px); }
 }
 
 /* Opacity is scrubbed by scroll position in script.js: as the trail moves
@@ -1645,8 +1666,12 @@ input::placeholder { color: #6a6a72; }
    overflow all went to the right, so the centred line sat visibly off-centre.
    100% (capped at 1200px) can't outgrow its parent, so the line's centre is
    the section's centre at every width. */
+/* flex: 1 makes the statement box eat whatever height the panel has left, so
+   the line sits in the middle of the panel rather than at the top of it with
+   all the slack pooling underneath. */
 .hero-statement {
-  min-height: 62vh;
+  flex: 1;
+  min-height: 52vh;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
@@ -1824,7 +1849,7 @@ input::placeholder { color: #6a6a72; }
 .magic-scroll {
   position: relative;
   background: #0a0a0c;
-  padding: 220px 40px;
+  padding: clamp(90px, 12vw, 150px) 40px;
 }
 .magic-scroll__rail {
   max-width: 1400px;
@@ -1854,7 +1879,10 @@ input::placeholder { color: #6a6a72; }
 .magic-scroll.magic-on {
   --step-x: clamp(90px, 17vw, 260px);
   --step-y: 46vh;
-  height: 520vh;
+  /* 100vh of pin window + one --step-y per slot of travel. The slot range the
+     script drives is LEAD_IN..n (see script.js), so this height has to move
+     with LEAD_IN or the per-slot travel speed changes with it. */
+  height: 480vh;
   padding: 0;
 }
 .magic-scroll.magic-on .magic-scroll__stage {
@@ -1997,7 +2025,7 @@ input::placeholder { color: #6a6a72; }
 #siteHeader.nav-open .burger-line:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
 
 /* ============ MOBILE NAV: SIDE DRAWER ============
-   The five .nav-item links are 135–205px of fixed width each (840px in total,
+   The four .nav-item links are 135–170px of fixed width each (590px in total,
    set inline in index.html), so the desktop right-to-left fan-out physically
    cannot fit under ~1024px — it just gets clipped by <nav>'s overflow: hidden.
    Below that width the very same .nav-open state instead slides the very same
@@ -2082,7 +2110,6 @@ input::placeholder { color: #6a6a72; }
   #siteHeader.nav-open .nav-item:nth-child(2) { transition-delay: 0.12s !important; }
   #siteHeader.nav-open .nav-item:nth-child(3) { transition-delay: 0.18s !important; }
   #siteHeader.nav-open .nav-item:nth-child(4) { transition-delay: 0.24s !important; }
-  #siteHeader.nav-open .nav-item:nth-child(5) { transition-delay: 0.30s !important; }
   #siteHeader nav .nav-item:hover,
   #siteHeader nav .nav-item:focus-visible {
     color: #ffffff !important;
@@ -2226,4 +2253,590 @@ input::placeholder { color: #6a6a72; }
 @media (max-width: 640px) {
   .footer-lockup .crystal-logo { height: 96px; }
   .footer-lockup .crystal-lockup__wordmark { height: 54px; }
+}
+
+/* ============ HERO CURSOR — the crystal mark as the pointer ============
+   Same treatment as .ind-cursor above (hide the native pointer, track the
+   mouse with a fixed element), but the replacement is the real-3D crystal
+   instead of a copy box. See the markup note next to .hero-cursor in
+   index.html and the driver at the bottom of script.js.
+
+   Pointer-fine only. On touch there is no cursor to replace, and an
+   always-running WebGL canvas would be pure battery cost — the media query
+   means the element keeps its default `left` (parked far off-screen, below)
+   on phones, so the crystal module's IntersectionObserver never starts its
+   render loop there. */
+.hero-cursor {
+  position: fixed;
+  /* Parked off-screen until the pointer enters the hero. This is deliberately
+     `left`, not `display: none` or `visibility: hidden`: the crystal module
+     sizes itself from clientWidth/Height (so the box must stay laid out) and
+     gates its render loop on an IntersectionObserver (so being genuinely
+     outside the viewport is what stops it costing anything). */
+  left: -9999px;
+  top: 0;
+  z-index: 60;                 /* over the fixed header (50), same as .ind-cursor */
+  pointer-events: none;        /* never becomes the pointermove target */
+  opacity: 0;
+  transform: translate3d(var(--cx, 0), var(--cy, 0), 0) scale(.6);
+  transition: opacity .18s ease, scale .28s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+/* script.js sets left: 0 alongside this, which is what brings the element back
+   into the viewport and lets the render loop start. */
+.hero-cursor.is-visible {
+  opacity: 1;
+  transform: translate3d(var(--cx, 0), var(--cy, 0), 0) scale(1);
+}
+/* Centred on the pointer rather than hanging off it: this replaces the arrow,
+   so its middle should sit where the arrow's tip was.
+   Two classes on purpose: crystal-logo.css is linked AFTER this file (see the
+   <head>), so its `.crystal-logo { height: clamp(46px, 6.4vw, 96px) }` would
+   win on source order against a single-class rule here and the cursor would
+   size itself off the viewport width. */
+.hero-cursor .crystal-logo {
+  height: 72px;
+  /* aspect-ratio 3/4 comes from .crystal-logo in crystal-logo.css */
+  margin-left: -27px;          /* half the 54px width the 3/4 ratio gives */
+  margin-top: -36px;           /* half the height */
+  cursor: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  /* The headline is pointer-events: none and the slideshow is inert, so the
+     whole hero is one dead surface as far as hit-testing goes — hiding the
+     cursor on the section covers all of it. The CTAs and header sit OUTSIDE
+     #top in the DOM, so they keep their own pointer untouched. */
+  #top { cursor: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-cursor { transition: opacity .18s ease; }
+}
+
+/* ============ CLIENTS PAGE (clients.html) ============
+   Alternating showcase rows: a piece of work on one side, the client's name on
+   the other, with a double-chevron pointing from the name back at the work it
+   belongs to.
+
+   The alternation is one flip, not two layouts. Even rows set row-reverse on
+   BOTH the row and the label — that swings the media to the right AND moves the
+   chevron to the far side of the name — and scaleX(-1) turns the chevron around
+   to keep it aimed at the media. Change the arrow markup once and both
+   directions follow. */
+.clients-page {
+  padding: calc(74px + clamp(56px, 9vw, 120px)) clamp(24px, 5vw, 72px) clamp(80px, 12vw, 160px);
+  /* The top pad clears the fixed 74px header before the title's own space. */
+}
+
+.clients-page__title {
+  margin: 0 0 clamp(56px, 9vw, 120px);
+  text-align: center;
+  font-size: clamp(52px, 9vw, 128px);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+  color: #f2f2f4;
+}
+
+.clients-list {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(72px, 11vw, 160px);
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.client-row {
+  --client-name-size: clamp(30px, 4.6vw, 62px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(32px, 6vw, 96px);
+}
+.client-row:nth-child(even) { flex-direction: row-reverse; }
+
+/* Rows that open a case study are anchors rather than <article>s. They must
+   not inherit the global link colour, or the name loses its hover transition
+   to var(--accent). */
+.client-row--link { color: inherit; text-decoration: none; }
+.client-row--link:hover { color: inherit; }
+
+/* Media and label each take half the row, so every name starts at the same
+   distance from centre no matter how long the client's name runs. */
+.client-row__media {
+  flex: 0 1 min(560px, 46%);
+  /* Without this the figure's automatic minimum size is the photo's intrinsic
+     width, which blows the row past the viewport once the layout stacks. */
+  min-width: 0;
+  margin: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  /* The tilt is what keeps these from reading as a plain image grid. Alternated
+     with the row direction so the pair leans away from each other, never
+     parallel. */
+  transform: rotate(-1.4deg);
+  box-shadow: 0 32px 70px rgba(0, 0, 0, 0.55);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  --spot-size: 420px;
+  --spot-a1: 0.16;
+  --spot-a2: 0.05;
+}
+.client-row:nth-child(even) .client-row__media { transform: rotate(1.4deg); }
+.client-row__media:hover { transform: rotate(0deg) scale(1.02); }
+
+.client-row__media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.client-row__label {
+  flex: 0 1 min(560px, 46%);
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 2.4vw, 36px);
+}
+.client-row:nth-child(even) .client-row__label { flex-direction: row-reverse; }
+
+/* Arrows, rule and type all borrow the "say yes" CTA's treatment (see
+   .yes-cta above): the same line-arrow drawn twice with the trailing one dimmed
+   and tucked behind as an echo, and the same rounded blue rule at a fixed 0.1em
+   so it scales with the type instead of thinning out at the big end.
+
+   The arrow points at the work, so the DEFAULT is mirrored (odd rows put the
+   media on the left) and even rows — media on the right — restore it. Mirroring
+   the whole container also mirrors the echo's overlap and its hover drift, so
+   both directions lead the eye toward the image. */
+.client-row__arrows {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.02em;
+  font-size: var(--client-name-size);
+  color: var(--accent);
+  transform: scaleX(-1);
+}
+.client-row:nth-child(even) .client-row__arrows { transform: none; }
+
+.client-row__arrows svg {
+  width: 0.62em;
+  height: 0.62em;
+  display: block;
+  transition: transform .4s cubic-bezier(0.16, 1, 0.3, 1), opacity .3s ease;
+}
+.client-row__arrows svg:nth-child(2) {
+  opacity: .38;
+  margin-left: -0.34em;
+}
+.client-row:hover .client-row__arrows svg:nth-child(1) { transform: translateX(0.16em); }
+.client-row:hover .client-row__arrows svg:nth-child(2) {
+  transform: translateX(0.28em);
+  opacity: .85;
+}
+
+.client-row__name {
+  position: relative;
+  margin: 0 0 0.18em;   /* room for the rule, which hangs below the text box */
+  font-size: var(--client-name-size);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+  text-transform: lowercase;
+  color: #f2f2f4;
+  overflow-wrap: break-word;
+  transition: color .3s ease;
+}
+.client-row__name::after {
+  content: "";
+  position: absolute;
+  left: -0.02em;
+  right: -0.02em;
+  bottom: -0.16em;
+  height: 0.1em;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 28px rgba(var(--accent-rgb), .5);
+  transition: transform .4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow .4s ease;
+}
+.client-row:hover .client-row__name { color: var(--accent); }
+.client-row:hover .client-row__name::after {
+  transform: scaleY(1.35);
+  box-shadow: 0 0 44px rgba(var(--accent-rgb), .75);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .client-row__name,
+  .client-row__name::after,
+  .client-row__arrows svg { transition: none; }
+}
+
+/* Stacked below the split: work on top, name under it, and the chevron turned
+   a quarter-turn so it still points at the image it belongs to. */
+@media (max-width: 860px) {
+  .client-row,
+  .client-row:nth-child(even) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 28px;
+  }
+  .client-row__media,
+  .client-row__label { flex: 1 1 auto; }
+  .client-row__media,
+  .client-row:nth-child(even) .client-row__media { transform: none; }
+  .client-row__label,
+  .client-row:nth-child(even) .client-row__label {
+    flex-direction: row;
+    align-items: center;
+  }
+  .client-row__arrows,
+  .client-row:nth-child(even) .client-row__arrows {
+    transform: rotate(-90deg);   /* points up, at the work above it */
+  }
+}
+
+/* ============ CASE STUDY (aharon-berk.html) ============
+   The page a client row on clients.html opens into: a title in the same
+   lowercase-plus-blue-rule treatment the "say yes" CTA and the client names
+   use, then a bento grid of the work.
+
+   The bento is a 4-column grid whose cells claim their own spans through
+   modifier classes, so the mosaic is described in the HTML (this cell is tall,
+   that one is a 2x2 feature) rather than pinned to fixed positions here. Rows
+   are a fixed height and every image is object-fit: cover, so mixed source
+   ratios — 2:3 portraits, 2.16:1 panoramas, 1:1 covers — all fill their cell
+   without letterboxing. */
+.case-page {
+  padding: calc(74px + clamp(48px, 7vw, 96px)) clamp(24px, 5vw, 72px) clamp(80px, 12vw, 160px);
+}
+
+.case-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #8a8a92;
+  margin-bottom: clamp(28px, 4vw, 48px);
+}
+.case-back:hover { color: var(--accent); }
+
+.case-hero {
+  max-width: 1440px;
+  margin: 0 auto clamp(48px, 7vw, 88px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(24px, 4vw, 56px);
+}
+
+.case-hero__eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 18px;
+}
+
+/* Same rule as .yes-cta__yes / .client-row__name: fixed 0.1em so it scales
+   with the type instead of thinning out at the big end of the clamp. */
+.case-hero__title {
+  position: relative;
+  display: inline-block;
+  margin: 0 0 0.18em;
+  font-size: clamp(44px, 8vw, 108px);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+  text-transform: lowercase;
+  color: #f2f2f4;
+}
+.case-hero__title::after {
+  content: "";
+  position: absolute;
+  left: -0.02em;
+  right: -0.02em;
+  bottom: -0.16em;
+  height: 0.1em;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 28px rgba(var(--accent-rgb), .5);
+}
+
+.case-hero__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+  max-width: 380px;
+}
+.case-hero__note {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  color: #9a9aa2;
+  text-wrap: pretty;
+}
+
+/* ---- The bento itself ----
+   Ported from the "Aharonberk.com bento grid" design file, which is built on
+   the Creative Stone design system: a 12-column grid whose cells are design
+   work rather than photography, plus the site itself shown on two devices.
+
+   That file's --cs-* tokens are re-declared here against this site's own
+   palette (they already agree: same #3884ff accent, same #0a0a0c ground), so
+   the markup ports over without pulling in the whole design-system bundle. */
+.ab-bento {
+  --cs-surface: #0d0d10;
+  --cs-surface-2: #0e0e12;
+  --cs-line-2: #1c1c20;
+  --cs-line-3: #232328;
+  --cs-line-5: #2c2c32;
+  --cs-ink: #f2f2f4;
+  --cs-ink-2: #d4d4da;
+  --cs-dim: #6a6a72;
+  --cs-on-accent: #0a0a0c;
+
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: minmax(clamp(96px, 9vw, 130px), auto);
+  gap: 14px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/* Every cell is a column: a body that takes the free space, and a craft note
+   pinned under it. The note sits in normal flow rather than over the content,
+   so a caption that wraps to four lines in a narrow cell pushes the body up
+   instead of covering it. The two device mockups are the exception and are
+   handled further down. */
+.ab-cell {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--cs-line-3);
+  background: var(--cs-surface);
+  padding: clamp(18px, 2vw, 32px);
+  display: flex;
+  flex-direction: column;
+}
+
+.ab-cell__body {
+  flex: 1 1 auto;
+  min-height: 0;          /* lets image grids shrink to the space left over */
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---- Craft notes ----
+   Carried by the two logo cells and the two device shots only; the rest of the
+   grid speaks for itself. Deliberately quiet: mono, small and dim, brightening
+   on hover, so the grid reads as work first and notes second. */
+.ab-caption {
+  flex: 0 0 auto;
+  margin: 14px 0 0;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: 0.015em;
+  color: #6a6a72;
+  transition: color .3s ease;
+}
+.ab-cell:hover .ab-caption { color: #9a9aa2; }
+
+/* Spans, named for what the design file calls them. The row bands are sized to
+   close exactly across 12 columns: 6+3+3, then 8+4, then 4+4+4, then 12, then
+   3+3+6, so the mosaic packs solid instead of staircasing. */
+.ab-cell--lockup     { grid-column: span 6; grid-row: span 2; }
+.ab-cell--mark       { grid-column: span 3; grid-row: span 2; }
+.ab-cell--releases   { grid-column: span 3; grid-row: span 2; }
+.ab-cell--screen     { grid-column: span 8; grid-row: span 3; padding: 0; }
+.ab-cell--screen-alt { grid-column: span 4; grid-row: span 3; padding: 0; }
+.ab-cell--say        { grid-column: span 4; grid-row: span 2; }
+.ab-cell--tracks     { grid-column: span 4; grid-row: span 2; }
+.ab-cell--palette    { grid-column: span 4; grid-row: span 2; }
+.ab-cell--ticker     { grid-column: span 12; padding: 24px 0; background: var(--accent); color: var(--cs-on-accent); }
+.ab-cell--type       { grid-column: span 3; }
+.ab-cell--icons      { grid-column: span 3; }
+.ab-cell--site       { grid-column: span 6; background: var(--cs-surface-2); }
+
+/* The logotype stacks; the statement and the track list align left. */
+.ab-cell--lockup   .ab-cell__body { flex-direction: column; gap: clamp(10px, 1.4vw, 20px); }
+.ab-cell--say      .ab-cell__body,
+.ab-cell--tracks   .ab-cell__body,
+.ab-cell--palette  .ab-cell__body { justify-content: flex-start; }
+.ab-cell--tracks   .ab-cell__body,
+.ab-cell--palette  .ab-cell__body { flex-direction: column; align-items: stretch; justify-content: center; }
+.ab-cell--icons    .ab-cell__body { gap: 16px; }
+.ab-cell--site     .ab-cell__body { justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+
+/* The device mockups run edge to edge and the note sits over the image on a
+   scrim: there is no content underneath to push out of the way, and the
+   mockup's dark ground matches the cell so the crop reads as a bleed. */
+.ab-cell--screen .ab-cell__body,
+.ab-cell--screen-alt .ab-cell__body { height: 100%; }
+.ab-cell--screen img,
+.ab-cell--screen-alt img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+  display: block;
+  transition: transform .7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ab-cell--screen:hover img,
+.ab-cell--screen-alt:hover img { transform: scale(1.03); }
+.ab-cell--screen .ab-caption,
+.ab-cell--screen-alt .ab-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 30px clamp(14px, 1.6vw, 22px) 13px;
+  background: linear-gradient(to top, rgba(10, 10, 12, 0.94) 40%, rgba(10, 10, 12, 0));
+  pointer-events: none;
+}
+
+.ab-lockup-mark { width: min(72%, 340px); height: auto; display: block; }
+.ab-cell--mark img { width: min(58%, 140px); height: auto; display: block; }
+
+/* Rows are 1fr rather than square, and the covers carry min-height: 0, so the
+   four of them fit whatever the caption leaves rather than spilling past it. */
+.ab-releases {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+}
+.ab-releases img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+  display: block;
+}
+
+.ab-say {
+  margin: 0;
+  font-size: clamp(24px, 2.4vw, 40px);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  color: var(--cs-ink);
+}
+.ab-say em { font-style: normal; color: var(--accent); }
+
+.ab-track {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--cs-line-2);
+  font-size: 17px;
+  color: var(--cs-ink);
+  transition: color .2s ease;
+}
+.ab-track:last-child { border-bottom: none; }
+.ab-track:hover { color: var(--accent); }
+.ab-track span:last-child {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  color: var(--cs-dim);
+}
+
+.ab-swatches { display: flex; gap: 8px; width: 100%; }
+.ab-swatch { flex: 1; }
+.ab-swatch i {
+  display: block;
+  height: clamp(34px, 4vw, 56px);
+  border: 1px solid var(--cs-line-2);
+}
+.ab-swatch span {
+  display: block;
+  margin-top: 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--cs-dim);
+}
+
+/* Two identical runs side by side, the second aria-hidden, translated -50% so
+   the loop is seamless. */
+.ab-ticker { width: 100%; overflow: hidden; }
+.ab-ticker__run {
+  display: flex;
+  width: max-content;
+  animation: ab-ticker 32s linear infinite;
+}
+.ab-ticker__run > div {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding-right: 28px;
+  font-size: clamp(26px, 3.2vw, 50px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+@keyframes ab-ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.ab-type-specimen {
+  font-size: clamp(34px, 4vw, 48px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  color: var(--cs-ink);
+}
+.ab-cell--icons img { height: 24px; width: auto; filter: brightness(0) invert(1); }
+
+.ab-site__url { font-size: 17px; color: var(--cs-ink-2); }
+.ab-site__link {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  border: 1px solid var(--cs-line-5);
+  padding: 12px 20px;
+  transition: border-color .2s ease, color .2s ease;
+}
+.ab-site__link:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Below the split the grid keeps its 12 columns and only the SPANS change, so
+   cells simply claim more of the same tracks. Overriding grid-template-columns
+   here did not survive the cascade on this page, and spans are the sturdier
+   lever anyway: one number per cell, no second track definition to keep in
+   sync. Full width is span 12, half is span 6. */
+@media (max-width: 900px) {
+  .ab-cell--lockup     { grid-column: span 12; grid-row: span 2; }
+  .ab-cell--mark       { grid-column: span 6; grid-row: span 2; }
+  .ab-cell--releases   { grid-column: span 6; grid-row: span 2; }
+  .ab-cell--screen     { grid-column: span 12; grid-row: span 3; }
+  .ab-cell--screen-alt { grid-column: span 12; grid-row: span 3; }
+  .ab-cell--say        { grid-column: span 12; grid-row: span 1; }
+  .ab-cell--tracks     { grid-column: span 12; grid-row: span 2; }
+  .ab-cell--palette    { grid-column: span 12; grid-row: span 1; }
+  .ab-cell--type       { grid-column: span 6; }
+  .ab-cell--icons      { grid-column: span 6; }
+  .ab-cell--site       { grid-column: span 12; }
+}
+
+@media (max-width: 560px) {
+  .ab-cell--mark,
+  .ab-cell--releases { grid-column: span 12; }
+  .ab-cell--site .ab-cell__body { justify-content: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ab-ticker__run { animation: none; }
+  .ab-track { transition: none; }
+  .ab-cell--screen img,
+  .ab-cell--screen-alt img { transition: none; }
 }

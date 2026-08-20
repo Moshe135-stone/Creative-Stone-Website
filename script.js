@@ -826,9 +826,14 @@ document.querySelectorAll(
 
 // Magic scroll: drives the diagonal rail in the black & white photo section
 // (see .magic-scroll in styles.css). Progress through the tall section maps to
-// --focus — the rail slot currently centred — which runs from -1 (slot 0 still
-// off the bottom-right) to N (the last slot gone past the top-left), so every
-// item crosses the screen. Each item's scale/opacity comes from how far it is
+// --focus — the rail slot currently centred — which runs from LEAD_IN (slot 0
+// still short of centre, down toward the bottom-right) to N (the last slot gone
+// past the top-left), so every item crosses the screen. LEAD_IN was -1, a full
+// slot's worth of scrolling with the first line still off in the corner, which
+// read as dead space between the brands strip and the first photo; a shorter
+// lead-in starts the rail closer to centre. Keep .magic-scroll.magic-on's
+// height in styles.css in step with it.
+// Each item's scale/opacity comes from how far it is
 // from centre, giving the pass-through-the-middle "focus" feel. Adding
 // .magic-on is what switches the section out of its plain stacked fallback, so
 // reduced motion simply leaves the fallback in place.
@@ -844,6 +849,7 @@ document.querySelectorAll(
   section.classList.add('magic-on');
 
   var n = items.length;
+  var LEAD_IN = -0.3;
   var ticking = false;
 
   function update() {
@@ -853,7 +859,7 @@ document.querySelectorAll(
     if (distance <= 0) return;
 
     var p = Math.min(1, Math.max(0, -rect.top / distance));
-    var focus = -1 + p * (n + 1);
+    var focus = LEAD_IN + p * (n - LEAD_IN);
     rail.style.setProperty('--focus', focus.toFixed(4));
 
     items.forEach(function (el, i) {
@@ -1198,3 +1204,81 @@ document.querySelectorAll('.photo-spotlight').forEach(function (tile) {
     tile.style.setProperty('--my', '-9999px');
   });
 });
+
+// Hero cursor: over #top the native arrow is hidden (see #top { cursor: none }
+// in styles.css) and the 3D crystal mark rides the pointer instead. The crystal
+// itself is not built here — assets/crystal/crystal-logo.js auto-starts every
+// [data-crystal-logo] element, and .hero-cursor's child carries that attribute.
+// All this does is place the box and decide when it is on.
+//
+// Two things are load-bearing:
+//   • Parking. Inactive means left:-9999px, not display:none. The crystal
+//     module measures itself from clientWidth/Height (needs a real layout box)
+//     and gates its render loop on an IntersectionObserver — so moving the
+//     element genuinely outside the viewport is what makes the WebGL loop stop.
+//     Merely fading it to opacity 0 would leave it rendering forever.
+//   • Hit-testing, not geometry, decides "in the hero". The CTAs and the header
+//     are fixed elements sitting OVER #top but outside it in the DOM; a
+//     pointer-in-rect test would keep the crystal up while the pointer is on a
+//     button, fighting that button's own pointer. closest('#top') hands us the
+//     right answer for free, and .hero-cursor is pointer-events: none so it can
+//     never be the target it is testing.
+(function () {
+  var box = document.querySelector('.hero-cursor');
+  var hero = document.getElementById('top');
+  if (!box || !hero) return;
+  var crystal = box.querySelector('.crystal-logo');
+
+  // Touch/coarse pointers: nothing to replace, and the styles never hide the
+  // native cursor there either. Leave the element parked so the crystal
+  // module's observer keeps its render loop off.
+  if (!window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+  var x = 0, y = 0, ticking = false, on = false;
+
+  function place() {
+    ticking = false;
+    box.style.setProperty('--cx', x + 'px');
+    box.style.setProperty('--cy', y + 'px');
+  }
+
+  function show(next) {
+    if (next === on) return;
+    on = next;
+    // left is what moves it in and out of the viewport (and so what starts and
+    // stops the render loop); the class only handles the fade and scale.
+    box.style.left = next ? '0px' : '';
+    box.classList.toggle('is-visible', next);
+
+    // Wake the crystal's lit state. The module raises its glow, starts the
+    // light sweep and turns the sparkles on from pointerenter on its own
+    // container — which can never fire here, because this whole element is
+    // pointer-events: none so that it doesn't eat the hit-test it depends on.
+    // Synthesising the module's own events is how it gets the hover look
+    // without reaching into its internals; pointerleave on the way out stops
+    // the sweep repeating while parked.
+    if (crystal) {
+      crystal.dispatchEvent(new PointerEvent(next ? 'pointerenter' : 'pointerleave'));
+    }
+  }
+
+  document.addEventListener('pointermove', function (e) {
+    var inHero = !!(e.target.closest && e.target.closest('#top'));
+    if (inHero) {
+      x = e.clientX;
+      y = e.clientY;
+      if (!ticking) { ticking = true; requestAnimationFrame(place); }
+    }
+    show(inHero);
+  }, { passive: true });
+
+  // Pointer left the window entirely (relatedTarget null), or the hero scrolled
+  // out from under a stationary pointer.
+  document.addEventListener('pointerout', function (e) {
+    if (!e.relatedTarget) show(false);
+  }, { passive: true });
+
+  window.addEventListener('scroll', function () {
+    if (on && hero.getBoundingClientRect().bottom <= 0) show(false);
+  }, { passive: true });
+})();

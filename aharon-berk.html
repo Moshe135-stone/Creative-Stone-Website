@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aharon Berk | Creative Stone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<!-- Same header/burger/drawer as the rest of the site; script.js drives all
+     three off #siteHeader/#navToggle. -->
+<header id="siteHeader" style="position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; height: 74px; padding: 0 40px; background: rgba(10, 10, 12, 0.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid #1c1c20;">
+  <a href="index.html" style="display: flex; align-items: center;">
+    <img src="assets/logo.svg" alt="Creative Stone" style="height: 34px; width: auto; display: block;">
+  </a>
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <nav style="display: flex; align-items: center; gap: 0; overflow: hidden;">
+      <a href="index.html#services" class="btn-outline nav-item" style="width: 150px; font-size: 20px; font-weight: 600; transition-delay: 0.18s;">
+        <span class="nav-slide-label nav-slide-original">services</span>
+        <span class="nav-slide-label nav-slide-duplicate">services</span>
+      </a>
+      <a href="index.html#industries" class="btn-outline nav-item" style="width: 170px; font-size: 20px; font-weight: 600; transition-delay: 0.12s;">
+        <span class="nav-slide-label nav-slide-original">industries</span>
+        <span class="nav-slide-label nav-slide-duplicate">industries</span>
+      </a>
+      <a href="clients.html" class="btn-outline nav-item" style="width: 135px; font-size: 20px; font-weight: 600; transition-delay: 0.06s;">
+        <span class="nav-slide-label nav-slide-original">clients</span>
+        <span class="nav-slide-label nav-slide-duplicate">clients</span>
+      </a>
+      <a href="plans.html" class="btn-outline nav-item" style="width: 135px; font-size: 20px; font-weight: 600; transition-delay: 0s;">
+        <span class="nav-slide-label nav-slide-original">pricing</span>
+        <span class="nav-slide-label nav-slide-duplicate">pricing</span>
+      </a>
+    </nav>
+    <button id="navToggle" aria-expanded="false" aria-label="Toggle menu" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; width: 44px; height: 44px; padding: 0; flex-shrink: 0;">
+      <span class="burger-line"></span>
+      <span class="burger-line"></span>
+      <span class="burger-line"></span>
+    </button>
+  </div>
+</header>
+
+<!-- ============ CASE STUDY ============ -->
+<main class="case-page">
+  <a href="clients.html" class="case-back">&larr; clients</a>
+
+  <div class="case-hero">
+    <div>
+      <p class="case-hero__eyebrow">client</p>
+      <h1 class="case-hero__title">aharon berk</h1>
+    </div>
+    <div class="case-hero__meta">
+      <p class="case-hero__note">Brand and website for the singer. Performance, weddings and released music, pulled into one identity.</p>
+      <a href="https://aharonberk.com" class="btn-outline" target="_blank" rel="noopener noreferrer" style="padding: 12px 22px; font-size: 15px; font-weight: 600;">visit aharonberk.com</a>
+    </div>
+  </div>
+
+  <div class="ab-bento">
+
+    <figure class="ab-cell ab-cell--lockup reveal">
+      <div class="ab-cell__body">
+        <img class="ab-lockup-mark" src="assets/clients/aharon-berk/wordmark-aharon.svg" alt="Aharon logotype">
+        <img class="ab-lockup-mark" src="assets/clients/aharon-berk/wordmark-berk.svg" alt="Berk logotype">
+      </div>
+      <p class="ab-caption">Logotype set in a high contrast serif, both words trimmed to the same width so the stack locks up as one mark.</p>
+    </figure>
+
+    <div class="ab-cell ab-cell--mark reveal">
+      <div class="ab-cell__body">
+        <img src="assets/clients/aharon-berk/monogram.svg" alt="AB monogram">
+      </div>
+      <p class="ab-caption">Monogram cut from the same serif, counters opened up so it still holds at favicon size.</p>
+    </div>
+
+    <div class="ab-cell ab-cell--releases reveal">
+      <div class="ab-cell__body">
+        <div class="ab-releases">
+          <img src="assets/clients/aharon-berk/cover-mi-adir.jpg" alt="Mi Adir (Avdecha) cover" loading="lazy" decoding="async">
+          <img src="assets/clients/aharon-berk/cover-40-days.webp" alt="40 Days cover" loading="lazy" decoding="async">
+          <img src="assets/clients/aharon-berk/cover-nafsheinu.webp" alt="Nafsheinu cover" loading="lazy" decoding="async">
+          <img src="assets/clients/aharon-berk/cover-piha-pascha.webp" alt="Piha Pascha cover" loading="lazy" decoding="async">
+        </div>
+      </div>
+    </div>
+
+    <!-- The site itself, desktop and mobile, from Pics/AB. -->
+    <figure class="ab-cell ab-cell--screen reveal">
+      <div class="ab-cell__body">
+        <img src="assets/clients/aharon-berk/site-desktop.jpg" alt="aharonberk.com contact page on a laptop" loading="lazy" decoding="async">
+      </div>
+      <p class="ab-caption">Dark first layout. The enquiry form takes the left column, the performance photography carries the right.</p>
+    </figure>
+
+    <figure class="ab-cell ab-cell--screen-alt reveal">
+      <div class="ab-cell__body">
+        <img src="assets/clients/aharon-berk/site-mobile.jpg" alt="aharonberk.com home screen on a phone" loading="lazy" decoding="async">
+      </div>
+      <p class="ab-caption">The same hero rebuilt for a thumb. Menu to the corner, mark and channels stacked above the fold.</p>
+    </figure>
+
+    <div class="ab-cell ab-cell--say reveal">
+      <div class="ab-cell__body">
+        <p class="ab-say">Music rooted in <em>meaning</em></p>
+      </div>
+    </div>
+
+    <div class="ab-cell ab-cell--tracks reveal">
+      <div class="ab-cell__body">
+          <div class="ab-track"><span>Vehi She'amda</span><span>3:29</span></div>
+          <div class="ab-track"><span>V'erastich Li</span><span>3:46</span></div>
+          <div class="ab-track"><span>Tefilas HaEmunah</span><span>5:11</span></div>
+          <div class="ab-track"><span>Halev Sheli</span><span>3:57</span></div>
+      </div>
+    </div>
+
+    <div class="ab-cell ab-cell--palette reveal">
+      <div class="ab-cell__body">
+        <div class="ab-swatches">
+            <div class="ab-swatch"><i style="background: #0a0a0c;"></i><span>ground</span></div>
+            <div class="ab-swatch"><i style="background: #3884ff;"></i><span>accent</span></div>
+            <div class="ab-swatch"><i style="background: #f2f2f4;"></i><span>ink</span></div>
+            <div class="ab-swatch"><i style="background: #232328;"></i><span>line</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ab-cell ab-cell--ticker reveal">
+      <div class="ab-cell__body">
+        <div class="ab-ticker">
+          <div class="ab-ticker__run">
+            <div><span>40 Days</span><span>&#10022;</span><span>V'erastich Li</span><span>&#10022;</span><span>Halev Sheli</span><span>&#10022;</span><span>Tefilas HaEmunah</span><span>&#10022;</span><span>Nafsheinu</span><span>&#10022;</span><span>Piha Pascha</span><span>&#10022;</span><span>Keitzad</span><span>&#10022;</span><span>Lecha Dodi</span><span>&#10022;</span></div>
+            <div aria-hidden="true"><span>40 Days</span><span>&#10022;</span><span>V'erastich Li</span><span>&#10022;</span><span>Halev Sheli</span><span>&#10022;</span><span>Tefilas HaEmunah</span><span>&#10022;</span><span>Nafsheinu</span><span>&#10022;</span><span>Piha Pascha</span><span>&#10022;</span><span>Keitzad</span><span>&#10022;</span><span>Lecha Dodi</span><span>&#10022;</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ab-cell ab-cell--type reveal">
+      <div class="ab-cell__body">
+        <span class="ab-type-specimen">Aa</span>
+      </div>
+    </div>
+
+    <div class="ab-cell ab-cell--icons reveal">
+      <div class="ab-cell__body">
+        <img src="assets/clients/aharon-berk/icon-whatsapp.svg" alt="WhatsApp">
+        <img src="assets/clients/aharon-berk/icon-email.svg" alt="Email">
+        <img src="assets/clients/aharon-berk/icon-instagram.svg" alt="Instagram">
+        <img src="assets/clients/aharon-berk/icon-spotify.svg" alt="Spotify">
+      </div>
+    </div>
+
+    <div class="ab-cell ab-cell--site reveal">
+      <div class="ab-cell__body">
+        <span class="ab-site__url">aharonberk.com</span>
+        <a class="ab-site__link" href="https://aharonberk.com" target="_blank" rel="noopener noreferrer">visit the site &#10230;</a>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<footer style="border-top: 1px solid #1c1c20; padding: 40px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 20px 28px;">
+  <nav style="display: flex; gap: 28px; font-size: 14px;">
+    <a href="index.html#services" style="color: #8a8a92;">services</a>
+    <a href="index.html#industries" style="color: #8a8a92;">industries</a>
+    <a href="clients.html" style="color: #8a8a92;">clients</a>
+    <a href="plans.html" style="color: #8a8a92;">pricing</a>
+    <a href="index.html#contact" style="color: #8a8a92;">contact</a>
+  </nav>
+  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #55555c;">&copy; 2026 Creative Stone. All rights reserved.</span>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
