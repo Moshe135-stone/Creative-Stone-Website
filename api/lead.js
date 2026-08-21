@@ -72,31 +72,73 @@ async function verifyHuman(token, ip) {
   }
 }
 
+// Airtable rejects an entire write if it contains one field name the table
+// does not have, which makes a partially-built table an all-or-nothing failure.
+// So we send everything we know, drop whatever Airtable names in the error, and
+// retry. The upshot: the table only needs the columns you care about today, and
+// the moment you add "Priority" or "Services" they start filling in with no code
+// change. Dropped fields are logged, never silently swallowed.
+async function writeFields(url, method, fields) {
+  const payload = Object.assign({}, fields);
+  const dropped = [];
+
+  for (let attempt = 0; attempt < 12; attempt++) {
+    const res = await fetch(url, {
+      method: method,
+      headers: {
+        Authorization: `Bearer ${process.env.AIRTABLE_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ fields: payload, typecast: true }),
+    });
+
+    if (res.ok) {
+      if (dropped.length) {
+        console.warn(`airtable: skipped ${dropped.join(', ')}`);
+      }
+      return res.json();
+    }
+
+    // Two ways a column can be unwritable, both worth surviving: it does not
+    // exist, or it exists but Airtable computes it (a Created time field, a
+    // formula, an autonumber). Either way, drop it and retry.
+    const text = await res.text();
+    const missing = text.match(/Unknown field name:\s*\\?"([^"\\]+)/i);
+    const computed = text.match(/Field\s+\\?"([^"\\]+)\\?"\s+cannot accept a value/i);
+    const hit = missing || computed;
+    if (hit && hit[1] in payload) {
+      delete payload[hit[1]];
+      dropped.push(`${hit[1]} (${missing ? 'no such column' : 'computed by Airtable'})`);
+      continue;
+    }
+
+    // A third case: the column exists and is writable, but wants a different
+    // type than we sent. A number going into a text column is the common one
+    // (Airtable's typecast does not cover it). Retry that field as a string
+    // rather than losing the value, so this works whether Score is a Number
+    // field or a text one.
+    const mistyped = text.match(/Cannot parse value for field ([^"\\]+)/i);
+    if (mistyped && typeof payload[mistyped[1]] === 'number') {
+      payload[mistyped[1]] = String(payload[mistyped[1]]);
+      continue;
+    }
+
+    throw new Error(`airtable ${method} ${res.status}: ${text}`);
+  }
+  throw new Error('airtable: too many unknown field names');
+}
+
 async function createLead(fields) {
   const table = encodeURIComponent(process.env.AIRTABLE_TABLE || 'Leads');
-  const res = await fetch(`${AIRTABLE_API}/${process.env.AIRTABLE_BASE_ID}/${table}`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${process.env.AIRTABLE_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ fields, typecast: true }),
-  });
-  if (!res.ok) throw new Error(`airtable create ${res.status}: ${await res.text()}`);
-  return (await res.json()).id;
+  const url = `${AIRTABLE_API}/${process.env.AIRTABLE_BASE_ID}/${table}`;
+  const record = await writeFields(url, 'POST', fields);
+  return record.id;
 }
 
 async function updateLead(recordId, fields) {
   const table = encodeURIComponent(process.env.AIRTABLE_TABLE || 'Leads');
-  const res = await fetch(`${AIRTABLE_API}/${process.env.AIRTABLE_BASE_ID}/${table}/${recordId}`, {
-    method: 'PATCH',
-    headers: {
-      Authorization: `Bearer ${process.env.AIRTABLE_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ fields, typecast: true }),
-  });
-  if (!res.ok) throw new Error(`airtable update ${res.status}: ${await res.text()}`);
+  const url = `${AIRTABLE_API}/${process.env.AIRTABLE_BASE_ID}/${table}/${recordId}`;
+  await writeFields(url, 'PATCH', fields);
 }
 
 async function sendEmail(payload) {
@@ -207,12 +249,17 @@ module.exports = async function handler(req, res) {
   let recordId;
   try {
     recordId = await createLead({
-      'First Name': firstName,
-      'Last Name': lastName,
+      'First name': firstName,
+      'Last name': lastName,
       Email: email,
-      'Business Type': businessTypeLabel,
+      'Business type': businessTypeLabel,
+      // Your "Submitted" column is a computed Airtable field, so it fills
+      // itself and rejects writes. Sent anyway and dropped automatically, which
+      // keeps working if you ever swap it for a plain date field.
+      Submitted: new Date().toISOString(),
+      // No column for this today. writeFields drops what Airtable rejects, so
+      // it starts populating if you add the column later.
       Services: services,
-      'Submitted At': new Date().toISOString(),
     });
   } catch (err) {
     console.error(err);
@@ -258,6 +305,7 @@ site whenever suits you.</p>
     const score = await scoreLead(lead);
     await updateLead(recordId, {
       Score: score.score,
+      // Same story: filled in automatically if these columns appear later.
       'Score Reason': score.reason,
       Priority: score.priority,
     });
