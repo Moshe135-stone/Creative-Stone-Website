@@ -493,7 +493,7 @@
     <div class="contact__intro">
       <h2 class="contact__title">Let's get acquainted</h2>
       <div class="contact__blurb-wrap">
-        <p class="contact__blurb">Book a 15-minute fit call. Straight answers, no pitch. We'll tell you honestly whether we're a match.</p>
+        <p class="contact__blurb">Tell us about your business. Straight answers, no pitch. We'll come back with an honest read on whether we're a match.</p>
       </div>
     </div>
 
@@ -521,7 +521,23 @@
         <div class="svc-picked__chips"></div>
       </div>
 
-      <!-- Swipe to submit. The handle is type="button", not a submit: pointer
+      <!-- Cloudflare Turnstile. Invisible unless the visitor looks automated.
+           The widget injects a hidden "cf-turnstile-response" input into this
+           form, which rides along in the FormData and is verified server side
+           against TURNSTILE_SECRET_KEY. The site key below is public by
+           design: it identifies the widget, it does not authorise anything.
+           Replace the placeholder with the site key from your Turnstile
+           dashboard. -->
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAAEW-O6ifhY9JcaKa" data-theme="dark" data-size="flexible"></div>
+
+      <!-- Sending / error state for the submit, driven by script.js. -->
+      <p id="formError" class="contact__error" hidden role="alert"></p>
+
+      <!-- Swipe to send. This submits the form to /api/lead; it does NOT open
+           the Cal.com popup, which lives only on the two "book a 15-minute
+           call" CTAs (the hero button and the "say yes" button).
+
+           The handle is type="button", not a submit: pointer
            users have to drag it the length of the track, which is the whole
            point of the control. Keyboard users press Enter/Space on it (or
            use the arrow keys) and script.js submits the form for them, so the
@@ -529,8 +545,8 @@
       <div class="swipe" id="swipeSubmit">
         <div class="swipe__track">
           <span class="swipe__fill" aria-hidden="true"></span>
-          <span class="swipe__label" aria-hidden="true">swipe to book a 15-minute fit call</span>
-          <button type="button" class="swipe__handle" aria-label="Swipe to submit, or press Enter">
+          <span class="swipe__label" aria-hidden="true">swipe to send</span>
+          <button type="button" class="swipe__handle" aria-label="Swipe to send, or press Enter">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
           </button>
         </div>
@@ -539,7 +555,7 @@
 
     <div id="formSuccess" class="contact__success">
       <span class="contact__success-tag">request received</span>
-      <p class="contact__success-copy">Thanks. We'll reach out shortly to find a time that works.</p>
+      <p class="contact__success-copy">Thanks. We have your details and we'll be in touch shortly.</p>
     </div>
   </div>
 </section>
@@ -614,6 +630,10 @@
 
 <!-- Footer crystal mark. type="module" matters — it reads the importmap above. -->
 <script type="module" src="assets/crystal/crystal-logo.js?v=1"></script>
+
+<!-- Cloudflare Turnstile. Renders the .cf-turnstile div in the contact form
+     and keeps its token fresh. Deferred: nothing above the fold needs it. -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
 <!-- Cal.com element-click embed: initialises the "15-minute-phone-call" popup.
      Any element with the matching data-cal-* attributes (the hero CTA) opens

@@ -25,20 +25,67 @@ document.querySelectorAll('.hero-cta[data-cal-link]').forEach(function (el) {
   el.addEventListener('focus', preload);
 });
 
+// Contact form submit. Posts the whole form (including the hidden services
+// field from the grid above, and Turnstile's injected cf-turnstile-response
+// token) to /api/lead, which verifies the token, stores the lead, sends the
+// two emails and scores it.
+//
+// This form captures details. It does not open the Cal.com popup, which is
+// wired only to the two "book a 15-minute call" CTAs.
+//
+// The swipe control locks itself the moment it fires, so on failure we have to
+// hand it back deliberately via the cs:submit-failed event, or the visitor is
+// staring at a spent control with no way to retry.
 document.getElementById('contactForm')?.addEventListener('submit', function (e) {
   e.preventDefault();
 
-  // Record the whole submission — including the services picked on the grid
-  // above (carried in via the hidden #servicesField) — into localStorage so
-  // it's kept for whoever wires this form up to a real backend later.
+  var form = this;
+  var errorEl = document.getElementById('formError');
   var data = {};
-  new FormData(this).forEach(function (value, key) { data[key] = value; });
+  new FormData(form).forEach(function (value, key) { data[key] = value; });
+
+  // Kept from the original handler: a local copy costs nothing and means a
+  // network failure never loses what the visitor typed.
   try {
     localStorage.setItem('cs_last_submission', JSON.stringify(data));
-  } catch (err) { /* private mode / storage disabled — non-fatal */ }
+  } catch (err) { /* private mode / storage disabled, non-fatal */ }
 
-  this.style.display = 'none';
-  document.getElementById('formSuccess').style.display = 'flex';
+  function fail(message) {
+    if (errorEl) {
+      errorEl.textContent = message;
+      errorEl.hidden = false;
+    }
+    form.dispatchEvent(new CustomEvent('cs:submit-failed'));
+    // Turnstile tokens are single use, so a retry needs a fresh one.
+    if (window.turnstile && typeof window.turnstile.reset === 'function') {
+      window.turnstile.reset();
+    }
+  }
+
+  if (errorEl) errorEl.hidden = true;
+  form.classList.add('is-sending');
+
+  fetch('/api/lead', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+    .then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (payload) {
+        if (!res.ok) throw new Error(payload.error || 'Something went wrong. Please try again.');
+        return payload;
+      });
+    })
+    .then(function () {
+      form.style.display = 'none';
+      document.getElementById('formSuccess').style.display = 'flex';
+    })
+    .catch(function (err) {
+      fail(err.message || 'Something went wrong. Please try again.');
+    })
+    .then(function () {
+      form.classList.remove('is-sending');
+    });
 });
 
 // Swipe to submit on the contact form. Dragging the handle the length of the
@@ -121,6 +168,15 @@ document.getElementById('contactForm')?.addEventListener('submit', function (e) 
   }
   handle.addEventListener('pointerup', end);
   handle.addEventListener('pointercancel', end);
+
+  // The submit handler fires this when /api/lead rejects the lead. Without it
+  // the control stays latched at the end of the track and the visitor has no
+  // way to try again.
+  form.addEventListener('cs:submit-failed', function () {
+    done = false;
+    root.classList.remove('is-complete');
+    reset();
+  });
 
   // Keyboard path: Enter/Space submits outright, arrows nudge it along so the
   // control still behaves like something you move.

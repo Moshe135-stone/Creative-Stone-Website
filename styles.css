@@ -2840,3 +2840,27 @@ input::placeholder { color: #6a6a72; }
   .ab-cell--screen img,
   .ab-cell--screen-alt img { transition: none; }
 }
+
+/* ============ CONTACT FORM: SENDING + ERROR STATES ============
+   The swipe control latches when it fires, so these two states are the only
+   feedback between the gesture and either the success panel or a retry. */
+.contact__error {
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 107, 107, 0.4);
+  background: rgba(255, 107, 107, 0.08);
+  color: #ff9d9d;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Dim and lock the form while the request is in flight. The swipe control has
+   already latched itself, so this is about the inputs behind it. */
+.contact__form.is-sending {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Turnstile renders an iframe; give it room without letting it stretch the
+   form's rhythm when it is in its invisible state. */
+.cf-turnstile { min-height: 0; }

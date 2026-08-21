@@ -1,0 +1,15 @@
+# Secrets. Never commit these.
+.env
+.env.local
+.env.*.local
+
+# macOS
+.DS_Store
+
+# Dependencies / build output
+node_modules/
+.next/
+dist/
+
+# Vercel
+.vercel
