@@ -72,14 +72,30 @@ async function verifyHuman(token, ip) {
   }
 }
 
-// Airtable rejects an entire write if it contains one field name the table
-// does not have, which makes a partially-built table an all-or-nothing failure.
-// So we send everything we know, drop whatever Airtable names in the error, and
-// retry. The upshot: the table only needs the columns you care about today, and
-// the moment you add "Priority" or "Services" they start filling in with no code
+// What the table turned out not to accept, remembered across invocations.
+// A serverless function keeps its module scope between warm requests, so the
+// first submission after a cold start pays for discovering the schema and the
+// rest reuse it. Without this every single lead re-learns the same shape, which
+// measured at roughly two wasted seconds per submission.
+//
+// This is a cache of failures, not of schema: it only ever grows from real
+// rejections, and a cold start re-checks from scratch. So adding a column still
+// takes effect, just on the next cold start rather than instantly.
+const unwritable = new Set();   // column absent, or computed by Airtable
+const needsString = new Set();  // column exists but wants text, not a number
+
+// Airtable rejects an entire write if it contains one field name the table does
+// not have, which makes a partially-built table an all-or-nothing failure. So we
+// send everything we know, drop whatever Airtable names in the error, and retry.
+// The upshot: the table only needs the columns you care about today, and the
+// moment you add "Priority" or "Services" they start filling in with no code
 // change. Dropped fields are logged, never silently swallowed.
 async function writeFields(url, method, fields) {
-  const payload = Object.assign({}, fields);
+  const payload = {};
+  for (const key of Object.keys(fields)) {
+    if (unwritable.has(key)) continue;
+    payload[key] = needsString.has(key) ? String(fields[key]) : fields[key];
+  }
   const dropped = [];
 
   for (let attempt = 0; attempt < 12; attempt++) {
@@ -108,6 +124,7 @@ async function writeFields(url, method, fields) {
     const hit = missing || computed;
     if (hit && hit[1] in payload) {
       delete payload[hit[1]];
+      unwritable.add(hit[1]);
       dropped.push(`${hit[1]} (${missing ? 'no such column' : 'computed by Airtable'})`);
       continue;
     }
@@ -120,6 +137,7 @@ async function writeFields(url, method, fields) {
     const mistyped = text.match(/Cannot parse value for field ([^"\\]+)/i);
     if (mistyped && typeof payload[mistyped[1]] === 'number') {
       payload[mistyped[1]] = String(payload[mistyped[1]]);
+      needsString.add(mistyped[1]);
       continue;
     }
 
