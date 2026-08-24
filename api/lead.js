@@ -108,11 +108,15 @@ const needsString = new Set();  // column exists but wants text, not a number
 // The upshot: the table only needs the columns you care about today, and the
 // moment you add "Priority" or "Services" they start filling in with no code
 // change. Dropped fields are logged, never silently swallowed.
+function toText(value) {
+  return Array.isArray(value) ? value.join(', ') : String(value);
+}
+
 async function writeFields(url, method, fields) {
   const payload = {};
   for (const key of Object.keys(fields)) {
     if (unwritable.has(key)) continue;
-    payload[key] = needsString.has(key) ? String(fields[key]) : fields[key];
+    payload[key] = needsString.has(key) ? toText(fields[key]) : fields[key];
   }
   const dropped = [];
 
@@ -153,8 +157,8 @@ async function writeFields(url, method, fields) {
     // rather than losing the value, so this works whether Score is a Number
     // field or a text one.
     const mistyped = text.match(/Cannot parse value for field ([^"\\]+)/i);
-    if (mistyped && typeof payload[mistyped[1]] === 'number') {
-      payload[mistyped[1]] = String(payload[mistyped[1]]);
+    if (mistyped && mistyped[1] in payload && !needsString.has(mistyped[1])) {
+      payload[mistyped[1]] = toText(payload[mistyped[1]]);
       needsString.add(mistyped[1]);
       continue;
     }
@@ -287,6 +291,12 @@ module.exports = async function handler(req, res) {
     });
   }
 
+  // The grid posts "Websites, Branding" and none of the option names contain a
+  // comma, so splitting on it is safe.
+  const serviceList = services
+    ? services.split(',').map(function (s) { return s.trim(); }).filter(Boolean)
+    : [];
+
   const businessTypeLabel = BUSINESS_LABELS[businessType] || businessType;
   const lead = { firstName, lastName, email, businessType, businessTypeLabel, services };
 
@@ -303,9 +313,13 @@ module.exports = async function handler(req, res) {
       // itself and rejects writes. Sent anyway and dropped automatically, which
       // keeps working if you ever swap it for a plain date field.
       Submitted: new Date().toISOString(),
-      // No column for this today. writeFields drops what Airtable rejects, so
-      // it starts populating if you add the column later.
-      Services: services,
+      // An array, not the comma-joined string, because Services is a Multiple
+      // select: an array gives Airtable discrete options with no reliance on
+      // typecast splitting a string. When nothing was picked this is [], which
+      // clears the cell — sending '' instead made typecast mint a junk blank
+      // option, which is what the first live lead did. If the column is ever
+      // retyped to text, writeFields retries it joined.
+      Services: serviceList,
     });
   } catch (err) {
     console.error(err);
