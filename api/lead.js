@@ -54,8 +54,18 @@ function escapeHtml(value) {
 // Turnstile answers with { success: boolean, "error-codes": [...] }. Anything
 // other than an explicit success is treated as a failure, including a network
 // error reaching Cloudflare: failing open here would defeat the point.
+//
+// The error codes are the only way to tell the failure modes apart, and they
+// are worth keeping: "invalid-input-secret" means the key in this environment
+// is wrong, "timeout-or-duplicate" means the visitor sat on the page longer
+// than the token's ~300s life (or resubmitted a spent one), and
+// "invalid-input-response" means the token was never valid. Collapsing all of
+// them into one message is what made this undiagnosable from production.
 async function verifyHuman(token, ip) {
-  if (!token) return false;
+  if (!token) {
+    console.warn('turnstile: submission carried no token');
+    return { ok: false, codes: ['missing-input-response'] };
+  }
   const body = new URLSearchParams({
     secret: process.env.TURNSTILE_SECRET_KEY || '',
     response: token,
@@ -65,10 +75,18 @@ async function verifyHuman(token, ip) {
   try {
     const res = await fetch(TURNSTILE_VERIFY, { method: 'POST', body });
     const data = await res.json();
-    return data.success === true;
+    const codes = data['error-codes'] || [];
+    if (data.success !== true) {
+      console.warn('turnstile rejected: ' + JSON.stringify({
+        codes: codes,
+        hostname: data.hostname,
+        challenge_ts: data.challenge_ts,
+      }));
+    }
+    return { ok: data.success === true, codes: codes };
   } catch (err) {
     console.error('turnstile verify failed', err);
-    return false;
+    return { ok: false, codes: ['internal-error'] };
   }
 }
 
@@ -255,8 +273,18 @@ module.exports = async function handler(req, res) {
   }
 
   const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim();
-  if (!(await verifyHuman(token, ip))) {
-    return res.status(403).json({ error: 'Could not verify you are human. Please reload and try again.' });
+  const verdict = await verifyHuman(token, ip);
+  if (!verdict.ok) {
+    // An expired token is the one failure the visitor can fix by simply trying
+    // again, and it is the likeliest on a long page: the widget solves on
+    // render, near the top, while the form sits at the bottom. script.js
+    // already calls turnstile.reset() on failure, so a retry gets a fresh one.
+    const stale = verdict.codes.indexOf('timeout-or-duplicate') !== -1;
+    return res.status(403).json({
+      error: stale
+        ? 'That check expired while the page was open. Please swipe to send again.'
+        : 'Could not verify you are human. Please reload and try again.',
+    });
   }
 
   const businessTypeLabel = BUSINESS_LABELS[businessType] || businessType;
