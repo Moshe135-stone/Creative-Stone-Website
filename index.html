@@ -11,7 +11,7 @@
      of the button (see the Cal preload in script.js). -->
 <link rel="preconnect" href="https://app.cal.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=16">
+<link rel="stylesheet" href="styles.css?v=17">
 <link rel="stylesheet" href="assets/crystal/crystal-logo.css?v=1">
 <!-- Tells the browser where to find three.js for the footer's real-3D crystal
      mark (assets/crystal/crystal-logo.js). -->
@@ -521,6 +521,15 @@
         <div class="svc-picked__chips"></div>
       </div>
 
+      <!-- Email opt-in. Unchecked by default and never required, so the form
+           still submits without it: this gates the Resend audience only, not
+           the lead itself. Consent has to be a deliberate act to be worth
+           anything, which is why there is no `checked` here. -->
+      <label class="contact__consent">
+        <input type="checkbox" name="emailOptIn" value="yes">
+        <span class="contact__consent-text">Email me occasional updates from Creative Stone. No spam, unsubscribe any time.</span>
+      </label>
+
       <!-- Cloudflare Turnstile. Invisible unless the visitor looks automated.
            The widget injects a hidden "cf-turnstile-response" input into this
            form, which rides along in the FormData and is verified server side
@@ -626,7 +635,7 @@
   <a href="#contact" class="svc-tray__cta">Get these →</a>
 </aside>
 
-<script src="script.js?v=16"></script>
+<script src="script.js?v=17"></script>
 
 <!-- Footer crystal mark. type="module" matters — it reads the importmap above. -->
 <script type="module" src="assets/crystal/crystal-logo.js?v=1"></script>

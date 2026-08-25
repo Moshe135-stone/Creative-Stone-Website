@@ -11,7 +11,7 @@
 //   2. Write the lead to Airtable   (the durable record; must not be lost)
 //   3. Email the team               (so a human knows immediately)
 //   4. Email the visitor            (their receipt)
-//   5. Add them to the Resend audience, if they are not already in it
+//   5. Add them to the Resend audience, if they opted in and are not in it
 //   6. Score the lead with Claude, then patch the score onto the record
 //
 // Steps 2 to 6 are each wrapped so a failure downstream never discards a lead
@@ -209,7 +209,7 @@ async function sendEmail(payload) {
 //
 // So: look them up first, and only create when the lookup 404s. An existing
 // contact is left untouched, whatever their subscription state.
-async function addContactIfNew(firstName, lastName, email) {
+async function addContactIfNew(firstName, lastName, email, businessTypeLabel) {
   const audience = process.env.RESEND_AUDIENCE_ID;
   if (!audience) return 'no audience configured';
 
@@ -222,18 +222,38 @@ async function addContactIfNew(firstName, lastName, email) {
     throw new Error(`resend contacts lookup ${found.status}: ${await found.text()}`);
   }
 
-  const res = await fetch(base, {
-    method: 'POST',
-    headers: Object.assign({ 'Content-Type': 'application/json' }, auth),
-    body: JSON.stringify({
-      email: email,
-      first_name: firstName,
-      last_name: lastName,
-      unsubscribed: false,
-    }),
-  });
+  // business_type is a property defined on the audience. Resend validates
+  // these: an undefined key is usually dropped silently, but it can also
+  // reject the whole request with a 422, which would cost the contact over a
+  // field that is only nice to have. So retry once without properties rather
+  // than let a renamed or deleted property break the sync.
+  const contact = {
+    email: email,
+    first_name: firstName,
+    last_name: lastName,
+    unsubscribed: false,
+  };
+
+  let res = await create(base, auth, Object.assign({
+    properties: { business_type: businessTypeLabel },
+  }, contact));
+
+  if (res.status === 422) {
+    console.warn(`resend contacts: 422 with properties, retrying plain: ${await res.text()}`);
+    res = await create(base, auth, contact);
+    if (res.ok) return 'added (without business_type)';
+  }
+
   if (!res.ok) throw new Error(`resend contacts create ${res.status}: ${await res.text()}`);
   return 'added';
+}
+
+function create(base, auth, body) {
+  return fetch(base, {
+    method: 'POST',
+    headers: Object.assign({ 'Content-Type': 'application/json' }, auth),
+    body: JSON.stringify(body),
+  });
 }
 
 // Structured outputs guarantee the reply parses. Note the schema carries no
@@ -310,6 +330,9 @@ module.exports = async function handler(req, res) {
   const email = String(body.email || '').trim();
   const businessType = String(body.businessType || '').trim();
   const services = String(body.services || '').trim();
+  // An unchecked checkbox is absent from the form data entirely, so this is
+  // only ever truthy when the visitor actually ticked it.
+  const emailOptIn = body.emailOptIn === 'yes';
   const token = body['cf-turnstile-response'];
 
   if (!firstName || !lastName || !email || !businessType) {
@@ -363,6 +386,10 @@ module.exports = async function handler(req, res) {
       // option, which is what the first live lead did. If the column is ever
       // retyped to text, writeFields retries it joined.
       Services: serviceList,
+      // The consent decision belongs on the durable record, not just in the
+      // audience: it is the only evidence of what they agreed to and when.
+      // Dropped automatically until the column exists.
+      'Email opt-in': emailOptIn,
     });
   } catch (err) {
     console.error(err);
@@ -405,9 +432,11 @@ site whenever suits you.</p>
   // audience clean: an address Resend rejected is one that should not be
   // collected, and this is the only place that knows the send succeeded.
   // Never fatal, like the emails above.
-  if (sends[1].status === 'fulfilled') {
+  if (!emailOptIn) {
+    console.log(`resend audience: ${email} skipped (no opt-in)`);
+  } else if (sends[1].status === 'fulfilled') {
     try {
-      const outcome = await addContactIfNew(firstName, lastName, email);
+      const outcome = await addContactIfNew(firstName, lastName, email, businessTypeLabel);
       console.log(`resend audience: ${email} ${outcome}`);
     } catch (err) {
       console.error('contact sync failed', err);
