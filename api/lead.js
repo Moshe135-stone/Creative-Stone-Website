@@ -11,13 +11,14 @@
 //   2. Write the lead to Airtable   (the durable record; must not be lost)
 //   3. Email the team               (so a human knows immediately)
 //   4. Email the visitor            (their receipt)
-//   5. Score the lead with Claude, then patch the score onto the record
+//   5. Add them to the Resend audience, if they are not already in it
+//   6. Score the lead with Claude, then patch the score onto the record
 //
-// Steps 2 to 5 are each wrapped so a failure downstream never discards a lead
+// Steps 2 to 6 are each wrapped so a failure downstream never discards a lead
 // that has already been captured. A dead Resend key should not cost you the
 // submission.
 //
-// On step 5 and "run it in the background": a Vercel Node function is frozen
+// On step 6 and "run it in the background": a Vercel Node function is frozen
 // the moment it returns a response, so work started after res.json() does not
 // finish. Scoring therefore runs inline, before the response, and adds roughly
 // a second. If that becomes annoying, the fix is `waitUntil` from the
@@ -27,6 +28,7 @@
 const TURNSTILE_VERIFY = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 const AIRTABLE_API = 'https://api.airtable.com/v0';
 const RESEND_API = 'https://api.resend.com/emails';
+const RESEND_AUDIENCES = 'https://api.resend.com/audiences';
 const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
 
 // Claude Opus 5 at low effort. Adaptive thinking is on by default on this
@@ -193,6 +195,47 @@ async function sendEmail(payload) {
   if (!res.ok) throw new Error(`resend ${res.status}: ${await res.text()}`);
 }
 
+// Add the visitor to the Resend audience, but only if they are not already in
+// it. The "only if" is the whole point, and it is not an optimization.
+//
+// POST /contacts is an idempotent upsert keyed on the email, so blindly
+// posting every submission looks harmless and is not. Two things it does:
+// it rewrites the contact from the request body, so a field this handler
+// omits (last_name on a one-word submission) is nulled rather than left
+// alone; and it resets `unsubscribed` to false. That second one silently
+// puts someone who opted out back on the marketing list the next time they
+// use the contact form, which is exactly the thing an unsubscribe is
+// supposed to prevent.
+//
+// So: look them up first, and only create when the lookup 404s. An existing
+// contact is left untouched, whatever their subscription state.
+async function addContactIfNew(firstName, lastName, email) {
+  const audience = process.env.RESEND_AUDIENCE_ID;
+  if (!audience) return 'no audience configured';
+
+  const base = `${RESEND_AUDIENCES}/${audience}/contacts`;
+  const auth = { Authorization: `Bearer ${process.env.RESEND_API_KEY}` };
+
+  const found = await fetch(`${base}/${encodeURIComponent(email)}`, { headers: auth });
+  if (found.ok) return 'already a contact';
+  if (found.status !== 404) {
+    throw new Error(`resend contacts lookup ${found.status}: ${await found.text()}`);
+  }
+
+  const res = await fetch(base, {
+    method: 'POST',
+    headers: Object.assign({ 'Content-Type': 'application/json' }, auth),
+    body: JSON.stringify({
+      email: email,
+      first_name: firstName,
+      last_name: lastName,
+      unsubscribed: false,
+    }),
+  });
+  if (!res.ok) throw new Error(`resend contacts create ${res.status}: ${await res.text()}`);
+  return 'added';
+}
+
 // Structured outputs guarantee the reply parses. Note the schema carries no
 // numeric minimum or maximum: the API's schema subset does not support them,
 // so the 0 to 100 range is stated in the prompt instead.
@@ -330,7 +373,7 @@ module.exports = async function handler(req, res) {
   const servicesLine = services || 'none specified';
 
   // Steps 3 and 4 in parallel; neither can fail the request.
-  await Promise.allSettled([
+  const sends = await Promise.allSettled([
     sendEmail({
       from: process.env.FROM_EMAIL,
       to: process.env.NOTIFY_EMAIL,
@@ -353,13 +396,25 @@ to you shortly with an honest read on whether we are a good match.</p>
 site whenever suits you.</p>
 <p>Mozy<br>Creative Stone</p>`,
     }),
-  ]).then(function (results) {
-    results.forEach(function (r) {
-      if (r.status === 'rejected') console.error('email failed', r.reason);
-    });
+  ]);
+  sends.forEach(function (r) {
+    if (r.status === 'rejected') console.error('email failed', r.reason);
   });
 
-  // Step 5. Inline rather than after the response, for the freeze reason at
+  // Only once the receipt actually went out. Gating on the send keeps the
+  // audience clean: an address Resend rejected is one that should not be
+  // collected, and this is the only place that knows the send succeeded.
+  // Never fatal, like the emails above.
+  if (sends[1].status === 'fulfilled') {
+    try {
+      const outcome = await addContactIfNew(firstName, lastName, email);
+      console.log(`resend audience: ${email} ${outcome}`);
+    } catch (err) {
+      console.error('contact sync failed', err);
+    }
+  }
+
+  // Step 6. Inline rather than after the response, for the freeze reason at
   // the top of this file. Never fatal: an unscored lead is still a lead.
   try {
     const score = await scoreLead(lead);
