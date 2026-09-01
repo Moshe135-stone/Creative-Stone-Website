@@ -2637,10 +2637,9 @@ input::placeholder { color: #6a6a72; }
 .ab-caption {
   flex: 0 0 auto;
   margin: 14px 0 0;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
+  font-family: 'Archivo', sans-serif;
+  font-size: 12px;
   line-height: 1.5;
-  letter-spacing: 0.015em;
   color: #6a6a72;
   transition: color .3s ease;
 }
@@ -2839,6 +2838,367 @@ input::placeholder { color: #6a6a72; }
   .ab-track { transition: none; }
   .ab-cell--screen img,
   .ab-cell--screen-alt img { transition: none; }
+}
+
+/* ---- Global Tech bento ----
+   Same case-page/case-hero shell and the same ab-cell/ab-caption pattern as
+   the Aharon Berk bento above (column, body + note under it), just under a
+   gt- prefix since this grid has its own five source assets rather than an
+   in-house design-file export. The refreshed globe mark is the point of the
+   rebrand, so it gets the tallest cell and a lit, accent-tinted panel — every
+   other cell sits on the plain dark surface. */
+.gt-bento {
+  --cs-surface: #0d0d10;
+  --cs-surface-2: #0e0e12;
+  --cs-line-2: #1c1c20;
+  --cs-line-3: #232328;
+  --cs-line-5: #2c2c32;
+  --cs-ink: #f2f2f4;
+  --cs-ink-2: #d4d4da;
+  --cs-dim: #6a6a72;
+  --cs-on-accent: #0a0a0c;
+
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: minmax(clamp(96px, 9vw, 130px), auto);
+  gap: 14px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.gt-cell {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--cs-line-3);
+  background: var(--cs-surface);
+  padding: clamp(18px, 2vw, 32px);
+  display: flex;
+  flex-direction: column;
+}
+
+.gt-cell__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gt-caption {
+  flex: 0 0 auto;
+  margin: 14px 0 0;
+  font-family: 'Archivo', sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #6a6a72;
+  transition: color .3s ease;
+}
+.gt-cell:hover .gt-caption { color: #9a9aa2; }
+
+/* Column bands: 5+7 across three rows (the mark and its statement/wordmark
+   column), then 4+4+4 across three rows (the three application shots), then
+   12 for the site strip — each band sums to 12 so the grid packs solid. */
+.gt-cell--mark     { grid-column: span 5; grid-row: span 3; }
+.gt-cell--say       { grid-column: span 7; grid-row: span 1; }
+.gt-cell--wordmark  { grid-column: span 7; grid-row: span 2; padding: 0; }
+.gt-cell--cards     { grid-column: span 4; grid-row: span 3; padding: 0; }
+.gt-cell--rollup    { grid-column: span 4; grid-row: span 3; padding: 0; }
+.gt-cell--event     { grid-column: span 4; grid-row: span 3; }
+
+/* The mark cell is the headline of the rebrand: a soft accent glow behind the
+   mark on the same dark ground as every other cell, no panel — the mark's own
+   PNG transparency does the highlighting. */
+.gt-cell--mark {
+  background:
+    radial-gradient(circle at 50% 38%, rgba(var(--accent-rgb), .22), transparent 62%),
+    var(--cs-surface);
+  border-color: rgba(var(--accent-rgb), .35);
+}
+.gt-cell--mark img { width: min(62%, 280px); height: auto; display: block; }
+
+.gt-cell--say .gt-cell__body { justify-content: flex-start; }
+.gt-say {
+  margin: 0;
+  font-size: clamp(20px, 1.9vw, 30px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  color: var(--cs-ink);
+}
+.gt-say em { font-style: normal; color: var(--accent); }
+
+.gt-cell--wordmark .gt-cell__body,
+.gt-cell--cards .gt-cell__body,
+.gt-cell--rollup .gt-cell__body { height: 100%; }
+.gt-cell--wordmark img,
+.gt-cell--cards img,
+.gt-cell--rollup img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+  display: block;
+  transition: transform .7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.gt-cell--wordmark:hover img,
+.gt-cell--cards:hover img,
+.gt-cell--rollup:hover img { transform: scale(1.03); }
+.gt-cell--wordmark .gt-caption,
+.gt-cell--cards .gt-caption,
+.gt-cell--rollup .gt-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 30px clamp(14px, 1.6vw, 22px) 13px;
+  background: linear-gradient(to top, rgba(10, 10, 12, 0.94) 40%, rgba(10, 10, 12, 0));
+  pointer-events: none;
+}
+
+/* The ECAP sponsor graphic is dense with its own baked-in type, so it is
+   framed like the mark cell instead of full-bleed cropped: contained and
+   centered rather than cover-cropped, with the caption in normal flow below
+   so nothing collides with the source image's own text. */
+.gt-cell--event .gt-cell__body { flex: 1 1 auto; }
+.gt-cell--event img {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .gt-cell--mark      { grid-column: span 12; grid-row: span 2; }
+  .gt-cell--say       { grid-column: span 12; grid-row: span 1; }
+  .gt-cell--wordmark  { grid-column: span 12; grid-row: span 2; }
+  .gt-cell--cards     { grid-column: span 6; grid-row: span 3; }
+  .gt-cell--rollup    { grid-column: span 6; grid-row: span 3; }
+  .gt-cell--event     { grid-column: span 12; grid-row: span 3; }
+}
+
+@media (max-width: 560px) {
+  .gt-cell--cards,
+  .gt-cell--rollup { grid-column: span 12; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gt-cell--wordmark img,
+  .gt-cell--cards img,
+  .gt-cell--rollup img,
+  .gt-cell--event img { transition: none; }
+}
+
+/* Every bento image (any client bento — gt-/rw- cells alike) opens full-screen
+   on click, via the shared .case-lightbox block and script.js's click
+   handler. One lightbox markup block per page, reused by every bento there. */
+.gt-cell__body img,
+.rw-cell__body img { cursor: zoom-in; }
+
+.case-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(16px, 4vw, 56px);
+  background: rgba(6, 6, 8, 0.92);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .25s ease;
+}
+.case-lightbox.is-open { opacity: 1; visibility: visible; }
+.case-lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  cursor: zoom-out;
+}
+.case-lightbox__close {
+  position: absolute;
+  top: clamp(14px, 3vw, 28px);
+  right: clamp(14px, 3vw, 28px);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--cs-line-5, #2c2c32);
+  background: rgba(10, 10, 12, 0.6);
+  color: #f2f2f4;
+  cursor: pointer;
+  transition: border-color .2s ease, color .2s ease;
+}
+.case-lightbox__close:hover { border-color: var(--accent); color: var(--accent); }
+.case-lightbox__close svg { width: 20px; height: 20px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .case-lightbox { transition: none; }
+}
+
+/* ---- Rows One bento ----
+   Same case-page/case-hero shell and the same ab-cell/gt-cell column pattern
+   (body + caption underneath) as the two bentos above, under an rw- prefix.
+   Rows One's source material is a mix of the monogram, a device mockup of
+   their LinkedIn page, and three UI-component screenshots pulled straight off
+   rowsone.com — the screenshots already carry their own dark, starfield
+   ground with transparent edges, so — like the mark — they're framed
+   contained rather than cover-cropped: cropping would cut into type that's
+   already sitting close to the edge. */
+.rw-bento {
+  --cs-surface: #0d0d10;
+  --cs-surface-2: #0e0e12;
+  --cs-line-2: #1c1c20;
+  --cs-line-3: #232328;
+  --cs-line-5: #2c2c32;
+  --cs-ink: #f2f2f4;
+  --cs-ink-2: #d4d4da;
+  --cs-dim: #6a6a72;
+
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: minmax(clamp(96px, 9vw, 130px), auto);
+  gap: 14px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.rw-cell {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--cs-line-3);
+  background: var(--cs-surface);
+  padding: clamp(18px, 2vw, 32px);
+  display: flex;
+  flex-direction: column;
+}
+
+.rw-cell__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rw-caption {
+  flex: 0 0 auto;
+  margin: 14px 0 0;
+  font-family: 'Archivo', sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #6a6a72;
+  transition: color .3s ease;
+}
+.rw-cell:hover .rw-caption { color: #9a9aa2; }
+
+/* Column bands: 5+7 across three rows (the mark and its tagline/LinkedIn
+   column), then 12 for the icon strip, then 4+4+4 across three rows (the
+   three remaining components) — each band sums to 12 so the grid packs
+   solid, same trick as the gt-bento above. */
+.rw-cell--mark      { grid-column: span 5; grid-row: span 3; }
+.rw-cell--say        { grid-column: span 7; grid-row: span 1; }
+.rw-cell--linkedin   { grid-column: span 7; grid-row: span 2; padding: 0; }
+.rw-cell--iconstrip  { grid-column: span 12; grid-row: span 2; padding: 0; }
+.rw-cell--form       { grid-column: span 4; grid-row: span 3; }
+.rw-cell--pill       { grid-column: span 4; grid-row: span 3; }
+.rw-cell--icons      { grid-column: span 4; grid-row: span 3; }
+
+/* The monogram is the headline mark, same treatment as the Global Tech globe:
+   a soft accent glow on the plain dark ground, no panel behind it. */
+.rw-cell--mark {
+  background:
+    radial-gradient(circle at 50% 38%, rgba(var(--accent-rgb), .22), transparent 62%),
+    var(--cs-surface);
+  border-color: rgba(var(--accent-rgb), .35);
+}
+.rw-cell--mark img { width: min(52%, 220px); height: auto; display: block; }
+
+.rw-cell--say .rw-cell__body { justify-content: flex-start; }
+.rw-say {
+  margin: 0;
+  font-size: clamp(20px, 1.9vw, 30px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  color: var(--cs-ink);
+}
+.rw-say em { font-style: normal; color: var(--accent); }
+
+.rw-cell--linkedin .rw-cell__body { height: 100%; }
+.rw-cell--linkedin img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+  display: block;
+  transition: transform .7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.rw-cell--linkedin:hover img { transform: scale(1.03); }
+
+/* The three UI screenshots (icon strip, demo form, status pill) all carry
+   transparent edges around their own dark, starfield-ground components, so
+   they sit contained on the cell's matching dark ground rather than being
+   cropped or boxed. */
+.rw-cell--iconstrip .rw-cell__body,
+.rw-cell--form .rw-cell__body,
+.rw-cell--pill .rw-cell__body { flex: 1 1 auto; }
+.rw-cell--iconstrip img,
+.rw-cell--form img,
+.rw-cell--pill img {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.rw-cell--iconstrip { display: flex; align-items: center; padding: clamp(18px, 2vw, 32px); }
+
+/* Six of the brand's gradient service glyphs, set in their own grid — the
+   icon-system counterpart to the Aharon Berk bento's channel-icon row. */
+.rw-cell--icons .rw-cell__body {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+  justify-items: center;
+  gap: clamp(10px, 2vw, 22px);
+  width: 100%;
+  height: 100%;
+}
+.rw-cell--icons img {
+  width: 100%;
+  max-width: 72px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .rw-cell--mark      { grid-column: span 12; grid-row: span 2; }
+  .rw-cell--say       { grid-column: span 12; grid-row: span 1; }
+  .rw-cell--linkedin  { grid-column: span 12; grid-row: span 2; }
+  .rw-cell--form      { grid-column: span 6; grid-row: span 3; }
+  .rw-cell--pill      { grid-column: span 6; grid-row: span 3; }
+  .rw-cell--icons     { grid-column: span 12; grid-row: span 2; }
+}
+
+@media (max-width: 560px) {
+  .rw-cell--form,
+  .rw-cell--pill { grid-column: span 12; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rw-cell--linkedin img { transition: none; }
 }
 
 /* ============ CONTACT FORM: SENDING + ERROR STATES ============

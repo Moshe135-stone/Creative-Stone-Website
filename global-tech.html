@@ -10,7 +10,7 @@
       person_profiles: 'identified_only'
   })
 </script>
-<title>Clients | Creative Stone</title>
+<title>Global Tech | Creative Stone</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -19,10 +19,8 @@
 <body>
 
 <!-- ============ NAV ============ -->
-<!-- Same header, burger and drawer as index.html — script.js drives all three
-     off #siteHeader/#navToggle, so this page gets them by carrying the same
-     markup. The section links point back at index.html's anchors; "clients" is
-     this page and stays in the list so the nav never loses an item mid-site. -->
+<!-- Same header/burger/drawer as the rest of the site; script.js drives all
+     three off #siteHeader/#navToggle. -->
 <header id="siteHeader" style="position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; height: 74px; padding: 0 40px; background: rgba(10, 10, 12, 0.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid #1c1c20;">
   <a href="index.html" style="display: flex; align-items: center;">
     <img src="assets/logo.svg" alt="Creative Stone" style="height: 34px; width: auto; display: block;">
@@ -54,54 +52,83 @@
   </div>
 </header>
 
-<!-- ============ CLIENTS ============ -->
-<main class="clients-page">
-  <h1 class="clients-page__title">Clients</h1>
+<!-- ============ CASE STUDY ============ -->
+<main class="case-page">
+  <a href="clients.html" class="case-back">&larr; clients</a>
 
-  <div class="clients-list">
-      <a class="client-row client-row--link reveal" href="aharon-berk.html" style="animation-delay: 0.00s;" aria-label="Aharon Berk case study">
-        <figure class="client-row__media noise-spot">
-          <img src="assets/portfolio/01-aharon-berk-laptop.jpg" alt="Aharon Berk site on a laptop" loading="lazy" decoding="async">
-        </figure>
-        <div class="client-row__label">
-          <span class="client-row__arrows" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 5 7 7-7 7"/></svg>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 5 7 7-7 7"/></svg>
-          </span>
-          <h2 class="client-row__name">Aharon<br>Berk</h2>
-        </div>
-      </a>
-      <a class="client-row client-row--link reveal" href="rows-one.html" style="animation-delay: 0.06s;" aria-label="Rows One case study">
-        <figure class="client-row__media noise-spot">
-          <img src="assets/portfolio/03-rowsone-digital.jpg" alt="RowsOne digital experience" loading="lazy" decoding="async">
-        </figure>
-        <div class="client-row__label">
-          <span class="client-row__arrows" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 5 7 7-7 7"/></svg>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 5 7 7-7 7"/></svg>
-          </span>
-          <h2 class="client-row__name">Rows<br>One</h2>
-        </div>
-      </a>
-      <a class="client-row client-row--link reveal" href="global-tech.html" style="animation-delay: 0.00s;" aria-label="Global Tech case study">
-        <figure class="client-row__media noise-spot">
-          <img src="assets/portfolio/07-globaltech-banner.jpg" alt="GlobalTech trade show banner" loading="lazy" decoding="async">
-        </figure>
-        <div class="client-row__label">
-          <span class="client-row__arrows" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 5 7 7-7 7"/></svg>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 5 7 7-7 7"/></svg>
-          </span>
-          <h2 class="client-row__name">Global<br>Tech</h2>
-        </div>
-      </a>
+  <div class="case-hero">
+    <div>
+      <h1 class="case-hero__title">global tech</h1>
+    </div>
+    <div class="case-hero__meta">
+      <p class="case-hero__note">Rebrand for an IT solutions provider. A refreshed globe mark carried across the wordmark, stationery and trade show presence.</p>
+    </div>
   </div>
+
+  <div class="gt-bento">
+
+    <!-- The refreshed mark is the headline of the rebrand: the flat line-art
+         globe redrawn as a gradient wave, so it gets the biggest cell and a
+         light panel to read clean against the dark grid. -->
+    <figure class="gt-cell gt-cell--mark reveal">
+      <div class="gt-cell__body">
+        <img src="assets/clients/global-tech/refreshed-logo.png" alt="Refreshed GlobalTech Solutions globe mark" loading="lazy" decoding="async">
+      </div>
+      <p class="gt-caption">The refreshed mark: the old flat line-art globe redrawn as a banked, gradient wave — a rounder, more dimensional take that still drops cleanly to a single color for a favicon.</p>
+    </figure>
+
+    <div class="gt-cell gt-cell--say reveal">
+      <div class="gt-cell__body">
+        <p class="gt-say">Technology, <em>designed</em> for your business</p>
+      </div>
+    </div>
+
+    <figure class="gt-cell gt-cell--wordmark reveal">
+      <div class="gt-cell__body">
+        <img src="assets/clients/global-tech/wordmark-banner.jpg" alt="GlobalTech Solutions wordmark on a blue gradient field" loading="lazy" decoding="async">
+      </div>
+      <p class="gt-caption">Wordmark set on the brand's gradient field, built as a full-bleed cover for social and print.</p>
+    </figure>
+
+    <figure class="gt-cell gt-cell--cards reveal">
+      <div class="gt-cell__body">
+        <img src="assets/clients/global-tech/business-cards.jpg" alt="GlobalTech Solutions business card mockup" loading="lazy" decoding="async">
+      </div>
+      <p class="gt-caption">Stationery system: mark and wordmark on the reverse, contact details set plain on the front.</p>
+    </figure>
+
+    <figure class="gt-cell gt-cell--rollup reveal">
+      <div class="gt-cell__body">
+        <img src="assets/clients/global-tech/rollup-banner.jpg" alt="GlobalTech Solutions retractable trade show banner" loading="lazy" decoding="async">
+      </div>
+      <p class="gt-caption">Retractable banner for the booth floor: services list stacked under the mark, contact info anchored at the base.</p>
+    </figure>
+
+    <figure class="gt-cell gt-cell--event reveal">
+      <div class="gt-cell__body">
+        <img src="assets/clients/global-tech/event-sponsor.jpg" alt="GlobalTech Solutions sponsor graphic for the ECAP 23 healthcare conference" loading="lazy" decoding="async">
+      </div>
+      <p class="gt-caption">Sponsor graphic for ECAP 23: the mark holds up against a photo background as easily as a flat one.</p>
+    </figure>
+
+  </div>
+
 </main>
+
+<!-- Full-screen viewer for the bento images above; opened/closed by the
+     shared case-lightbox block in script.js. -->
+<div class="case-lightbox" id="caseLightbox" role="dialog" aria-modal="true" aria-hidden="true">
+  <button type="button" class="case-lightbox__close" id="caseLightboxClose" aria-label="Close image">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+  </button>
+  <img id="caseLightboxImg" src="" alt="">
+</div>
 
 <footer style="border-top: 1px solid #1c1c20; padding: 40px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 20px 28px;">
   <nav style="display: flex; gap: 28px; font-size: 14px;">
     <a href="index.html#services" style="color: #8a8a92;">services</a>
     <a href="index.html#industries" style="color: #8a8a92;">industries</a>
+    <a href="clients.html" style="color: #8a8a92;">clients</a>
     <a href="plans.html" style="color: #8a8a92;">pricing</a>
     <a href="index.html#contact" style="color: #8a8a92;">contact</a>
   </nav>

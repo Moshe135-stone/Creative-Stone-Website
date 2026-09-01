@@ -10,7 +10,7 @@
       person_profiles: 'identified_only'
   })
 </script>
-<title>Clients | Creative Stone</title>
+<title>Rows One | Creative Stone</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -19,10 +19,8 @@
 <body>
 
 <!-- ============ NAV ============ -->
-<!-- Same header, burger and drawer as index.html — script.js drives all three
-     off #siteHeader/#navToggle, so this page gets them by carrying the same
-     markup. The section links point back at index.html's anchors; "clients" is
-     this page and stays in the list so the nav never loses an item mid-site. -->
+<!-- Same header/burger/drawer as the rest of the site; script.js drives all
+     three off #siteHeader/#navToggle. -->
 <header id="siteHeader" style="position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; height: 74px; padding: 0 40px; background: rgba(10, 10, 12, 0.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid #1c1c20;">
   <a href="index.html" style="display: flex; align-items: center;">
     <img src="assets/logo.svg" alt="Creative Stone" style="height: 34px; width: auto; display: block;">
@@ -54,54 +52,95 @@
   </div>
 </header>
 
-<!-- ============ CLIENTS ============ -->
-<main class="clients-page">
-  <h1 class="clients-page__title">Clients</h1>
+<!-- ============ CASE STUDY ============ -->
+<main class="case-page">
+  <a href="clients.html" class="case-back">&larr; clients</a>
 
-  <div class="clients-list">
-      <a class="client-row client-row--link reveal" href="aharon-berk.html" style="animation-delay: 0.00s;" aria-label="Aharon Berk case study">
-        <figure class="client-row__media noise-spot">
-          <img src="assets/portfolio/01-aharon-berk-laptop.jpg" alt="Aharon Berk site on a laptop" loading="lazy" decoding="async">
-        </figure>
-        <div class="client-row__label">
-          <span class="client-row__arrows" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 5 7 7-7 7"/></svg>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 5 7 7-7 7"/></svg>
-          </span>
-          <h2 class="client-row__name">Aharon<br>Berk</h2>
-        </div>
-      </a>
-      <a class="client-row client-row--link reveal" href="rows-one.html" style="animation-delay: 0.06s;" aria-label="Rows One case study">
-        <figure class="client-row__media noise-spot">
-          <img src="assets/portfolio/03-rowsone-digital.jpg" alt="RowsOne digital experience" loading="lazy" decoding="async">
-        </figure>
-        <div class="client-row__label">
-          <span class="client-row__arrows" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 5 7 7-7 7"/></svg>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 5 7 7-7 7"/></svg>
-          </span>
-          <h2 class="client-row__name">Rows<br>One</h2>
-        </div>
-      </a>
-      <a class="client-row client-row--link reveal" href="global-tech.html" style="animation-delay: 0.00s;" aria-label="Global Tech case study">
-        <figure class="client-row__media noise-spot">
-          <img src="assets/portfolio/07-globaltech-banner.jpg" alt="GlobalTech trade show banner" loading="lazy" decoding="async">
-        </figure>
-        <div class="client-row__label">
-          <span class="client-row__arrows" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 5 7 7-7 7"/></svg>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m12 5 7 7-7 7"/></svg>
-          </span>
-          <h2 class="client-row__name">Global<br>Tech</h2>
-        </div>
-      </a>
+  <div class="case-hero">
+    <div>
+      <h1 class="case-hero__title">rows one</h1>
+    </div>
+    <div class="case-hero__meta">
+      <p class="case-hero__note">Brand and digital presence for an IT services and consulting firm. One monogram, one dark starfield system, carried from LinkedIn to the site's own components.</p>
+    </div>
   </div>
+
+  <div class="rw-bento">
+
+    <!-- The monogram is the headline of the brand: a lowercase r folded into
+         an s, so it gets the biggest cell and the same glow-on-dark
+         treatment as the other client marks in this bento series. -->
+    <figure class="rw-cell rw-cell--mark reveal">
+      <div class="rw-cell__body">
+        <img src="assets/clients/rows-one/monogram.png" alt="Rows One monogram mark" loading="lazy" decoding="async">
+      </div>
+      <p class="rw-caption">The monogram: a lowercase "r" folded into a rounded "s," one continuous ribbon in a navy-to-slate gradient.</p>
+    </figure>
+
+    <div class="rw-cell rw-cell--say reveal">
+      <div class="rw-cell__body">
+        <p class="rw-say">Technology. <em>Solutions.</em> Performance.</p>
+      </div>
+    </div>
+
+    <figure class="rw-cell rw-cell--linkedin reveal">
+      <div class="rw-cell__body">
+        <img src="assets/clients/rows-one/linkedin-mockup.jpg" alt="Rows One LinkedIn company page on a laptop" loading="lazy" decoding="async">
+      </div>
+      <p class="rw-caption">Company page on LinkedIn: dark navy banner over a white about panel, the mark carried into the profile photo.</p>
+    </figure>
+
+    <figure class="rw-cell rw-cell--iconstrip reveal">
+      <div class="rw-cell__body">
+        <img src="assets/clients/rows-one/icon-strip.png" alt="Rows One service icon row: briefcase, media, split, sync, people and billing glyphs" loading="lazy" decoding="async">
+      </div>
+      <p class="rw-caption">Service icons glowing on the site's starfield ground: briefcase, media, split, sync, people and billing, one per offering.</p>
+    </figure>
+
+    <figure class="rw-cell rw-cell--form reveal">
+      <div class="rw-cell__body">
+        <img src="assets/clients/rows-one/demo-form.png" alt="Rows One 'Say Hello & Request a Demo' contact card" loading="lazy" decoding="async">
+      </div>
+      <p class="rw-caption">Contact card: "Say Hello &amp; Request a Demo," two fields and a submit pill, dropped straight onto the same dark ground.</p>
+    </figure>
+
+    <figure class="rw-cell rw-cell--pill reveal">
+      <div class="rw-cell__body">
+        <img src="assets/clients/rows-one/service-pill.png" alt="Rows One 'Employee In-Services' status pill" loading="lazy" decoding="async">
+      </div>
+      <p class="rw-caption">Status pill for the services list: checkmark plus label, rounded to match the form fields next to it.</p>
+    </figure>
+
+    <figure class="rw-cell rw-cell--icons reveal">
+      <div class="rw-cell__body">
+        <img src="assets/clients/rows-one/icon-calendar.png" alt="Calendar icon">
+        <img src="assets/clients/rows-one/icon-clock.png" alt="Clock icon">
+        <img src="assets/clients/rows-one/icon-half.png" alt="Split-circle icon">
+        <img src="assets/clients/rows-one/icon-sync.png" alt="Sync icon">
+        <img src="assets/clients/rows-one/icon-person.png" alt="Person icon">
+        <img src="assets/clients/rows-one/icon-dollar.png" alt="Billing icon">
+      </div>
+      <p class="rw-caption">Icon set built for the services grid: six gradient glyphs in the brand's navy-to-cyan range.</p>
+    </figure>
+
+  </div>
+
 </main>
+
+<!-- Full-screen viewer for the bento images above; opened/closed by the
+     shared case-lightbox block in script.js. -->
+<div class="case-lightbox" id="caseLightbox" role="dialog" aria-modal="true" aria-hidden="true">
+  <button type="button" class="case-lightbox__close" id="caseLightboxClose" aria-label="Close image">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+  </button>
+  <img id="caseLightboxImg" src="" alt="">
+</div>
 
 <footer style="border-top: 1px solid #1c1c20; padding: 40px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 20px 28px;">
   <nav style="display: flex; gap: 28px; font-size: 14px;">
     <a href="index.html#services" style="color: #8a8a92;">services</a>
     <a href="index.html#industries" style="color: #8a8a92;">industries</a>
+    <a href="clients.html" style="color: #8a8a92;">clients</a>
     <a href="plans.html" style="color: #8a8a92;">pricing</a>
     <a href="index.html#contact" style="color: #8a8a92;">contact</a>
   </nav>

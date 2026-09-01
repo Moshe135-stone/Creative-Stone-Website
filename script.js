@@ -1338,3 +1338,46 @@ document.querySelectorAll('.photo-spotlight').forEach(function (tile) {
     if (on && hero.getBoundingClientRect().bottom <= 0) show(false);
   }, { passive: true });
 })();
+
+// Client bento pages (global-tech.html, rows-one.html, ...): click any bento
+// image to view it full-screen. Guarded on the lightbox markup existing, so
+// this is a no-op on every other page. One shared lightbox block per page,
+// reused by whichever client's gt-/rw- bento cells that page has.
+(function () {
+  var lightbox = document.getElementById('caseLightbox');
+  if (!lightbox) return;
+
+  var lightboxImg = document.getElementById('caseLightboxImg');
+  var closeBtn = document.getElementById('caseLightboxClose');
+  var lastFocused = null;
+
+  function open(src, alt) {
+    lastFocused = document.activeElement;
+    lightboxImg.src = src;
+    lightboxImg.alt = alt || '';
+    lightbox.classList.add('is-open');
+    lightbox.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    closeBtn.focus();
+  }
+
+  function close() {
+    lightbox.classList.remove('is-open');
+    lightbox.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    lightboxImg.src = '';
+    if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+  }
+
+  document.querySelectorAll('.gt-cell__body img, .rw-cell__body img').forEach(function (img) {
+    img.addEventListener('click', function () { open(img.currentSrc || img.src, img.alt); });
+  });
+
+  closeBtn.addEventListener('click', close);
+  lightbox.addEventListener('click', function (e) {
+    if (e.target === lightbox) close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && lightbox.classList.contains('is-open')) close();
+  });
+})();
