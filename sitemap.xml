@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.thecreativestone.net/</loc>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://www.thecreativestone.net/clients</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.thecreativestone.net/plans</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.thecreativestone.net/aharon-berk</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.thecreativestone.net/global-tech</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.thecreativestone.net/rows-one</loc>
+    <priority>0.6</priority>
+  </url>
+</urlset>
