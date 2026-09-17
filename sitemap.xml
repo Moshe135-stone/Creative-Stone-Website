@@ -24,4 +24,12 @@
     <loc>https://www.thecreativestone.net/rows-one</loc>
     <priority>0.6</priority>
   </url>
+  <url>
+    <loc>https://www.thecreativestone.net/privacy</loc>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://www.thecreativestone.net/terms</loc>
+    <priority>0.3</priority>
+  </url>
 </urlset>
